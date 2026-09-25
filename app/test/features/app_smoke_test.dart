@@ -1,0 +1,513 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:drift/native.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:task_manager/app/app.dart';
+import 'package:task_manager/app/providers.dart';
+import 'package:task_manager/core/clock.dart';
+import 'package:task_manager/core/ids.dart';
+import 'package:task_manager/data/db/database.dart';
+import 'package:task_manager/data/repository.dart';
+import 'package:task_manager/domain/enums.dart';
+import 'package:task_manager/features/countdown/countdown_page.dart';
+import 'package:task_manager/features/detail/content_editor.dart';
+import 'package:task_manager/features/habits/habit_form.dart';
+import 'package:task_manager/features/habits/habit_page.dart';
+import 'package:task_manager/features/habits/habit_widgets.dart';
+
+void main() {
+  late AppDatabase db;
+  final clock = FixedClock(DateTime(2026, 9, 24, 12));
+
+  setUp(() => db = AppDatabase(NativeDatabase.memory()));
+  tearDown(() => db.close());
+
+  Future<void> pumpApp(WidgetTester tester, String location, {Size size = const Size(1600, 1000)}) async {
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db), clockProvider.overrideWithValue(clock)],
+        child: TasksApp(initialLocation: location),
+      ),
+    );
+    // The editor's blinking cursor never lets pumpAndSettle settle; advance time in steps instead.
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  testWidgets('desktop: task detail shows title and content placeholder', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final id = await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Comprar pão'));
+    await pumpApp(tester, '/p/inbox/tasks/$id');
+    expect(tester.takeException(), isNull);
+    expect(find.text('Comprar pão'), findsWidgets);
+    expect(find.text('Caixa de Entrada'), findsWidgets);
+    await _dispose(tester);
+  });
+
+  testWidgets('the ▾ of the add field gives the next task a priority, or makes it a note', (tester) async {
+    await pumpApp(tester, '/p/inbox/tasks');
+    Future<void> settleBriefly() async {
+      for (var i = 0; i < 4; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    Future<void> add(String title) async {
+      await tester.enterText(find.byType(TextField).first, title);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await settleBriefly();
+    }
+
+    await tester.tap(find.byIcon(Icons.expand_more).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Alta'));
+    await tester.pumpAndSettle();
+    await add('Comprar leite');
+    await tester.tap(find.byIcon(Icons.expand_more).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Converter para nota'));
+    await tester.pumpAndSettle();
+    await add('Ideias');
+    final tasks = (await tester.runAsync(() => db.select(db.tasks).get()))!;
+    final milk = tasks.singleWhere((t) => t.title == 'Comprar leite');
+    final idea = tasks.singleWhere((t) => t.title == 'Ideias');
+    expect((milk.priority, milk.kind), (Priority.high, TaskKind.text));
+    expect((idea.priority, idea.kind), (Priority.none, TaskKind.note), reason: 'the choices clear after a task');
+    await _dispose(tester);
+  });
+
+  Future<void> dragTo(WidgetTester tester, Finder from, Offset to) async {
+    final gesture = await tester.startGesture(tester.getCenter(from), kind: PointerDeviceKind.mouse);
+    await tester.pump(const Duration(milliseconds: 50));
+    final start = tester.getCenter(from);
+    for (var i = 1; i <= 10; i++) {
+      await gesture.moveTo(Offset.lerp(start, to, i / 10)!);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await gesture.up();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+
+  testWidgets('desktop: drag reorders tasks and drop to the right makes a subtask', (tester) async {
+    final repo = Repository(db, clock: clock);
+    await tester.runAsync(() async {
+      await repo.createTask(listId: inboxListId, title: 'a', atTop: false);
+      await repo.createTask(listId: inboxListId, title: 'b', atTop: false);
+      await repo.createTask(listId: inboxListId, title: 'c', atTop: false);
+    });
+    await pumpApp(tester, '/p/inbox/tasks');
+    final aRow = tester.getTopLeft(find.text('a').first);
+    // Drop "c" on the left part of "a": c goes before a.
+    await dragTo(tester, find.text('c').first, Offset(aRow.dx + 5, aRow.dy + 5));
+    final s1 = await tester.runAsync(repo.loadSnapshot);
+    final order = (s1!.tasks.toList()..sort((x, y) => x.sortOrder.compareTo(y.sortOrder))).map((t) => t.title).toList();
+    expect(order, ['c', 'a', 'b']);
+    // Drop "b" far to the right of "a": b becomes a's subtask.
+    final aNow = tester.getTopLeft(find.text('a').first);
+    await dragTo(tester, find.text('b').first, Offset(aNow.dx + 200, aNow.dy + 5));
+    final s2 = await tester.runAsync(repo.loadSnapshot);
+    final b = s2!.tasks.firstWhere((t) => t.title == 'b');
+    expect(s2.taskById[b.parentId]?.title, 'a');
+    await _dispose(tester);
+  });
+
+  testWidgets('a reminder firing with the app open shows the popup; Adiar snoozes, Concluído completes', (tester) async {
+    final movable = FixedClock(DateTime(2026, 9, 24, 12));
+    final repo = Repository(db, clock: movable);
+    final a = await tester.runAsync(
+      () => repo.createTask(
+        listId: inboxListId,
+        title: 'Ligar para o banco',
+        dueDate: DateTime(2026, 9, 24, 12, 1),
+        isAllDay: false,
+        reminders: ['PT0S'],
+      ),
+    );
+    final b = await tester.runAsync(
+      () => repo.createTask(listId: inboxListId, title: 'Pagar boleto', dueDate: DateTime(2026, 9, 24, 12, 2), isAllDay: false, reminders: ['PT0S']),
+    );
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db), clockProvider.overrideWithValue(movable)],
+        child: const TasksApp(initialLocation: '/q/today/tasks'),
+      ),
+    );
+    for (var i = 0; i < 6; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Adiar'), findsNothing);
+
+    movable.time = DateTime(2026, 9, 24, 12, 1, 5);
+    await tester.pump(const Duration(minutes: 1, seconds: 2));
+    expect(find.text('Adiar'), findsOneWidget);
+    await tester.tap(find.text('Adiar'));
+    await tester.pump();
+    await tester.tap(find.text('15 minutos'));
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    expect((await tester.runAsync(() => repo.task(a!)))!.snoozeUntil!.toLocal(), DateTime(2026, 9, 24, 12, 16, 5));
+    expect(find.text('Adiar'), findsNothing);
+
+    movable.time = DateTime(2026, 9, 24, 12, 2, 5);
+    await tester.pump(const Duration(minutes: 1));
+    expect(find.widgetWithText(FilledButton, 'Concluído'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Concluído'));
+    await tester.pump();
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    expect((await tester.runAsync(() => repo.task(b!)))!.status, TaskStatus.completed);
+    await _dispose(tester);
+  });
+
+  testWidgets('add field calendar icon: the picked date goes to the new task', (tester) async {
+    await pumpApp(tester, '/p/inbox/tasks');
+    await tester.tap(find.byIcon(Icons.calendar_today_outlined).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Amanhã'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('Amanhã, 25 set'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, 'Com data do seletor');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    final tasks = await tester.runAsync(() => db.select(db.tasks).get());
+    final created = tasks!.singleWhere((t) => t.title == 'Com data do seletor');
+    expect(created.dueDate!.toLocal(), DateTime(2026, 9, 25));
+    expect(created.isAllDay, isTrue);
+    await _dispose(tester);
+  });
+
+  testWidgets('quick-add token popup: arrows + Enter insert the choice', (tester) async {
+    await pumpApp(tester, '/p/inbox/tasks');
+    final field = find.byType(TextField).first;
+    await tester.tap(field);
+    await tester.pump();
+    await tester.enterText(field, 'Ler livro !');
+    await tester.pump();
+    expect(find.text('Alta'), findsOneWidget);
+    expect(find.text('Nenhuma'), findsOneWidget);
+    await tester.enterText(field, 'Ler livro !m');
+    await tester.pump();
+    expect(find.text('Alta'), findsNothing);
+    await tester.enterText(field, 'Ler livro !');
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pump();
+    expect(tester.widget<TextField>(field).controller!.text, 'Ler livro !média ');
+    expect(find.text('Alta'), findsNothing, reason: 'the popup closes after choosing');
+
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    final created = (await tester.runAsync(() => db.select(db.tasks).get()))!.singleWhere((t) => t.title == 'Ler livro');
+    expect(created.priority, Priority.medium);
+    await _dispose(tester);
+  });
+
+  testWidgets('comments: the footer icon opens the field, Enter adds "Comentários 1"', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final id = await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Com comentário'));
+    await pumpApp(tester, '/p/inbox/tasks/$id');
+    await tester.tap(find.byTooltip('Escrever um comentário'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextField).last, 'Falar com o João');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    for (var i = 0; i < 6; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Comentários 1'), findsOneWidget);
+    expect(find.text('Falar com o João'), findsOneWidget);
+    expect(find.text('Agora mesmo'), findsOneWidget);
+    await _dispose(tester);
+  });
+
+  testWidgets('"Mostrar detalhes" also works in a smart list and turns into "Ocultar Detalhes"', (tester) async {
+    final repo = Repository(db, clock: clock);
+    await tester.runAsync(
+      () => repo.createTask(listId: inboxListId, title: 'Relatório', content: 'Primeira linha da nota', dueDate: DateTime(2026, 9, 24)),
+    );
+    await pumpApp(tester, '/q/today/tasks');
+    expect(find.text('Primeira linha da nota'), findsNothing);
+    await tester.tap(find.byIcon(Icons.more_horiz).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mostrar detalhes'));
+    await tester.pumpAndSettle();
+    expect(find.text('Primeira linha da nota'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.more_horiz).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Ocultar Detalhes'), findsOneWidget);
+    await _dispose(tester);
+  });
+
+  testWidgets('a file dropped on the detail becomes an attachment card at the end of the content', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final id = (await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Relatório', content: 'Texto')))!;
+    final file = (await tester.runAsync(() async {
+      final dir = await Directory.systemTemp.createTemp('drop_test');
+      return File('${dir.path}${Platform.pathSeparator}notas.txt')..writeAsStringSync('conteúdo');
+    }))!;
+    await pumpApp(tester, '/p/inbox/tasks/$id');
+    // The desktop_drop plugin reports the drag on its channel, in window coordinates.
+    Future<void> send(String method, Object arguments) => tester.binding.defaultBinaryMessenger.handlePlatformMessage(
+      'desktop_drop',
+      const StandardMethodCodec().encodeMethodCall(MethodCall(method, arguments)),
+      (_) {},
+    );
+    final spot = tester.getCenter(find.byType(ContentEditor));
+    await send('entered', [spot.dx, spot.dy]);
+    await send('updated', [spot.dx, spot.dy]);
+    await tester.pump();
+    await send('performOperation', [file.path]);
+    for (var i = 0; i < 6; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 30)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    final content = (await tester.runAsync(() => repo.task(id)))!.content;
+    expect(content, matches(RegExp(r'^Texto\n!\[file\]\([^/]+/notas\.txt\)$')));
+    await _dispose(tester);
+  });
+
+  testWidgets('phone: the habit form stacks its fields and offers chips instead of squeezed segments', (tester) async {
+    await pumpApp(tester, '/habit', size: const Size(560, 1000));
+    unawaited(showHabitForm(tester.element(find.byType(HabitPage))));
+    await tester.pumpAndSettle();
+    expect(find.byType(SegmentedButton<HabitFrequency>), findsNothing);
+    expect(find.widgetWithText(ChoiceChip, 'Diariamente'), findsOneWidget);
+    expect(find.widgetWithText(ChoiceChip, 'Conquiste tudo'), findsOneWidget);
+    // The label sits above its field: "Frequência" is higher than the chips.
+    expect(tester.getRect(find.text('Frequência')).bottom, lessThanOrEqualTo(tester.getRect(find.widgetWithText(ChoiceChip, 'Diariamente')).top));
+    expect(tester.takeException(), isNull);
+    await _dispose(tester);
+  });
+
+  testWidgets('phone back: closes the drawer, goes to Hoje, leaves dialogs to themselves', (tester) async {
+    // Narrow layout; wider than a phone only because the test font draws every letter a full em wide.
+    await pumpApp(tester, '/countdown', size: const Size(700, 900));
+    Future<bool> back() async {
+      final handled = await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      return handled;
+    }
+
+    // Drawer open: back only closes it.
+    await tester.tap(find.byIcon(Icons.menu).first);
+    await tester.pumpAndSettle();
+    expect(find.byType(Drawer), findsOneWidget);
+    expect(await back(), isTrue);
+    expect(find.byType(Drawer), findsNothing);
+    expect(find.byType(CountdownPage), findsOneWidget);
+
+    // A menu over the page: back closes the menu, the page stays.
+    await tester.tap(find.byIcon(Icons.more_horiz).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Mostrar Grupo'), findsOneWidget);
+    expect(await back(), isTrue);
+    expect(find.text('Mostrar Grupo'), findsNothing);
+    expect(find.byType(CountdownPage), findsOneWidget);
+
+    // A module: back goes to Hoje; on Hoje, back is left to the system (the app closes).
+    expect(await back(), isTrue);
+    expect(find.byType(CountdownPage), findsNothing);
+    expect(find.text('Hoje'), findsWidgets);
+    for (var i = 0; i < 4; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(await tester.binding.handlePopRoute(), isFalse);
+    await _dispose(tester);
+  });
+
+  testWidgets('countdowns: the defaults show in Hoje; a birthday is created through the form', (tester) async {
+    await pumpApp(tester, '/q/today/tasks');
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Contagem Regressiva'), findsOneWidget);
+    expect(find.text('Use o Tarefas'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Contagem Regressiva'));
+    for (var i = 0; i < 4; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('99'), findsOneWidget, reason: 'Dia de Ano Novo');
+    // Clicking the number shows weeks, then months.
+    await tester.tap(find.text('99'));
+    await tester.pump();
+    expect(find.text('14 semanas'), findsOneWidget);
+    await tester.tap(find.text('14 semanas'));
+    await tester.pump();
+    expect(find.text('3 meses'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.add));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aniversário').last);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).first, 'Aniversário da Ana');
+    await tester.tap(find.text('Próximo'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'OK'));
+    await tester.pump();
+    for (var i = 0; i < 4; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    final created = (await tester.runAsync(() => db.select(db.countdowns).get()))!.singleWhere((c) => c.name == 'Aniversário da Ana');
+    expect(created.type, CountdownType.birthday);
+    expect(created.repeatRule, startsWith('FREQ=YEARLY'), reason: 'birthdays repeat every year by default');
+    expect(find.text('Aniversário da Ana'), findsOneWidget);
+
+    // "Mostrar Grupo" shows the type tabs and becomes "Ocultar Grupo".
+    await tester.tap(find.byIcon(Icons.more_horiz).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mostrar Grupo'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(ChoiceChip, 'Todas'), findsOneWidget);
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Aniversário'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aniversário da Ana'), findsOneWidget);
+    expect(find.text('Dia de Ano Novo'), findsNothing);
+    await tester.tap(find.byIcon(Icons.more_horiz).last);
+    await tester.pumpAndSettle();
+    expect(find.text('Ocultar Grupo'), findsOneWidget);
+    await tester.tap(find.text('Ocultar Grupo'));
+    await tester.pumpAndSettle();
+    expect(find.byType(ChoiceChip), findsNothing);
+    expect(find.text('Dia de Ano Novo'), findsOneWidget);
+    await _dispose(tester);
+  });
+
+  testWidgets('focus: a Pomo runs, ends with "Você tem um Pomo.", records and goes to the break', (tester) async {
+    final movable = FixedClock(DateTime(2026, 9, 24, 18, 24));
+    tester.view.physicalSize = const Size(1600, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [databaseProvider.overrideWithValue(db), clockProvider.overrideWithValue(movable)],
+        child: const TasksApp(initialLocation: '/focus'),
+      ),
+    );
+    for (var i = 0; i < 6; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('25:00'), findsOneWidget);
+    await tester.tap(find.text('Começar'));
+    await tester.pump();
+    movable.time = DateTime(2026, 9, 24, 18, 34);
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.text('15:00'), findsOneWidget);
+    expect(find.text('Pausar'), findsOneWidget);
+
+    movable.time = DateTime(2026, 9, 24, 18, 49, 1);
+    await tester.pump(const Duration(seconds: 1));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.text('Você tem um Pomo.'), findsOneWidget);
+    final records = await tester.runAsync(() => db.select(db.focusRecords).get());
+    expect(records!.single.seconds, 25 * 60);
+    await tester.pump(const Duration(milliseconds: 200));
+    // During the session the right side is the day's timeline; the record list comes back after it.
+    expect(find.text('18:24 - 18:49'), findsNothing);
+
+    await tester.tap(find.text('Relaxar'));
+    await tester.pump();
+    expect(find.text('05:00'), findsOneWidget);
+    expect(find.text('Pausa'), findsOneWidget);
+    await tester.tap(find.text('Terminar'));
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.text('18:24 - 18:49'), findsOneWidget);
+    await _dispose(tester);
+  });
+
+  testWidgets('habits: empty state, create through the form, check in today', (tester) async {
+    await pumpApp(tester, '/habit');
+    expect(find.text('Desenvolver um hábito'), findsOneWidget);
+    await tester.tap(find.byTooltip('Criar Hábito'));
+    await tester.pumpAndSettle();
+    // The gallery first: 15 ready-made habits per category, or "Criar novo".
+    expect(find.text('Galeria de hábitos'), findsOneWidget);
+    expect(find.text('Arrumar a cama'), findsOneWidget);
+    await tester.tap(find.text('Criar novo'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).at(1), 'Beber água');
+    await tester.tap(find.text('Salvar'));
+    await tester.pump();
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Beber água'), findsOneWidget);
+    expect(find.text('0 dia · 0 dia'), findsOneWidget);
+    // The last of the 7 dots is today.
+    await tester.tap(find.byType(HabitDot).last);
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('1 dia · 1 dia'), findsOneWidget);
+    expect((await tester.runAsync(() => db.select(db.habitCheckins).get()))!.single.value, 1);
+    await _dispose(tester);
+  });
+
+  testWidgets('filters: "+" in Filtros opens Adicionar Filtro; Prévia counts; Salvar opens the filter', (tester) async {
+    final repo = Repository(db, clock: clock);
+    await tester.runAsync(() async {
+      await repo.createTask(listId: inboxListId, title: 'A alta', priority: Priority.high);
+      await repo.createTask(listId: inboxListId, title: 'B baixa', priority: Priority.low);
+    });
+    await pumpApp(tester, '/q/all/tasks');
+    final header = find.ancestor(of: find.text('Filtros'), matching: find.byType(Row)).first;
+    await tester.tap(find.descendant(of: header, matching: find.byIcon(Icons.add)));
+    await tester.pumpAndSettle();
+    expect(find.text('Adicionar Filtro'), findsOneWidget);
+    await tester.enterText(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)).first, 'Urgentes');
+    // Listas, Tags, Data, Prioridade, Tipo: the 4th "Todas" is Prioridade.
+    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text('Todas')).at(3));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Alta'));
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Prévia'));
+    await tester.pump();
+    expect(find.text('1 tarefa encontrada'), findsOneWidget);
+    await tester.tap(find.text('Salvar'));
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.text('Urgentes'), findsWidgets);
+    expect(find.text('A alta'), findsOneWidget);
+    expect(find.text('B baixa'), findsNothing);
+    await _dispose(tester);
+  });
+}
+
+/// Unmounts the app and lets pending timers (clock ticker, editor debounce, drift streams) finish.
+Future<void> _dispose(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(const Duration(minutes: 2));
+}

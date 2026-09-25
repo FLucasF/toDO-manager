@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The dark theme's background (the app starts in the dark theme), so opening does not flash white. -->
+    <color name="splash_background">#1C1C1C</color>
+</resources>
