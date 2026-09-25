@@ -41,7 +41,8 @@ class MatrixPage extends ConsumerWidget {
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final prefs = ref.watch(preferencesProvider).value ?? Preferences.defaults;
     final colors = [tt.palette.priorityHigh, tt.palette.priorityMedium, tt.palette.priorityLow, tt.textTertiary];
-    Widget quadrant(int i) => _Quadrant(index: i, rule: prefs.matrixRules[i], color: colors[i], hideCompleted: prefs.matrixHideCompleted);
+    Widget quadrant(int i) =>
+        _Quadrant(index: i, rule: prefs.matrixRules[i], color: colors[i], hideCompleted: prefs.matrixHideCompleted, compact: narrow);
 
     final page = Container(
       color: tt.screen,
@@ -74,36 +75,31 @@ class MatrixPage extends ConsumerWidget {
               ],
             ),
           ),
+          // The four quadrants on one screen, on a phone too (like TickTick's Android app).
           Expanded(
-            child: narrow
-                // Phones: the grid scrolls sideways.
-                ? ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [for (var i = 0; i < 4; i++) SizedBox(width: MediaQuery.sizeOf(context).width * 0.85, child: quadrant(i))],
-                  )
-                : Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                    child: Column(
+            child: Padding(
+              padding: narrow ? const EdgeInsets.fromLTRB(4, 0, 4, 4) : const EdgeInsets.fromLTRB(12, 0, 12, 12),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: Row(
                       children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(child: quadrant(0)),
-                              Expanded(child: quadrant(1)),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Expanded(child: quadrant(2)),
-                              Expanded(child: quadrant(3)),
-                            ],
-                          ),
-                        ),
+                        Expanded(child: quadrant(0)),
+                        Expanded(child: quadrant(1)),
                       ],
                     ),
                   ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(child: quadrant(2)),
+                        Expanded(child: quadrant(3)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -113,14 +109,24 @@ class MatrixPage extends ConsumerWidget {
 }
 
 class _Quadrant extends ConsumerWidget {
-  const _Quadrant({required this.index, required this.rule, required this.color, required this.hideCompleted});
+  const _Quadrant({required this.index, required this.rule, required this.color, required this.hideCompleted, required this.compact});
 
   final int index;
   final QuadrantRule rule;
   final Color color;
   final bool hideCompleted;
 
+  /// A phone: a quarter of the screen, so smaller header buttons and two-line titles.
+  final bool compact;
+
   static const _roman = ['I', 'II', 'III', 'IV'];
+
+  static final _compactButton = IconButton.styleFrom(
+    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    padding: EdgeInsets.zero,
+    minimumSize: const Size(34, 34),
+    fixedSize: const Size(34, 34),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -139,7 +145,7 @@ class _Quadrant extends ConsumerWidget {
       onWillAcceptWithDetails: (_) => rule.priorities.isNotEmpty || rule.dates.isNotEmpty,
       onAcceptWithDetails: (d) => unawaited(_drop(ref, d.data, rule, startOfDay(now))),
       builder: (context, candidates, _) => Container(
-        margin: const EdgeInsets.all(6),
+        margin: EdgeInsets.all(compact ? 3 : 6),
         decoration: BoxDecoration(
           color: candidates.isNotEmpty ? color.withValues(alpha: 0.08) : tt.fieldFill,
           borderRadius: BorderRadius.circular(10),
@@ -149,12 +155,12 @@ class _Quadrant extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 4, 4),
+              padding: compact ? const EdgeInsets.fromLTRB(8, 6, 0, 2) : const EdgeInsets.fromLTRB(12, 8, 4, 4),
               child: Row(
                 children: [
                   Container(
-                    width: 22,
-                    height: 22,
+                    width: compact ? 18 : 22,
+                    height: compact ? 18 : 22,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(5)),
                     child: Text(
@@ -162,21 +168,26 @@ class _Quadrant extends ConsumerWidget {
                       style: TextStyle(color: Colors.white, fontSize: rule.icon == null ? 11 : 13, fontWeight: FontWeight.w700),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontWeight: FontWeight.w600, color: color),
+                  SizedBox(width: compact ? 6 : 8),
+                  // A phone's quarter has no room beside the buttons: the name gets its own line.
+                  if (compact)
+                    const Spacer()
+                  else
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontWeight: FontWeight.w600, color: color),
+                      ),
                     ),
-                  ),
                   Text(
                     '${tasks.length}',
                     style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
                   ),
                   IconButton(
                     visualDensity: VisualDensity.compact,
+                    style: compact ? _compactButton : null,
                     tooltip: t.addTask,
                     icon: Icon(Icons.add, size: 18, color: tt.textTertiary),
                     onPressed: () => unawaited(
@@ -189,6 +200,9 @@ class _Quadrant extends ConsumerWidget {
                   ),
                   PopupMenuButton<Object>(
                     tooltip: '',
+                    padding: compact ? EdgeInsets.zero : const EdgeInsets.all(8),
+                    iconSize: 18,
+                    style: compact ? _compactButton : null,
                     icon: Icon(Icons.more_horiz, size: 18, color: tt.textTertiary),
                     onSelected: (v) async {
                       final repo = ref.read(preferencesRepositoryProvider);
@@ -266,6 +280,16 @@ class _Quadrant extends ConsumerWidget {
                 ],
               ),
             ),
+            if (compact)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+                child: Text(
+                  name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w600, color: color, fontSize: TtText.small),
+                ),
+              ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 8),
@@ -279,7 +303,7 @@ class _Quadrant extends ConsumerWidget {
                           style: TextStyle(fontSize: TtText.small, color: tt.textTertiary, fontWeight: FontWeight.w600),
                         ),
                       ),
-                    for (final task in items) _MatrixRow(task: task, now: now),
+                    for (final task in items) _MatrixRow(task: task, now: now, compact: compact),
                   ],
                 ],
               ),
@@ -484,10 +508,14 @@ class _MenuTitleState extends State<_MenuTitle> {
 }
 
 class _MatrixRow extends ConsumerWidget {
-  const _MatrixRow({required this.task, required this.now});
+  const _MatrixRow({required this.task, required this.now, required this.compact});
 
   final Task task;
   final DateTime now;
+
+  /// A phone: the date goes under the title, the list is left out, and a long press drags the task
+  /// (a plain drag scrolls).
+  final bool compact;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -498,59 +526,54 @@ class _MatrixRow extends ConsumerWidget {
     final due = task.dueDate?.toLocal();
     final today = startOfDay(now);
     final overdue = task.status == TaskStatus.open && (task.daysToEnd(today) ?? 0) < 0;
+    final title = Text(
+      task.title.isEmpty ? t.untitled : task.title,
+      maxLines: compact ? 2 : 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(color: task.status == TaskStatus.open ? tt.text : tt.textTertiary, fontSize: compact ? TtText.small : TtText.body),
+    );
+    final date = due == null
+        ? null
+        : Text(
+            DateLabels(t).rowDate(due, isAllDay: task.isAllDay, today: today),
+            style: TextStyle(fontSize: 11, color: overdue ? tt.overdue : tt.primary),
+          );
     final row = InkWell(
-      // The detail opens over the Matrix.
-      onTap: () => unawaited(
-        showDialog<void>(
-          context: context,
-          builder: (_) => Dialog(
-            child: SizedBox(
-              width: 560,
-              height: 680,
-              child: TaskDetailPane(scope: ListScope(task.listId), taskId: task.id),
-            ),
-          ),
-        ),
-      ),
+      // The detail opens over the Matrix (the whole screen on a phone).
+      onTap: () => unawaited(showTaskDetailDialog(context, task)),
       onSecondaryTapUp: (d) => unawaited(showTaskMenu(context, ref, task, d.globalPosition)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: compact ? const EdgeInsets.fromLTRB(8, 5, 6, 5) : const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         child: Row(
+          crossAxisAlignment: compact ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
-            TaskCheckbox(status: task.status, priority: task.priority, kind: task.kind, onTap: () => unawaited(toggleComplete(context, ref, task))),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                task.title.isEmpty ? t.untitled : task.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: task.status == TaskStatus.open ? tt.text : tt.textTertiary, fontSize: TtText.body),
-              ),
-            ),
-            if (list != null) Text('${list.emoji ?? ''} ${Labels(t).listName(list)}', style: TextStyle(fontSize: 11, color: tt.textTertiary)),
-            if (due != null) ...[
+            if (compact) ...[
+              TaskCheckbox(status: task.status, priority: task.priority, kind: task.kind, onTap: () => unawaited(toggleComplete(context, ref, task))),
               const SizedBox(width: 8),
-              Text(
-                DateLabels(t).rowDate(due, isAllDay: task.isAllDay, today: today),
-                style: TextStyle(fontSize: 11, color: overdue ? tt.overdue : tt.primary),
+              Expanded(
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [title, ?date]),
               ),
+            ] else ...[
+              TaskCheckbox(status: task.status, priority: task.priority, kind: task.kind, onTap: () => unawaited(toggleComplete(context, ref, task))),
+              const SizedBox(width: 10),
+              Expanded(child: title),
+              if (list != null) Text('${list.emoji ?? ''} ${Labels(t).listName(list)}', style: TextStyle(fontSize: 11, color: tt.textTertiary)),
+              if (date != null) ...[const SizedBox(width: 8), date],
             ],
           ],
         ),
       ),
     );
-    return Draggable<String>(
-      data: task.id,
-      dragAnchorStrategy: pointerDragAnchorStrategy,
-      feedback: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(6)),
-          child: Text(task.title, style: TextStyle(color: tt.text)),
-        ),
+    final feedback = Material(
+      color: Colors.transparent,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHigh, borderRadius: BorderRadius.circular(6)),
+        child: Text(task.title, style: TextStyle(color: tt.text)),
       ),
-      child: row,
     );
+    return compact
+        ? LongPressDraggable<String>(data: task.id, dragAnchorStrategy: pointerDragAnchorStrategy, feedback: feedback, child: row)
+        : Draggable<String>(data: task.id, dragAnchorStrategy: pointerDragAnchorStrategy, feedback: feedback, child: row);
   }
 }

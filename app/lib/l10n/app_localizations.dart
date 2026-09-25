@@ -2395,6 +2395,12 @@ abstract class AppLocalizations {
   /// **'Adicionar'**
   String get quickAddButton;
 
+  /// No description provided for @menuSelect.
+  ///
+  /// In pt, this message translates to:
+  /// **'Selecionar'**
+  String get menuSelect;
+
   /// No description provided for @batchSelected.
   ///
   /// In pt, this message translates to:

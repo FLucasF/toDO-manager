@@ -172,11 +172,13 @@ class Sidebar extends ConsumerWidget {
           // "Mini Calendário" (Settings → Mais configurações): a day opens the Calendar on it.
           if (prefs.miniCalendar) ...[_divider(tt), _MiniCalendar(onNavigate: onNavigate)],
           // In the drawer the modules come last: Hábito · Contagem Regressiva · Foco, plus
-          // the Calendário, which the narrow webapp leaves out but a phone needs.
+          // the Calendário and the Matriz, which the narrow webapp leaves out but TickTick's
+          // Android app has.
           if (onNavigate != null) ...[
             _divider(tt),
             for (final (icon, label, route, feature) in [
               (Icons.calendar_month_outlined, t.navCalendar, Routes.calendar, AppFeature.calendar),
+              (Icons.grid_view_outlined, t.navMatrix, Routes.matrix, AppFeature.matrix),
               (Icons.track_changes, t.navHabit, Routes.habit, AppFeature.habit),
               (Icons.hourglass_bottom, t.navCountdown, Routes.countdown, AppFeature.countdown),
               (Icons.timer_outlined, t.navFocus, Routes.focus, AppFeature.focus),

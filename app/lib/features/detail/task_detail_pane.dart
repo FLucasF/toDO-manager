@@ -3,6 +3,7 @@ import 'dart:io' show File;
 
 import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -274,7 +275,13 @@ class _DetailState extends ConsumerState<_Detail> {
                       child: TextField(
                         controller: _title,
                         focusNode: _titleFocus,
+                        // The title wraps but is one paragraph: Enter (the phone's key too) ends the
+                        // editing instead of breaking the line, and a pasted break becomes a space.
                         maxLines: null,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.done,
+                        inputFormatters: [FilteringTextInputFormatter.deny(RegExp(r'[\r\n]+'), replacementString: ' ')],
+                        onSubmitted: (_) => _titleFocus.unfocus(),
                         style: TextStyle(
                           fontSize: TtText.detailTitle,
                           fontWeight: FontWeight.w700,
@@ -518,6 +525,28 @@ Future<void> showImmersiveWriting(BuildContext context, WidgetRef ref, Task task
             ),
           ),
         ],
+      ),
+    );
+  },
+);
+
+/// The full detail over a page with no room for it (Matriz, Calendário): a floating window, or the
+/// whole screen on a phone.
+Future<void> showTaskDetailDialog(BuildContext context, Task task) => showDialog<void>(
+  context: context,
+  builder: (context) {
+    if (MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint) {
+      return Dialog.fullscreen(
+        child: SafeArea(
+          child: TaskDetailPane(scope: ListScope(task.listId), taskId: task.id, onClose: () => Navigator.pop(context)),
+        ),
+      );
+    }
+    return Dialog(
+      child: SizedBox(
+        width: 560,
+        height: 680,
+        child: TaskDetailPane(scope: ListScope(task.listId), taskId: task.id),
       ),
     );
   },

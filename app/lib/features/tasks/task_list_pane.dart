@@ -80,9 +80,9 @@ class TaskListPane extends ConsumerWidget {
             for (final h in snapshot.habits)
               if (h.archivedAt == null && habitIsDue(h, today)) h,
           ];
-    // Kanban on wide windows; phones keep the list.
+    // Kanban on phones too, like TickTick's Android app: the columns scroll sideways.
     final mode = ref.watch(viewModeProvider(scope));
-    final kanban = !isNarrow && mode == ViewMode.kanban && !(scope is SmartScope && (scope as SmartScope).smartList.isReadOnly);
+    final kanban = mode == ViewMode.kanban && !(scope is SmartScope && (scope as SmartScope).smartList.isReadOnly);
     // "Linha do tempo": lists, folders and filters, on wide windows.
     final timeline = !isNarrow && mode == ViewMode.timeline && supportsTimeline(scope);
 
@@ -306,7 +306,9 @@ class _Header extends ConsumerWidget {
         // "Visualização": Lista · Kanban.
         CheckedPopupMenuItem(value: 'view:list', checked: mode == ViewMode.list, child: Text(t.viewList)),
         CheckedPopupMenuItem(value: 'view:kanban', checked: mode == ViewMode.kanban, child: Text(t.viewKanban)),
-        if (supportsTimeline(scope)) CheckedPopupMenuItem(value: 'view:timeline', checked: mode == ViewMode.timeline, child: Text(t.viewTimeline)),
+        // The timeline needs a wide window; phones don't offer it.
+        if (supportsTimeline(scope) && MediaQuery.sizeOf(context).width >= TtSizes.narrowBreakpoint)
+          CheckedPopupMenuItem(value: 'view:timeline', checked: mode == ViewMode.timeline, child: Text(t.viewTimeline)),
         const PopupMenuDivider(),
         PopupMenuItem(value: 'completed', height: 36, child: Text(current.showCompleted ? t.hideCompleted : t.showCompleted)),
         PopupMenuItem(value: 'details', height: 36, child: Text(current.showDetails ? t.hideDetails : t.showDetails)),
@@ -786,11 +788,13 @@ class _Group extends ConsumerWidget {
     final multi = selection.isNotEmpty;
 
     // Ctrl+click adds to the selection, Shift+click selects a range, a plain click opens the task
-    // and ends the multi-selection.
+    // and ends the multi-selection. On a phone, while selecting, a tap adds or removes the task.
     void onRowTap(TaskRow row) {
       final keyboard = HardwareKeyboard.instance;
       final notifier = ref.read(taskSelectionProvider.notifier);
-      if (!isNarrow && (keyboard.isControlPressed || keyboard.isMetaPressed)) {
+      if (isNarrow && multi) {
+        notifier.toggle(row.task.id);
+      } else if (!isNarrow && (keyboard.isControlPressed || keyboard.isMetaPressed)) {
         notifier.toggle(row.task.id, current: selectedTaskId);
       } else if (!isNarrow && keyboard.isShiftPressed) {
         final order = [
@@ -813,7 +817,23 @@ class _Group extends ConsumerWidget {
         onTap: () => onRowTap(row),
         onToggleComplete: () => fireAndForget(toggleComplete(context, ref, row.task)),
         onToggleCollapse: () => ref.read(collapsedTasksProvider.notifier).toggle(row.task.id),
-        onMenu: (p) => fireAndForget(showTaskMenu(context, ref, row.task, p, onAddSubtask: (id) => context.go('$routeBase/$id'))),
+        onMenu: (p) => fireAndForget(
+          showTaskMenu(
+            context,
+            ref,
+            row.task,
+            p,
+            onAddSubtask: (id) => context.go('$routeBase/$id'),
+            // Phones have no Ctrl+click: the long press menu starts the selection.
+            onSelect: isNarrow && row.task.deletedAt == null
+                ? () {
+                    // The add field gets its focus back when the menu closes; selecting needs no keyboard.
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    ref.read(taskSelectionProvider.notifier).toggle(row.task.id);
+                  }
+                : null,
+          ),
+        ),
         countdown: countdown,
       );
       if (isNarrow || row.task.deletedAt != null) return tileWidget;

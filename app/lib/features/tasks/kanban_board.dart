@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart' show Value;
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -319,9 +320,11 @@ class _KanbanColumnState extends ConsumerState<_KanbanColumn> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Section headers drag to reorder the sections.
+          // Section headers drag to reorder the sections (after a long press on a phone, where a
+          // plain drag scrolls the board).
           if (section != null)
-            Draggable<Section>(
+            _SectionDraggable(
+              touch: MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint,
               data: section,
               feedback: Material(
                 color: Colors.transparent,
@@ -375,9 +378,11 @@ class _KanbanCard extends ConsumerWidget {
     final dates = DateLabels(t);
     final children = ref.watch(snapshotProvider).value?.childrenOf(task.id) ?? const <Task>[];
 
+    // A phone: a long press drags the card (the menu is in the detail); a plain drag scrolls.
+    final touch = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final card = GestureDetector(
       onSecondaryTapUp: (d) => unawaited(showTaskMenu(context, ref, task, d.globalPosition)),
-      onLongPressStart: (d) => unawaited(showTaskMenu(context, ref, task, d.globalPosition)),
+      onLongPressStart: touch ? null : (d) => unawaited(showTaskMenu(context, ref, task, d.globalPosition)),
       child: InkWell(
         onTap: () => context.go(Routes.of(scope, taskId: task.id)),
         borderRadius: BorderRadius.circular(8),
@@ -473,7 +478,7 @@ class _KanbanCard extends ConsumerWidget {
 
     return LongPressDraggable<String>(
       data: task.id,
-      delay: const Duration(milliseconds: 150),
+      delay: touch ? kLongPressTimeout : const Duration(milliseconds: 150),
       feedback: Material(
         color: Colors.transparent,
         child: SizedBox(
@@ -485,6 +490,21 @@ class _KanbanCard extends ConsumerWidget {
       child: dropTarget,
     );
   }
+}
+
+/// A section header's drag: right away with a mouse, after a long press on a touch screen.
+class _SectionDraggable extends StatelessWidget {
+  const _SectionDraggable({required this.touch, required this.data, required this.feedback, required this.child});
+
+  final bool touch;
+  final Section data;
+  final Widget feedback;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => touch
+      ? LongPressDraggable<Section>(data: data, feedback: feedback, child: child)
+      : Draggable<Section>(data: data, feedback: feedback, child: child);
 }
 
 /// "+ Nova seção" after the last column: an inline field, Enter creates the section at the end.

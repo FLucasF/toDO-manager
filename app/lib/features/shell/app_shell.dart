@@ -66,6 +66,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final narrow = width < TtSizes.narrowBreakpoint;
 
     if (narrow) {
+      final selecting = widget.searchQuery == null && ref.watch(taskSelectionProvider).isNotEmpty;
       if (widget.taskId != null) {
         return Scaffold(
           body: SafeArea(
@@ -82,10 +83,12 @@ class _AppShellState extends ConsumerState<AppShell> {
             : widget.scope == const SmartScope(SmartList.today)
             ? null
             : Routes.initial,
+        onEndSelection: selecting ? ref.read(taskSelectionProvider.notifier).clear : null,
         child: Scaffold(
           key: _scaffold,
           onDrawerChanged: (open) => setState(() => _drawerOpen = open),
           drawer: NavDrawer(current: widget.scope),
+          bottomNavigationBar: selecting ? PhoneSelectionBar(scope: widget.scope) : null,
           body: SafeArea(
             child: widget.searchQuery != null
                 ? SearchPane(initialQuery: widget.searchQuery!, selectedTaskId: null, isNarrow: true)
@@ -395,15 +398,18 @@ class _ModuleScaffoldState extends State<ModuleScaffold> {
 /// The [PopScope] tells Android that the app takes the back itself: with predictive back (on by default
 /// from Android 16) the system would otherwise close the app without asking it.
 class PhoneBack extends StatelessWidget {
-  const PhoneBack({super.key, required this.scaffold, required this.drawerOpen, required this.back, required this.child});
+  const PhoneBack({super.key, required this.scaffold, required this.drawerOpen, required this.back, required this.child, this.onEndSelection});
 
   final GlobalKey<ScaffoldState> scaffold;
   final bool drawerOpen;
   final String? back;
   final Widget child;
 
+  /// While tasks are selected: back ends the selection first.
+  final VoidCallback? onEndSelection;
+
   @override
-  Widget build(BuildContext context) => PopScope(canPop: back == null && !drawerOpen, child: _listener(context));
+  Widget build(BuildContext context) => PopScope(canPop: back == null && !drawerOpen && onEndSelection == null, child: _listener(context));
 
   Widget _listener(BuildContext context) => BackButtonListener(
     onBackButtonPressed: () async {
@@ -411,6 +417,10 @@ class PhoneBack extends StatelessWidget {
       final state = scaffold.currentState;
       if (state != null && state.isDrawerOpen) {
         state.closeDrawer();
+        return true;
+      }
+      if (onEndSelection case final end?) {
+        end();
         return true;
       }
       final target = back;

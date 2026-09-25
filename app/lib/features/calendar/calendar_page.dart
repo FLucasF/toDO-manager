@@ -160,16 +160,7 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         await showSubscribedEvent(context, ref, e.title, e.start, e.end, isAllDay: e.isAllDay, calendarId: e.id);
       case CalendarEntryKind.focus:
         if (e.task case final task?) {
-          await showDialog<void>(
-            context: context,
-            builder: (_) => Dialog(
-              child: SizedBox(
-                width: 560,
-                height: 680,
-                child: TaskDetailPane(scope: ListScope(task.listId), taskId: task.id),
-              ),
-            ),
-          );
+          await showTaskDetailDialog(context, task);
         } else {
           context.go(Routes.focus);
         }
@@ -330,17 +321,8 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     ),
   );
 
-  /// TickTick's full task detail, in a dialog.
-  Future<void> _openDetail(Task task) => showDialog<void>(
-    context: context,
-    builder: (_) => Dialog(
-      child: SizedBox(
-        width: 560,
-        height: 680,
-        child: TaskDetailPane(scope: ListScope(task.listId), taskId: task.id),
-      ),
-    ),
-  );
+  /// TickTick's full task detail, in a dialog (the whole screen on a phone).
+  Future<void> _openDetail(Task task) => showTaskDetailDialog(context, task);
 
   /// Right click on a task: Google's menu, "Excluir" and the colors, with "Salvo" / "Desfazer".
   Future<void> _entryMenu(CalendarEntry e, Offset at) async {

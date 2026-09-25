@@ -16,6 +16,9 @@ import 'package:task_manager/data/repository.dart';
 import 'package:task_manager/domain/enums.dart';
 import 'package:task_manager/features/countdown/countdown_page.dart';
 import 'package:task_manager/features/detail/content_editor.dart';
+import 'package:task_manager/features/tasks/batch_pane.dart';
+import 'package:task_manager/features/tasks/kanban_board.dart';
+import 'package:task_manager/features/detail/task_detail_pane.dart';
 import 'package:task_manager/features/habits/habit_form.dart';
 import 'package:task_manager/features/habits/habit_page.dart';
 import 'package:task_manager/features/habits/habit_widgets.dart';
@@ -51,6 +54,21 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Comprar pão'), findsWidgets);
     expect(find.text('Caixa de Entrada'), findsWidgets);
+    await _dispose(tester);
+  });
+
+  testWidgets('detail title: Enter does not break the line; a pasted break becomes a space', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final id = (await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Ligar')))!;
+    await pumpApp(tester, '/p/inbox/tasks/$id', size: const Size(560, 1000));
+    final title = find.byWidgetPredicate((w) => w is TextField && w.controller?.text == 'Ligar');
+    await tester.enterText(title, 'Ligar para\no banco');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    for (var i = 0; i < 12; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect((await tester.runAsync(() => repo.loadSnapshot()))!.taskById[id]!.title, 'Ligar para o banco');
     await _dispose(tester);
   });
 
@@ -300,6 +318,152 @@ void main() {
     expect(find.widgetWithText(ChoiceChip, 'Conquiste tudo'), findsOneWidget);
     // The label sits above its field: "Frequência" is higher than the chips.
     expect(tester.getRect(find.text('Frequência')).bottom, lessThanOrEqualTo(tester.getRect(find.widgetWithText(ChoiceChip, 'Diariamente')).top));
+    expect(tester.takeException(), isNull);
+    await _dispose(tester);
+  });
+
+  testWidgets('phone: Matriz is in the drawer, shows the 4 quadrants at once; long press drags a task', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final id = await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Pagar conta', priority: Priority.high));
+    await pumpApp(tester, '/q/all/tasks', size: const Size(560, 1000));
+    await tester.tap(find.byIcon(Icons.menu_open).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Matriz de Eisenhower'));
+    await tester.pumpAndSettle();
+    for (final name in ['Urgente e Importante', 'Não Urgente e Importante', 'Urgente e não importante', 'Não urgente e não importante']) {
+      expect(tester.getRect(find.text(name)).right, lessThanOrEqualTo(560), reason: name);
+    }
+    // Two columns: Q2 is beside Q1, Q3 below it.
+    expect(tester.getRect(find.text('Não Urgente e Importante')).left, greaterThan(250));
+    expect(tester.getRect(find.text('Urgente e não importante')).top, greaterThan(400));
+    expect(tester.takeException(), isNull);
+
+    // A plain drag does not move the task; a long press does.
+    await tester.drag(find.text('Pagar conta'), const Offset(300, 0));
+    await tester.pumpAndSettle();
+    expect((await tester.runAsync(() => repo.loadSnapshot()))!.taskById[id]!.priority, Priority.high);
+    final gesture = await tester.startGesture(tester.getCenter(find.text('Pagar conta')));
+    await tester.pump(const Duration(milliseconds: 600));
+    await gesture.moveTo(tester.getCenter(find.text('Não Urgente e Importante')) + const Offset(0, 120));
+    await tester.pump();
+    await gesture.up();
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect((await tester.runAsync(() => repo.loadSnapshot()))!.taskById[id]!.priority, Priority.medium);
+
+    // Tapping a task opens its detail on the whole screen.
+    await tester.tap(find.text('Pagar conta'));
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(Dialog)).width, 560);
+    expect(tester.takeException(), isNull);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.byType(Dialog), findsNothing);
+    await _dispose(tester);
+  });
+
+  testWidgets('phone: Kanban shows columns; a long press moves a card, a plain drag scrolls, a tap opens it', (tester) async {
+    final repo = Repository(db, clock: clock);
+    late String listId, taskId;
+    await tester.runAsync(() async {
+      listId = await repo.createList(name: 'Obra', viewMode: ViewMode.kanban);
+      // New sections go first: the columns are Não Classificado, Fazer, Feito.
+      await repo.createSection(listId, 'Feito');
+      await repo.createSection(listId, 'Fazer');
+      taskId = await repo.createTask(listId: listId, title: 'Comprar cimento');
+    });
+    Future<String?> sectionName() async {
+      final s = (await tester.runAsync(() => repo.loadSnapshot()))!;
+      return s.sectionsOf(listId).where((x) => x.id == s.taskById[taskId]!.sectionId).firstOrNull?.name;
+    }
+
+    await pumpApp(tester, '/p/$listId/tasks', size: const Size(560, 1000));
+    expect(find.byType(KanbanBoard), findsOneWidget);
+    expect(find.text('Comprar cimento'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+
+    // A long press picks the card up and drops it in "Fazer".
+    final gesture = await tester.startGesture(tester.getCenter(find.text('Comprar cimento')));
+    await tester.pump(const Duration(milliseconds: 600));
+    await gesture.moveTo(tester.getCenter(find.text('Fazer')) + const Offset(0, 80));
+    await tester.pump();
+    await gesture.up();
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(await sectionName(), 'Fazer');
+
+    // A plain drag on the card scrolls the board sideways; the card stays in its column.
+    final before = tester.getTopLeft(find.text('Fazer'));
+    await tester.drag(find.text('Comprar cimento'), const Offset(-200, 0));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Fazer')).dx, lessThan(before.dx));
+    expect(await sectionName(), 'Fazer');
+
+    // A tap opens the detail on the whole screen.
+    await tester.tap(find.text('Comprar cimento'));
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(find.byType(KanbanBoard), findsNothing);
+    expect(find.byType(TaskDetailPane), findsOneWidget);
+    await _dispose(tester);
+  });
+
+  testWidgets('phone: long press > Selecionar starts a selection; taps add tasks; Editar applies to all; back ends it', (tester) async {
+    final repo = Repository(db, clock: clock);
+    final ids = <String, String>{};
+    await tester.runAsync(() async {
+      for (final title in ['Lavar carro', 'Pagar luz', 'Ler livro']) {
+        ids[title] = await repo.createTask(listId: inboxListId, title: title);
+      }
+    });
+    Future<void> settle() async {
+      for (var i = 0; i < 5; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    Future<void> select(String title) async {
+      await tester.longPress(find.text(title));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Selecionar'));
+      await tester.pumpAndSettle();
+    }
+
+    await pumpApp(tester, '/p/inbox/tasks', size: const Size(560, 1000));
+    await select('Lavar carro');
+    expect(find.byType(PhoneSelectionBar), findsOneWidget);
+    expect(find.textContaining('Você escolheu 1'), findsOneWidget);
+    // While selecting, a tap adds the task instead of opening it.
+    await tester.tap(find.text('Pagar luz'));
+    await settle();
+    expect(find.textContaining('Você escolheu 2'), findsOneWidget);
+    expect(find.byType(TaskDetailPane), findsNothing);
+
+    // Editar: the batch panel on the whole screen; Concluído applies to both and ends the selection.
+    await tester.tap(find.text('Editar'));
+    await tester.pumpAndSettle();
+    expect(tester.getSize(find.byType(BatchPane)).width, 560);
+    await tester.tap(find.descendant(of: find.byType(BatchPane), matching: find.text('Concluído')));
+    await settle();
+    expect(find.byType(BatchPane), findsNothing);
+    expect(find.byType(PhoneSelectionBar), findsNothing);
+    final snapshot = (await tester.runAsync(() => repo.loadSnapshot()))!;
+    expect([for (final title in ids.keys) snapshot.taskById[ids[title]]!.status], [TaskStatus.completed, TaskStatus.completed, TaskStatus.open]);
+
+    // Back ends a selection and stays on the list.
+    await select('Ler livro');
+    expect(find.byType(PhoneSelectionBar), findsOneWidget);
+    expect(await tester.binding.handlePopRoute(), isTrue);
+    await tester.pumpAndSettle();
+    expect(find.byType(PhoneSelectionBar), findsNothing);
+    expect(find.text('Ler livro'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await _dispose(tester);
   });

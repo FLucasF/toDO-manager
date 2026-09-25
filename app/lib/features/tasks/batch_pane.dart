@@ -18,6 +18,84 @@ import '../common/labels.dart';
 import '../date_picker/date_picker.dart';
 import 'task_actions.dart';
 
+/// A phone's bar while tasks are selected: ✕, "Você escolheu N itens" and Editar, which opens the
+/// batch panel on the whole screen.
+class PhoneSelectionBar extends ConsumerWidget {
+  const PhoneSelectionBar({super.key, required this.scope});
+
+  final Scope scope;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context);
+    final tt = context.tt;
+    final count = ref.watch(taskSelectionProvider).length;
+    return Material(
+      color: tt.screen,
+      shape: Border(top: BorderSide(color: tt.divider)),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(4, 6, 12, 6),
+          child: Row(
+            children: [
+              IconButton(
+                tooltip: t.actionCancel,
+                icon: Icon(Icons.close, color: tt.textSecondary),
+                onPressed: ref.read(taskSelectionProvider.notifier).clear,
+              ),
+              Expanded(
+                child: Text(
+                  t.batchSelected(count),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontWeight: FontWeight.w600, color: tt.text),
+                ),
+              ),
+              FilledButton(
+                onPressed: () => unawaited(
+                  showDialog<void>(
+                    context: context,
+                    builder: (_) => Dialog.fullscreen(
+                      child: SafeArea(child: _PhoneBatch(scope: scope)),
+                    ),
+                  ),
+                ),
+                child: Text(t.actionEdit),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The batch panel on a phone's screen; it closes when the selection ends (Cancelar or an action).
+class _PhoneBatch extends ConsumerStatefulWidget {
+  const _PhoneBatch({required this.scope});
+
+  final Scope scope;
+
+  @override
+  ConsumerState<_PhoneBatch> createState() => _PhoneBatchState();
+}
+
+class _PhoneBatchState extends ConsumerState<_PhoneBatch> {
+  bool _closed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    ref.listen(taskSelectionProvider, (_, ids) {
+      if (ids.isEmpty && !_closed) {
+        _closed = true;
+        Navigator.pop(context);
+      }
+    });
+    return BatchPane(scope: widget.scope);
+  }
+}
+
 /// Right panel while several tasks are selected: "Você escolheu N itens" + Cancelar;
 /// batch fields Dia do vencimento, Atrasar, Prioridade, Lista, Etiquetas; actions Concluído, Fixar,
 /// Não farei, Vincular Tarefa Pai, Mesclar, Duplicar, Converter para nota, Copiar Texto, Deletar.

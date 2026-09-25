@@ -1203,6 +1203,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get quickAddButton => 'Adicionar';
 
   @override
+  String get menuSelect => 'Selecionar';
+
+  @override
   String batchSelected(int count) {
     return 'Você escolheu $count itens';
   }

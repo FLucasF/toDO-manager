@@ -425,6 +425,7 @@
   "searchResultCount": "{count, plural, =0{Nenhuma tarefa} =1{1 tarefa} other{{count} tarefas}}",
   "@searchResultCount": {"placeholders": {"count": {"type": "int"}}},
   "quickAddButton": "Adicionar",
+  "menuSelect": "Selecionar",
   "batchSelected": "Você escolheu {count} itens",
   "@batchSelected": {"placeholders": {"count": {"type": "int"}}},
   "batchDueDate": "Dia do vencimento",

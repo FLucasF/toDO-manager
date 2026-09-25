@@ -31,6 +31,7 @@ import '../calendar/color_label_menu.dart';
 import 'export_print.dart';
 
 enum _MenuAction {
+  select,
   activities,
   today,
   tomorrow,
@@ -66,7 +67,15 @@ enum _MenuAction {
 
 /// Opens the task context menu at [position] and runs the chosen action.
 /// [onAddSubtask] lets the caller open the detail with a new subtask focused.
-Future<void> showTaskMenu(BuildContext context, WidgetRef ref, Task task, Offset position, {void Function(String newSubtaskId)? onAddSubtask}) async {
+/// [onSelect] adds "Selecionar" on top: a phone's way into the multi-selection.
+Future<void> showTaskMenu(
+  BuildContext context,
+  WidgetRef ref,
+  Task task,
+  Offset position, {
+  void Function(String newSubtaskId)? onAddSubtask,
+  VoidCallback? onSelect,
+}) async {
   final t = AppLocalizations.of(context);
   final tt = context.tt;
   final inTrash = task.deletedAt != null;
@@ -99,6 +108,7 @@ Future<void> showTaskMenu(BuildContext context, WidgetRef ref, Task task, Offset
           item(_MenuAction.deleteForever, t.menuDeleteForever, Icons.delete_forever_outlined, color: tt.overdue),
         ]
       : [
+          if (onSelect != null) ...[item(_MenuAction.select, t.menuSelect, Icons.checklist), const PopupMenuDivider(height: 8)],
           iconRow(t.menuDate, [
             (_MenuAction.today, Icons.wb_sunny_outlined, tt.textSecondary, t.dateToday),
             (_MenuAction.tomorrow, Icons.wb_twilight_outlined, tt.textSecondary, t.dateTomorrow),
@@ -153,6 +163,7 @@ Future<void> showTaskMenu(BuildContext context, WidgetRef ref, Task task, Offset
     items: entries,
   );
   if (action == null || !context.mounted) return;
+  if (action == _MenuAction.select) return onSelect?.call();
   if (action == _MenuAction.color) return pickTaskColor(context, ref, task, position);
   await _runTaskAction(context, ref, task, action, onAddSubtask: onAddSubtask);
 }
@@ -222,8 +233,8 @@ Future<void> _runTaskAction(
       await moveTaskTo(context, ref, task);
     case _MenuAction.tags:
       await editTaskTags(context, ref, task);
-    case _MenuAction.color:
-      break; // Handled in showTaskMenu, which has the position.
+    case _MenuAction.color || _MenuAction.select:
+      break; // Handled in showTaskMenu, which has the position and the selection callback.
     case _MenuAction.duplicate:
       await repo.duplicate(task.id);
     case _MenuAction.focusPomo:
