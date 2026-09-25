@@ -504,6 +504,45 @@ void main() {
     expect(find.text('B baixa'), findsNothing);
     await _dispose(tester);
   });
+
+  testWidgets('filters: Data > Personalizado asks for the first and last day', (tester) async {
+    final repo = Repository(db, clock: clock);
+    await tester.runAsync(() async {
+      await repo.createTask(listId: inboxListId, title: 'Dentro', dueDate: DateTime(2026, 10, 5));
+      await repo.createTask(listId: inboxListId, title: 'Fora', dueDate: DateTime(2026, 10, 20));
+    });
+    await pumpApp(tester, '/q/all/tasks');
+    final header = find.ancestor(of: find.text('Filtros'), matching: find.byType(Row)).first;
+    await tester.tap(find.descendant(of: header, matching: find.byIcon(Icons.add)));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.descendant(of: find.byType(AlertDialog), matching: find.byType(TextField)).first, 'Outubro');
+    // Listas, Tags, Data: the 3rd "Todas" is Data.
+    await tester.tap(find.descendant(of: find.byType(AlertDialog), matching: find.text('Todas')).at(2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Personalizado'));
+    await tester.pumpAndSettle();
+    // Type the days instead of tapping the calendar.
+    await tester.tap(find.byIcon(Icons.edit_outlined));
+    await tester.pumpAndSettle();
+    // The range picker is on top: its two fields are the last ones.
+    final fields = find.byType(TextField);
+    final count = fields.evaluate().length;
+    await tester.enterText(fields.at(count - 2), '01/10/2026');
+    await tester.enterText(fields.at(count - 1), '10/10/2026');
+    await tester.tap(find.text('OK').last);
+    await tester.pumpAndSettle();
+    expect(find.text('01/10/2026 - 10/10/2026'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(find.text('01/10/2026 - 10/10/2026'), findsOneWidget);
+    await tester.tap(find.text('Prévia'));
+    await tester.pump();
+    expect(find.text('1 tarefa encontrada'), findsOneWidget);
+    expect(find.descendant(of: find.byType(AlertDialog), matching: find.text('Dentro')), findsOneWidget);
+    await tester.tap(find.text('Cancelar'));
+    await tester.pumpAndSettle();
+    await _dispose(tester);
+  });
 }
 
 /// Unmounts the app and lets pending timers (clock ticker, editor debounce, drift streams) finish.

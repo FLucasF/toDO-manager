@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../app/format/date_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/clock.dart';
@@ -25,7 +26,8 @@ Future<FilterForm?> showFilterDialog(BuildContext context, {TaskFilter? editing}
   builder: (_) => _FilterDialog(editing: editing),
 );
 
-/// Label of each value of a field, in the order they are offered.
+/// Label of each value of a field, in the order they are offered. A date condition can also hold a
+/// [FilterDateRange] ("Personalizado"), which [filterValueLabel] names.
 Map<String, String> filterOptions(AppLocalizations t, Snapshot s, FilterField field) {
   final labels = Labels(t);
   return switch (field) {
@@ -36,6 +38,14 @@ Map<String, String> filterOptions(AppLocalizations t, Snapshot s, FilterField fi
     FilterField.kind => {TaskKind.text.code: t.searchTypeTask, TaskKind.note.code: t.searchTypeNote},
   };
 }
+
+/// The text of one chosen value: "Hoje", a list name, "01/09/2026 - 30/09/2026"…
+String? filterValueLabel(Map<String, String> options, String value) {
+  final range = FilterDateRange.parse(value);
+  return range == null ? options[value] : filterRangeLabel(range);
+}
+
+String filterRangeLabel(FilterDateRange r) => '${DateLabels.numeric(r.from)} - ${DateLabels.numeric(r.to)}';
 
 String filterDateLabel(AppLocalizations t, FilterDate d) => switch (d) {
   FilterDate.overdue => t.filterDateOverdue,
@@ -139,7 +149,8 @@ class _FilterDialogState extends ConsumerState<_FilterDialog> {
     Navigator.pop(context, FilterForm(name: name, rule: _rule));
   }
 
-  /// Multi-select dialog for the values of [field].
+  /// Multi-select dialog for the values of [field]. Dates end with "Personalizado", which asks for
+  /// the first and last day.
   Future<void> _pickValues(Snapshot s, FilterField field, Set<String> values) async {
     final t = AppLocalizations.of(context);
     final options = filterOptions(t, s, field);
@@ -147,6 +158,25 @@ class _FilterDialogState extends ConsumerState<_FilterDialog> {
       context: context,
       builder: (context) {
         final selected = {...values};
+        FilterDateRange? rangeOf(Set<String> values) => values.map(FilterDateRange.parse).nonNulls.firstOrNull;
+
+        Future<void> pickRange(void Function(void Function()) setLocal) async {
+          final current = rangeOf(selected);
+          final today = startOfDay(ref.read(clockProvider).now());
+          final range = await showDateRangePicker(
+            context: context,
+            firstDate: DateTime(today.year - 10),
+            lastDate: DateTime(today.year + 10),
+            initialDateRange: current == null ? null : DateTimeRange(start: current.from, end: current.to),
+          );
+          if (range == null) return;
+          setLocal(() {
+            selected
+              ..removeWhere((v) => FilterDateRange.parse(v) != null)
+              ..add(FilterDateRange(range.start, range.end).value);
+          });
+        }
+
         return StatefulBuilder(
           builder: (context, setLocal) => AlertDialog(
             title: Text(filterFieldLabel(t, field), style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
@@ -163,6 +193,18 @@ class _FilterDialogState extends ConsumerState<_FilterDialog> {
                       value: selected.contains(o.key),
                       title: Text(o.value, overflow: TextOverflow.ellipsis),
                       onChanged: (on) => setLocal(() => on == true ? selected.add(o.key) : selected.remove(o.key)),
+                    ),
+                  if (field == FilterField.date)
+                    CheckboxListTile(
+                      dense: true,
+                      value: rangeOf(selected) != null,
+                      title: Text(t.searchDateCustom),
+                      subtitle: switch (rangeOf(selected)) {
+                        final range? => Text(filterRangeLabel(range)),
+                        null => null,
+                      },
+                      onChanged: (on) =>
+                          on == true ? pickRange(setLocal) : setLocal(() => selected.removeWhere((v) => FilterDateRange.parse(v) != null)),
                     ),
                 ],
               ),
@@ -189,7 +231,7 @@ class _FilterDialogState extends ConsumerState<_FilterDialog> {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
     final options = filterOptions(t, s, field);
-    final text = values.isEmpty ? t.searchAll : [for (final v in values) ?options[v]].join(', ');
+    final text = values.isEmpty ? t.searchAll : [for (final v in values) ?filterValueLabel(options, v)].join(', ');
     return InkWell(
       onTap: () => _pickValues(s, field, values),
       borderRadius: BorderRadius.circular(6),

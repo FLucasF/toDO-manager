@@ -94,6 +94,55 @@ void main() {
     expect(await titles(const FilterRule(keyword: 'relatorio')), ['D relatório próximo mês']);
   });
 
+  test('"Personalizado": tasks due from the first to the last day, both included', () async {
+    await seed();
+    final range = FilterDateRange(DateTime(2026, 9, 20), DateTime(2026, 9, 25));
+    expect(range.value, 'range:2026-09-20..2026-09-25');
+    expect(
+      await titles(
+        FilterRule(
+          conditions: [
+            FilterCondition(field: FilterField.date, values: {range.value}),
+          ],
+        ),
+      ),
+      ['A alta hoje', 'C casa atrasada'],
+    );
+    // A range and a preset in one condition: either one.
+    expect(
+      await titles(
+        FilterRule(
+          conditions: [
+            FilterCondition(field: FilterField.date, values: {'nextMonth', FilterDateRange(DateTime(2026, 9, 25), DateTime(2026, 9, 25)).value}),
+          ],
+        ),
+      ),
+      ['A alta hoje', 'D relatório próximo mês'],
+    );
+    // "não é" in the advanced mode.
+    expect(
+      await titles(
+        FilterRule(
+          advanced: true,
+          conditions: [
+            FilterCondition(field: FilterField.date, values: {range.value}, negate: true),
+          ],
+        ),
+      ),
+      ['B alta sem data', 'D relatório próximo mês'],
+    );
+    expect(FilterDateRange.parse('range:2026-09-25..2026-09-20'), isNull);
+    expect(FilterDateRange.parse('today'), isNull);
+    expect(FilterDateRange.parse('range:2026-09-01..2026-09-30')!.to, DateTime(2026, 9, 30));
+  });
+
+  test('"Salvar como filtro" with Personalizado keeps the days', () {
+    final range = FilterDateRange(DateTime(2026, 9, 1, 15), DateTime(2026, 9, 30));
+    final rule = FilterRule.decode(FilterRule.fromSearch('', const SearchFilters(), range: range).encode());
+    expect(rule.conditions.single.field, FilterField.date);
+    expect(rule.conditions.single.values, {'range:2026-09-01..2026-09-30'});
+  });
+
   test('"Salvar como filtro" keeps the search chips; rules survive encoding', () {
     final rule = FilterRule.fromSearch('pão', const SearchFilters(priorities: {Priority.high}, kinds: {TaskKind.note}));
     final back = FilterRule.decode(rule.encode());

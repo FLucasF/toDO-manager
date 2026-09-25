@@ -15,8 +15,43 @@ enum FilterField { list, tag, date, priority, kind }
 /// mês, Sem data.
 enum FilterDate { overdue, today, tomorrow, thisWeek, nextWeek, thisMonth, nextMonth, noDate }
 
+/// A "Personalizado" date value: tasks due from [from] to [to], both days included. Stored among a
+/// date condition's values as `range:2026-09-01..2026-09-30`.
+class FilterDateRange {
+  FilterDateRange(DateTime from, DateTime to) : from = startOfDay(from), to = startOfDay(to);
+
+  final DateTime from;
+  final DateTime to;
+
+  static const _prefix = 'range:';
+
+  String get value => '$_prefix${_day(from)}..${_day(to)}';
+
+  static String _day(DateTime d) => '${d.year.toString().padLeft(4, '0')}-${_two(d.month)}-${_two(d.day)}';
+
+  static String _two(int n) => n.toString().padLeft(2, '0');
+
+  /// The range a condition value holds, or null when it is not one.
+  static FilterDateRange? parse(String value) {
+    if (!value.startsWith(_prefix)) return null;
+    final parts = value.substring(_prefix.length).split('..');
+    if (parts.length != 2) return null;
+    final from = DateTime.tryParse(parts[0]), to = DateTime.tryParse(parts[1]);
+    if (from == null || to == null || to.isBefore(from)) return null;
+    return FilterDateRange(from, to);
+  }
+
+  /// Whether [t] is due on one of the range's days.
+  bool matches(Task t) {
+    final due = t.endLocal;
+    if (due == null) return false;
+    final day = startOfDay(due);
+    return !day.isBefore(from) && !day.isAfter(to);
+  }
+}
+
 /// One condition: the field "é" (or "não é") one of [values]. Values are list ids, tag ids,
-/// [FilterDate] names, priority codes or kind codes, as text.
+/// [FilterDate] names or a [FilterDateRange], priority codes or kind codes, as text.
 class FilterCondition {
   const FilterCondition({required this.field, required this.values, this.negate = false});
 
@@ -79,11 +114,12 @@ class FilterRule {
     }
   }
 
-  /// A filter from the search page's chips ("Salvar como filtro").
-  static FilterRule fromSearch(String keyword, SearchFilters f, {FilterDate? date}) => FilterRule(
+  /// A filter from the search page's chips ("Salvar como filtro"): a preset [date] or a custom [range].
+  static FilterRule fromSearch(String keyword, SearchFilters f, {FilterDate? date, FilterDateRange? range}) => FilterRule(
     keyword: keyword.trim(),
     conditions: [
       if (date != null) FilterCondition(field: FilterField.date, values: {date.name}),
+      if (date == null && range != null) FilterCondition(field: FilterField.date, values: {range.value}),
       if (f.listIds.isNotEmpty) FilterCondition(field: FilterField.list, values: f.listIds),
       if (f.tagIds.isNotEmpty) FilterCondition(field: FilterField.tag, values: f.tagIds),
       if (f.priorities.isNotEmpty) FilterCondition(field: FilterField.priority, values: {for (final p in f.priorities) '${p.code}'}),
@@ -120,7 +156,9 @@ bool _conditionMatches(Snapshot s, Task t, FilterCondition c, DateTime today) {
     FilterField.tag => s.tagsOf(t.id).any((tag) => c.values.contains(tag.id) || (tag.parentId != null && c.values.contains(tag.parentId))),
     FilterField.priority => c.values.contains('${t.priority.code}'),
     FilterField.kind => c.values.contains(t.kind.code) || (t.kind == TaskKind.checklist && c.values.contains(TaskKind.text.code)),
-    FilterField.date => c.values.any((v) => FilterDate.values.where((d) => d.name == v).any((d) => _dateMatches(t, d, today))),
+    FilterField.date => c.values.any(
+      (v) => FilterDateRange.parse(v)?.matches(t) ?? FilterDate.values.where((d) => d.name == v).any((d) => _dateMatches(t, d, today)),
+    ),
   };
   return c.negate ? !hit : hit;
 }

@@ -69,7 +69,8 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
   }
 
   /// "Salvar como filtro": the term and the chips become a filter in the sidebar. Filters only
-  /// hold open tasks, so the status chip and the past date presets are left out.
+  /// hold open tasks, so the status chip and the past date presets are left out; "Personalizado"
+  /// keeps its days.
   Future<void> _saveAsFilter(DateTime today) async {
     final t = AppLocalizations.of(context);
     final name = await promptText(context, title: t.filterSaveAs, initial: _query.text.trim(), hint: t.filterName);
@@ -80,7 +81,10 @@ class _SearchPaneState extends ConsumerState<SearchPane> {
       SearchDatePreset.thisMonth => FilterDate.thisMonth,
       _ => null,
     };
-    final id = await ref.read(repositoryProvider).createFilter(name, FilterRule.fromSearch(_query.text, _filters(today), date: date));
+    final custom = _date == SearchDatePreset.custom ? _custom : null;
+    final range = custom == null ? null : FilterDateRange(custom.start, custom.end);
+    final rule = FilterRule.fromSearch(_query.text, _filters(today), date: date, range: range);
+    final id = await ref.read(repositoryProvider).createFilter(name, rule);
     if (!mounted) return;
     showToast(context, t.filterSaved(name.trim()));
     context.go(Routes.of(FilterScope(id)));
