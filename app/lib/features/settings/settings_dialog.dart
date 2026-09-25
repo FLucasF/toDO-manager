@@ -369,6 +369,7 @@ class _FeaturesTab extends ConsumerWidget {
           settingsLabel: t.focusSettings,
         ),
         feature(AppFeature.countdown, Icons.hourglass_bottom, t.navCountdown, t.featureCountdownHint),
+        feature(AppFeature.finance, Icons.account_balance_wallet_outlined, t.navFinance, t.featureFinanceHint),
       ],
     );
   }

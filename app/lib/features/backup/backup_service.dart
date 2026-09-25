@@ -92,6 +92,13 @@ class BackupService {
       final habitCheckins = await source.select(source.habitCheckins).get();
       final filters = await source.select(source.filters).get();
       final activities = await source.select(source.activities).get();
+      final finCategories = await source.select(source.finCategories).get();
+      final finCards = await source.select(source.finCards).get();
+      final finRecurrings = await source.select(source.finRecurrings).get();
+      final finEntries = await source.select(source.finEntries).get();
+      final finCardPayments = await source.select(source.finCardPayments).get();
+      final loans = await source.select(source.loans).get();
+      final loanPayments = await source.select(source.loanPayments).get();
       await _db.transaction(() async {
         // Children first, then parents (foreign keys).
         for (final table in <TableInfo<Table, Object?>>[
@@ -112,6 +119,13 @@ class BackupService {
           _db.templates,
           _db.countdowns,
           _db.focusRecords,
+          _db.loanPayments,
+          _db.loans,
+          _db.finCardPayments,
+          _db.finEntries,
+          _db.finRecurrings,
+          _db.finCards,
+          _db.finCategories,
         ]) {
           await _db.delete(table).go();
         }
@@ -133,6 +147,13 @@ class BackupService {
           b.insertAll(_db.habitCheckins, habitCheckins);
           b.insertAll(_db.filters, filters);
           b.insertAll(_db.activities, activities);
+          b.insertAll(_db.finCategories, finCategories);
+          b.insertAll(_db.finCards, finCards);
+          b.insertAll(_db.finRecurrings, finRecurrings);
+          b.insertAll(_db.finEntries, finEntries);
+          b.insertAll(_db.finCardPayments, finCardPayments);
+          b.insertAll(_db.loans, loans);
+          b.insertAll(_db.loanPayments, loanPayments);
         });
       });
     } finally {

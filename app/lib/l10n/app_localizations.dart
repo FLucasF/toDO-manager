@@ -7590,6 +7590,354 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Anualmente em {date}'**
   String recurrenceYearlyOn(String date);
+
+  /// No description provided for @navFinance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Finanças'**
+  String get navFinance;
+
+  /// No description provided for @featureFinanceHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receitas, despesas, cartões, contas fixas e empréstimos.'**
+  String get featureFinanceHint;
+
+  /// No description provided for @finTabEntries.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lançamentos'**
+  String get finTabEntries;
+
+  /// No description provided for @finTabCategories.
+  ///
+  /// In pt, this message translates to:
+  /// **'Categorias'**
+  String get finTabCategories;
+
+  /// No description provided for @finNewEntry.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo lançamento'**
+  String get finNewEntry;
+
+  /// No description provided for @finEditEntry.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar lançamento'**
+  String get finEditEntry;
+
+  /// No description provided for @finIncome.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receita'**
+  String get finIncome;
+
+  /// No description provided for @finExpense.
+  ///
+  /// In pt, this message translates to:
+  /// **'Despesa'**
+  String get finExpense;
+
+  /// No description provided for @finIncomes.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receitas'**
+  String get finIncomes;
+
+  /// No description provided for @finExpenses.
+  ///
+  /// In pt, this message translates to:
+  /// **'Despesas'**
+  String get finExpenses;
+
+  /// No description provided for @finBalance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saldo'**
+  String get finBalance;
+
+  /// No description provided for @finAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor'**
+  String get finAmount;
+
+  /// No description provided for @finDescription.
+  ///
+  /// In pt, this message translates to:
+  /// **'Descrição'**
+  String get finDescription;
+
+  /// No description provided for @finDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data'**
+  String get finDate;
+
+  /// No description provided for @finCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Categoria'**
+  String get finCategory;
+
+  /// No description provided for @finNoCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem categoria'**
+  String get finNoCategory;
+
+  /// No description provided for @finCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cartão'**
+  String get finCard;
+
+  /// No description provided for @finNoCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Não foi no cartão'**
+  String get finNoCard;
+
+  /// No description provided for @finInstallments.
+  ///
+  /// In pt, this message translates to:
+  /// **'Parcelas'**
+  String get finInstallments;
+
+  /// No description provided for @finInstallmentsValue.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count}x de {amount}'**
+  String finInstallmentsValue(int count, String amount);
+
+  /// No description provided for @finNote.
+  ///
+  /// In pt, this message translates to:
+  /// **'Observação'**
+  String get finNote;
+
+  /// No description provided for @finInvalidAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Digite um valor maior que zero.'**
+  String get finInvalidAmount;
+
+  /// No description provided for @finEntriesEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum lançamento neste período.'**
+  String get finEntriesEmpty;
+
+  /// No description provided for @finInvoiceOf.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fatura {card} · vence {day}'**
+  String finInvoiceOf(String card, String day);
+
+  /// No description provided for @finEntryDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lançamento excluído'**
+  String get finEntryDeleted;
+
+  /// No description provided for @finDeleteInstallments.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir compra parcelada'**
+  String get finDeleteInstallments;
+
+  /// No description provided for @finDeleteOneInstallment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Só esta parcela'**
+  String get finDeleteOneInstallment;
+
+  /// No description provided for @finDeleteAllInstallments.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todas as {count} parcelas'**
+  String finDeleteAllInstallments(int count);
+
+  /// No description provided for @finDuplicate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Duplicar'**
+  String get finDuplicate;
+
+  /// No description provided for @finLimitNear.
+  ///
+  /// In pt, this message translates to:
+  /// **'{category}: {percent} do limite do mês ({spent} de {limit}).'**
+  String finLimitNear(String category, String percent, String spent, String limit);
+
+  /// No description provided for @finLimitOver.
+  ///
+  /// In pt, this message translates to:
+  /// **'{category} passou do limite do mês: {spent} de {limit}.'**
+  String finLimitOver(String category, String spent, String limit);
+
+  /// No description provided for @finNewCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova categoria'**
+  String get finNewCategory;
+
+  /// No description provided for @finEditCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar categoria'**
+  String get finEditCategory;
+
+  /// No description provided for @finCategoryName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome'**
+  String get finCategoryName;
+
+  /// No description provided for @finMonthlyLimit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limite por mês'**
+  String get finMonthlyLimit;
+
+  /// No description provided for @finLimitHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em branco, sem limite. O aviso vem a partir de 80% do limite.'**
+  String get finLimitHint;
+
+  /// No description provided for @finLimitProgress.
+  ///
+  /// In pt, this message translates to:
+  /// **'{spent} de {limit}'**
+  String finLimitProgress(String spent, String limit);
+
+  /// No description provided for @finSpentThisMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'{spent} neste mês'**
+  String finSpentThisMonth(String spent);
+
+  /// No description provided for @finDeleteCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir a categoria \"{name}\"? Os lançamentos dela ficam sem categoria.'**
+  String finDeleteCategory(String name);
+
+  /// No description provided for @finIcon.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ícone'**
+  String get finIcon;
+
+  /// No description provided for @finPeriodMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mês'**
+  String get finPeriodMonth;
+
+  /// No description provided for @finPeriodYear.
+  ///
+  /// In pt, this message translates to:
+  /// **'Ano'**
+  String get finPeriodYear;
+
+  /// No description provided for @finAllCategories.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todas as categorias'**
+  String get finAllCategories;
+
+  /// No description provided for @finAllKinds.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receitas e despesas'**
+  String get finAllKinds;
+
+  /// No description provided for @finSearchHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Buscar na descrição'**
+  String get finSearchHint;
+
+  /// No description provided for @finCatFood.
+  ///
+  /// In pt, this message translates to:
+  /// **'Alimentação'**
+  String get finCatFood;
+
+  /// No description provided for @finCatMarket.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mercado'**
+  String get finCatMarket;
+
+  /// No description provided for @finCatTransport.
+  ///
+  /// In pt, this message translates to:
+  /// **'Transporte'**
+  String get finCatTransport;
+
+  /// No description provided for @finCatHome.
+  ///
+  /// In pt, this message translates to:
+  /// **'Moradia'**
+  String get finCatHome;
+
+  /// No description provided for @finCatBills.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contas da casa'**
+  String get finCatBills;
+
+  /// No description provided for @finCatHealth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Saúde'**
+  String get finCatHealth;
+
+  /// No description provided for @finCatEducation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Educação'**
+  String get finCatEducation;
+
+  /// No description provided for @finCatLeisure.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lazer'**
+  String get finCatLeisure;
+
+  /// No description provided for @finCatShopping.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compras'**
+  String get finCatShopping;
+
+  /// No description provided for @finCatSubscriptions.
+  ///
+  /// In pt, this message translates to:
+  /// **'Assinaturas'**
+  String get finCatSubscriptions;
+
+  /// No description provided for @finCatOther.
+  ///
+  /// In pt, this message translates to:
+  /// **'Outros'**
+  String get finCatOther;
+
+  /// No description provided for @finCatSalary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Salário'**
+  String get finCatSalary;
+
+  /// No description provided for @finCatExtra.
+  ///
+  /// In pt, this message translates to:
+  /// **'Renda extra'**
+  String get finCatExtra;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

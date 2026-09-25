@@ -35,6 +35,11 @@ abstract final class Routes {
 
   static String statisticsOf(String tab) => '$statistics/$tab';
 
+  /// Finanças (`/finance/{tab}`): entries, categories…; without a tab, the entries.
+  static const finance = '/finance';
+
+  static String financeOf(String tab) => '$finance/$tab';
+
   /// Eisenhower Matrix (`#m/all/matrix`).
   static const matrix = '/matrix';
 

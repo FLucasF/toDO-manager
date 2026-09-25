@@ -14,6 +14,7 @@ import '../features/backup/auto_backup.dart';
 import '../features/backup/backup_actions.dart' show runAutoBackup;
 import '../features/countdown/countdown_page.dart';
 import '../features/focus/focus_page.dart';
+import '../features/finance/finance_page.dart';
 import '../features/habits/habit_page.dart';
 import '../domain/calendar.dart';
 import '../features/calendar/calendar_page.dart';
@@ -50,6 +51,14 @@ GoRouter buildRouter({String initialLocation = Routes.initial}) => GoRouter(
     GoRoute(
       path: Routes.habit,
       pageBuilder: (context, state) => const NoTransitionPage(child: HabitPage()),
+    ),
+    GoRoute(
+      path: Routes.finance,
+      pageBuilder: (context, state) => const NoTransitionPage(child: FinancePage(tab: FinanceTab.entries)),
+    ),
+    GoRoute(
+      path: '${Routes.finance}/:tab',
+      pageBuilder: (context, state) => NoTransitionPage(child: FinancePage(tab: FinanceTab.fromRoute(state.pathParameters['tab']))),
     ),
     GoRoute(
       path: Routes.statistics,

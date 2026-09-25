@@ -196,7 +196,7 @@ class _AppShellState extends ConsumerState<AppShell> {
 /// Fixed left bar (50 px): avatar with the account menu and the module icons. Modules from
 /// later phases (Calendar, Matrix, Focus, Habits, Countdown, Search) appear as they are built.
 /// Modules of the icon bar; the current one is highlighted.
-enum AppModule { tasks, calendar, matrix, focus, habit, countdown }
+enum AppModule { tasks, calendar, matrix, focus, habit, countdown, finance }
 
 class IconBar extends ConsumerWidget {
   const IconBar({super.key, this.current = AppModule.tasks});
@@ -287,6 +287,12 @@ class IconBar extends ConsumerWidget {
               tooltip: t.navCountdown,
               icon: Icon(Icons.hourglass_bottom, color: current == AppModule.countdown ? tt.primary : tt.textTertiary, size: 22),
               onPressed: () => context.go(Routes.countdown),
+            ),
+          if (prefs.has(AppFeature.finance))
+            IconButton(
+              tooltip: t.navFinance,
+              icon: Icon(Icons.account_balance_wallet_outlined, color: current == AppModule.finance ? tt.primary : tt.textTertiary, size: 22),
+              onPressed: () => context.go(Routes.finance),
             ),
           IconButton(
             tooltip: t.navSearch,

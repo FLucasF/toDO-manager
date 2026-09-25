@@ -3987,4 +3987,194 @@ class AppLocalizationsPt extends AppLocalizations {
   String recurrenceYearlyOn(String date) {
     return 'Anualmente em $date';
   }
+
+  @override
+  String get navFinance => 'Finanças';
+
+  @override
+  String get featureFinanceHint => 'Receitas, despesas, cartões, contas fixas e empréstimos.';
+
+  @override
+  String get finTabEntries => 'Lançamentos';
+
+  @override
+  String get finTabCategories => 'Categorias';
+
+  @override
+  String get finNewEntry => 'Novo lançamento';
+
+  @override
+  String get finEditEntry => 'Editar lançamento';
+
+  @override
+  String get finIncome => 'Receita';
+
+  @override
+  String get finExpense => 'Despesa';
+
+  @override
+  String get finIncomes => 'Receitas';
+
+  @override
+  String get finExpenses => 'Despesas';
+
+  @override
+  String get finBalance => 'Saldo';
+
+  @override
+  String get finAmount => 'Valor';
+
+  @override
+  String get finDescription => 'Descrição';
+
+  @override
+  String get finDate => 'Data';
+
+  @override
+  String get finCategory => 'Categoria';
+
+  @override
+  String get finNoCategory => 'Sem categoria';
+
+  @override
+  String get finCard => 'Cartão';
+
+  @override
+  String get finNoCard => 'Não foi no cartão';
+
+  @override
+  String get finInstallments => 'Parcelas';
+
+  @override
+  String finInstallmentsValue(int count, String amount) {
+    return '${count}x de $amount';
+  }
+
+  @override
+  String get finNote => 'Observação';
+
+  @override
+  String get finInvalidAmount => 'Digite um valor maior que zero.';
+
+  @override
+  String get finEntriesEmpty => 'Nenhum lançamento neste período.';
+
+  @override
+  String finInvoiceOf(String card, String day) {
+    return 'Fatura $card · vence $day';
+  }
+
+  @override
+  String get finEntryDeleted => 'Lançamento excluído';
+
+  @override
+  String get finDeleteInstallments => 'Excluir compra parcelada';
+
+  @override
+  String get finDeleteOneInstallment => 'Só esta parcela';
+
+  @override
+  String finDeleteAllInstallments(int count) {
+    return 'Todas as $count parcelas';
+  }
+
+  @override
+  String get finDuplicate => 'Duplicar';
+
+  @override
+  String finLimitNear(String category, String percent, String spent, String limit) {
+    return '$category: $percent do limite do mês ($spent de $limit).';
+  }
+
+  @override
+  String finLimitOver(String category, String spent, String limit) {
+    return '$category passou do limite do mês: $spent de $limit.';
+  }
+
+  @override
+  String get finNewCategory => 'Nova categoria';
+
+  @override
+  String get finEditCategory => 'Editar categoria';
+
+  @override
+  String get finCategoryName => 'Nome';
+
+  @override
+  String get finMonthlyLimit => 'Limite por mês';
+
+  @override
+  String get finLimitHint => 'Em branco, sem limite. O aviso vem a partir de 80% do limite.';
+
+  @override
+  String finLimitProgress(String spent, String limit) {
+    return '$spent de $limit';
+  }
+
+  @override
+  String finSpentThisMonth(String spent) {
+    return '$spent neste mês';
+  }
+
+  @override
+  String finDeleteCategory(String name) {
+    return 'Excluir a categoria \"$name\"? Os lançamentos dela ficam sem categoria.';
+  }
+
+  @override
+  String get finIcon => 'Ícone';
+
+  @override
+  String get finPeriodMonth => 'Mês';
+
+  @override
+  String get finPeriodYear => 'Ano';
+
+  @override
+  String get finAllCategories => 'Todas as categorias';
+
+  @override
+  String get finAllKinds => 'Receitas e despesas';
+
+  @override
+  String get finSearchHint => 'Buscar na descrição';
+
+  @override
+  String get finCatFood => 'Alimentação';
+
+  @override
+  String get finCatMarket => 'Mercado';
+
+  @override
+  String get finCatTransport => 'Transporte';
+
+  @override
+  String get finCatHome => 'Moradia';
+
+  @override
+  String get finCatBills => 'Contas da casa';
+
+  @override
+  String get finCatHealth => 'Saúde';
+
+  @override
+  String get finCatEducation => 'Educação';
+
+  @override
+  String get finCatLeisure => 'Lazer';
+
+  @override
+  String get finCatShopping => 'Compras';
+
+  @override
+  String get finCatSubscriptions => 'Assinaturas';
+
+  @override
+  String get finCatOther => 'Outros';
+
+  @override
+  String get finCatSalary => 'Salário';
+
+  @override
+  String get finCatExtra => 'Renda extra';
 }

@@ -4,8 +4,10 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../core/ids.dart';
 import '../../domain/enums.dart';
+import '../../domain/finance/finance_enums.dart';
 import 'converters.dart';
 import 'database.steps.dart';
+import 'finance_tables.dart';
 import 'tables.dart';
 
 part 'database.g.dart';
@@ -29,6 +31,13 @@ part 'database.g.dart';
     HabitCheckins,
     Filters,
     Activities,
+    FinCategories,
+    FinCards,
+    FinRecurrings,
+    FinEntries,
+    FinCardPayments,
+    Loans,
+    LoanPayments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -37,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and run `dart run drift_dev make-migrations` to freeze the new
   /// schema and generate its migration test.
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -100,6 +109,20 @@ class AppDatabase extends _$AppDatabase {
       },
       from16To17: (m, schema) async {
         await m.addColumn(schema.tasks, schema.tasks.color);
+      },
+      // Finanças.
+      from17To18: (m, schema) async {
+        for (final table in [
+          schema.finCategories,
+          schema.finCards,
+          schema.finRecurrings,
+          schema.finEntries,
+          schema.finCardPayments,
+          schema.loans,
+          schema.loanPayments,
+        ]) {
+          await m.createTable(table);
+        }
       },
     ),
     beforeOpen: (details) async {

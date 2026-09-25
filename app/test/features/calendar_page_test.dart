@@ -485,6 +485,28 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('"Mais opções": choosing "Não se repete" again takes the repetition away', (tester) async {
+    await pumpCalendar(tester, '/calendar/m');
+    await tester.tap(find.text('15'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Adicionar título'), 'Feira');
+    await tester.tap(find.text('Mais opções'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Não se repete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Diariamente').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Diariamente'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Não se repete').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Não se repete'), findsOneWidget);
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect((await tester.runAsync(() => taskNamed('Feira')))!.repeatRule, isNull);
+    await finish(tester);
+  });
+
   testWidgets('a click on a task opens Google\'s details popup: when, repetition, reminder, list; done, Editar, ⋮, Delete', (tester) async {
     await tester.runAsync(
       () => repo.createTask(

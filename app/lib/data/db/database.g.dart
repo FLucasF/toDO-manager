@@ -9211,6 +9211,4031 @@ class ActivitiesCompanion extends UpdateCompanion<Activity> {
   }
 }
 
+class $FinCategoriesTable extends FinCategories with TableInfo<$FinCategoriesTable, FinCategory> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FinCategoriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FinKind, String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<FinKind>($FinCategoriesTable.$converterkind);
+  static const VerificationMeta _iconMeta = const VerificationMeta('icon');
+  @override
+  late final GeneratedColumn<String> icon = GeneratedColumn<String>(
+    'icon',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<String> color = GeneratedColumn<String>(
+    'color',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _monthlyLimitMeta = const VerificationMeta('monthlyLimit');
+  @override
+  late final GeneratedColumn<int> monthlyLimit = GeneratedColumn<int>(
+    'monthly_limit',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta('archivedAt');
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, createdAt, updatedAt, deletedAt, name, kind, icon, color, monthlyLimit, archivedAt, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fin_categories';
+  @override
+  VerificationContext validateIntegrity(Insertable<FinCategory> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('icon')) {
+      context.handle(_iconMeta, icon.isAcceptableOrUnknown(data['icon']!, _iconMeta));
+    }
+    if (data.containsKey('color')) {
+      context.handle(_colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    }
+    if (data.containsKey('monthly_limit')) {
+      context.handle(_monthlyLimitMeta, monthlyLimit.isAcceptableOrUnknown(data['monthly_limit']!, _monthlyLimitMeta));
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(_archivedAtMeta, archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta, sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FinCategory map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FinCategory(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      kind: $FinCategoriesTable.$converterkind.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!),
+      icon: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}icon'])!,
+      color: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}color']),
+      monthlyLimit: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}monthly_limit']),
+      archivedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}archived_at']),
+      sortOrder: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $FinCategoriesTable createAlias(String alias) {
+    return $FinCategoriesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<FinKind, String> $converterkind = const TextCodeConverter<FinKind>(FinKind.fromCode);
+}
+
+class FinCategory extends DataClass implements Insertable<FinCategory> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final String name;
+  final FinKind kind;
+
+  /// Emoji shown before the name.
+  final String icon;
+  final String? color;
+  final int? monthlyLimit;
+  final DateTime? archivedAt;
+  final int sortOrder;
+  const FinCategory({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.name,
+    required this.kind,
+    required this.icon,
+    this.color,
+    this.monthlyLimit,
+    this.archivedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['name'] = Variable<String>(name);
+    {
+      map['kind'] = Variable<String>($FinCategoriesTable.$converterkind.toSql(kind));
+    }
+    map['icon'] = Variable<String>(icon);
+    if (!nullToAbsent || color != null) {
+      map['color'] = Variable<String>(color);
+    }
+    if (!nullToAbsent || monthlyLimit != null) {
+      map['monthly_limit'] = Variable<int>(monthlyLimit);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  FinCategoriesCompanion toCompanion(bool nullToAbsent) {
+    return FinCategoriesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      name: Value(name),
+      kind: Value(kind),
+      icon: Value(icon),
+      color: color == null && nullToAbsent ? const Value.absent() : Value(color),
+      monthlyLimit: monthlyLimit == null && nullToAbsent ? const Value.absent() : Value(monthlyLimit),
+      archivedAt: archivedAt == null && nullToAbsent ? const Value.absent() : Value(archivedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory FinCategory.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FinCategory(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      name: serializer.fromJson<String>(json['name']),
+      kind: serializer.fromJson<FinKind>(json['kind']),
+      icon: serializer.fromJson<String>(json['icon']),
+      color: serializer.fromJson<String?>(json['color']),
+      monthlyLimit: serializer.fromJson<int?>(json['monthlyLimit']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'name': serializer.toJson<String>(name),
+      'kind': serializer.toJson<FinKind>(kind),
+      'icon': serializer.toJson<String>(icon),
+      'color': serializer.toJson<String?>(color),
+      'monthlyLimit': serializer.toJson<int?>(monthlyLimit),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  FinCategory copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? name,
+    FinKind? kind,
+    String? icon,
+    Value<String?> color = const Value.absent(),
+    Value<int?> monthlyLimit = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    int? sortOrder,
+  }) => FinCategory(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    name: name ?? this.name,
+    kind: kind ?? this.kind,
+    icon: icon ?? this.icon,
+    color: color.present ? color.value : this.color,
+    monthlyLimit: monthlyLimit.present ? monthlyLimit.value : this.monthlyLimit,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  FinCategory copyWithCompanion(FinCategoriesCompanion data) {
+    return FinCategory(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      name: data.name.present ? data.name.value : this.name,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      icon: data.icon.present ? data.icon.value : this.icon,
+      color: data.color.present ? data.color.value : this.color,
+      monthlyLimit: data.monthlyLimit.present ? data.monthlyLimit.value : this.monthlyLimit,
+      archivedAt: data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCategory(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('icon: $icon, ')
+          ..write('color: $color, ')
+          ..write('monthlyLimit: $monthlyLimit, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, deletedAt, name, kind, icon, color, monthlyLimit, archivedAt, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FinCategory &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.name == this.name &&
+          other.kind == this.kind &&
+          other.icon == this.icon &&
+          other.color == this.color &&
+          other.monthlyLimit == this.monthlyLimit &&
+          other.archivedAt == this.archivedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class FinCategoriesCompanion extends UpdateCompanion<FinCategory> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> name;
+  final Value<FinKind> kind;
+  final Value<String> icon;
+  final Value<String?> color;
+  final Value<int?> monthlyLimit;
+  final Value<DateTime?> archivedAt;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const FinCategoriesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.icon = const Value.absent(),
+    this.color = const Value.absent(),
+    this.monthlyLimit = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FinCategoriesCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String name,
+    required FinKind kind,
+    this.icon = const Value.absent(),
+    this.color = const Value.absent(),
+    this.monthlyLimit = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       name = Value(name),
+       kind = Value(kind),
+       sortOrder = Value(sortOrder);
+  static Insertable<FinCategory> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? name,
+    Expression<String>? kind,
+    Expression<String>? icon,
+    Expression<String>? color,
+    Expression<int>? monthlyLimit,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (name != null) 'name': name,
+      if (kind != null) 'kind': kind,
+      if (icon != null) 'icon': icon,
+      if (color != null) 'color': color,
+      if (monthlyLimit != null) 'monthly_limit': monthlyLimit,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FinCategoriesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? name,
+    Value<FinKind>? kind,
+    Value<String>? icon,
+    Value<String?>? color,
+    Value<int?>? monthlyLimit,
+    Value<DateTime?>? archivedAt,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return FinCategoriesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      icon: icon ?? this.icon,
+      color: color ?? this.color,
+      monthlyLimit: monthlyLimit ?? this.monthlyLimit,
+      archivedAt: archivedAt ?? this.archivedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>($FinCategoriesTable.$converterkind.toSql(kind.value));
+    }
+    if (icon.present) {
+      map['icon'] = Variable<String>(icon.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<String>(color.value);
+    }
+    if (monthlyLimit.present) {
+      map['monthly_limit'] = Variable<int>(monthlyLimit.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCategoriesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('icon: $icon, ')
+          ..write('color: $color, ')
+          ..write('monthlyLimit: $monthlyLimit, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FinCardsTable extends FinCards with TableInfo<$FinCardsTable, FinCard> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FinCardsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _colorMeta = const VerificationMeta('color');
+  @override
+  late final GeneratedColumn<String> color = GeneratedColumn<String>(
+    'color',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _closingDayMeta = const VerificationMeta('closingDay');
+  @override
+  late final GeneratedColumn<int> closingDay = GeneratedColumn<int>(
+    'closing_day',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueDayMeta = const VerificationMeta('dueDay');
+  @override
+  late final GeneratedColumn<int> dueDay = GeneratedColumn<int>('due_day', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _creditLimitMeta = const VerificationMeta('creditLimit');
+  @override
+  late final GeneratedColumn<int> creditLimit = GeneratedColumn<int>(
+    'credit_limit',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta('archivedAt');
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, createdAt, updatedAt, deletedAt, name, color, closingDay, dueDay, creditLimit, archivedAt, sortOrder];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fin_cards';
+  @override
+  VerificationContext validateIntegrity(Insertable<FinCard> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(_nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('color')) {
+      context.handle(_colorMeta, color.isAcceptableOrUnknown(data['color']!, _colorMeta));
+    }
+    if (data.containsKey('closing_day')) {
+      context.handle(_closingDayMeta, closingDay.isAcceptableOrUnknown(data['closing_day']!, _closingDayMeta));
+    } else if (isInserting) {
+      context.missing(_closingDayMeta);
+    }
+    if (data.containsKey('due_day')) {
+      context.handle(_dueDayMeta, dueDay.isAcceptableOrUnknown(data['due_day']!, _dueDayMeta));
+    } else if (isInserting) {
+      context.missing(_dueDayMeta);
+    }
+    if (data.containsKey('credit_limit')) {
+      context.handle(_creditLimitMeta, creditLimit.isAcceptableOrUnknown(data['credit_limit']!, _creditLimitMeta));
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(_archivedAtMeta, archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta, sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FinCard map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FinCard(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      name: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      color: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}color']),
+      closingDay: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}closing_day'])!,
+      dueDay: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}due_day'])!,
+      creditLimit: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}credit_limit']),
+      archivedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}archived_at']),
+      sortOrder: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $FinCardsTable createAlias(String alias) {
+    return $FinCardsTable(attachedDatabase, alias);
+  }
+}
+
+class FinCard extends DataClass implements Insertable<FinCard> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final String name;
+  final String? color;
+  final int closingDay;
+  final int dueDay;
+  final int? creditLimit;
+  final DateTime? archivedAt;
+  final int sortOrder;
+  const FinCard({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.name,
+    this.color,
+    required this.closingDay,
+    required this.dueDay,
+    this.creditLimit,
+    this.archivedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || color != null) {
+      map['color'] = Variable<String>(color);
+    }
+    map['closing_day'] = Variable<int>(closingDay);
+    map['due_day'] = Variable<int>(dueDay);
+    if (!nullToAbsent || creditLimit != null) {
+      map['credit_limit'] = Variable<int>(creditLimit);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  FinCardsCompanion toCompanion(bool nullToAbsent) {
+    return FinCardsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      name: Value(name),
+      color: color == null && nullToAbsent ? const Value.absent() : Value(color),
+      closingDay: Value(closingDay),
+      dueDay: Value(dueDay),
+      creditLimit: creditLimit == null && nullToAbsent ? const Value.absent() : Value(creditLimit),
+      archivedAt: archivedAt == null && nullToAbsent ? const Value.absent() : Value(archivedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory FinCard.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FinCard(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      name: serializer.fromJson<String>(json['name']),
+      color: serializer.fromJson<String?>(json['color']),
+      closingDay: serializer.fromJson<int>(json['closingDay']),
+      dueDay: serializer.fromJson<int>(json['dueDay']),
+      creditLimit: serializer.fromJson<int?>(json['creditLimit']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'name': serializer.toJson<String>(name),
+      'color': serializer.toJson<String?>(color),
+      'closingDay': serializer.toJson<int>(closingDay),
+      'dueDay': serializer.toJson<int>(dueDay),
+      'creditLimit': serializer.toJson<int?>(creditLimit),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  FinCard copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? name,
+    Value<String?> color = const Value.absent(),
+    int? closingDay,
+    int? dueDay,
+    Value<int?> creditLimit = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    int? sortOrder,
+  }) => FinCard(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    name: name ?? this.name,
+    color: color.present ? color.value : this.color,
+    closingDay: closingDay ?? this.closingDay,
+    dueDay: dueDay ?? this.dueDay,
+    creditLimit: creditLimit.present ? creditLimit.value : this.creditLimit,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  FinCard copyWithCompanion(FinCardsCompanion data) {
+    return FinCard(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      name: data.name.present ? data.name.value : this.name,
+      color: data.color.present ? data.color.value : this.color,
+      closingDay: data.closingDay.present ? data.closingDay.value : this.closingDay,
+      dueDay: data.dueDay.present ? data.dueDay.value : this.dueDay,
+      creditLimit: data.creditLimit.present ? data.creditLimit.value : this.creditLimit,
+      archivedAt: data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCard(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('color: $color, ')
+          ..write('closingDay: $closingDay, ')
+          ..write('dueDay: $dueDay, ')
+          ..write('creditLimit: $creditLimit, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, deletedAt, name, color, closingDay, dueDay, creditLimit, archivedAt, sortOrder);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FinCard &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.name == this.name &&
+          other.color == this.color &&
+          other.closingDay == this.closingDay &&
+          other.dueDay == this.dueDay &&
+          other.creditLimit == this.creditLimit &&
+          other.archivedAt == this.archivedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class FinCardsCompanion extends UpdateCompanion<FinCard> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> name;
+  final Value<String?> color;
+  final Value<int> closingDay;
+  final Value<int> dueDay;
+  final Value<int?> creditLimit;
+  final Value<DateTime?> archivedAt;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const FinCardsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.name = const Value.absent(),
+    this.color = const Value.absent(),
+    this.closingDay = const Value.absent(),
+    this.dueDay = const Value.absent(),
+    this.creditLimit = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FinCardsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String name,
+    this.color = const Value.absent(),
+    required int closingDay,
+    required int dueDay,
+    this.creditLimit = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       name = Value(name),
+       closingDay = Value(closingDay),
+       dueDay = Value(dueDay),
+       sortOrder = Value(sortOrder);
+  static Insertable<FinCard> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? name,
+    Expression<String>? color,
+    Expression<int>? closingDay,
+    Expression<int>? dueDay,
+    Expression<int>? creditLimit,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (name != null) 'name': name,
+      if (color != null) 'color': color,
+      if (closingDay != null) 'closing_day': closingDay,
+      if (dueDay != null) 'due_day': dueDay,
+      if (creditLimit != null) 'credit_limit': creditLimit,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FinCardsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? name,
+    Value<String?>? color,
+    Value<int>? closingDay,
+    Value<int>? dueDay,
+    Value<int?>? creditLimit,
+    Value<DateTime?>? archivedAt,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return FinCardsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      name: name ?? this.name,
+      color: color ?? this.color,
+      closingDay: closingDay ?? this.closingDay,
+      dueDay: dueDay ?? this.dueDay,
+      creditLimit: creditLimit ?? this.creditLimit,
+      archivedAt: archivedAt ?? this.archivedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (color.present) {
+      map['color'] = Variable<String>(color.value);
+    }
+    if (closingDay.present) {
+      map['closing_day'] = Variable<int>(closingDay.value);
+    }
+    if (dueDay.present) {
+      map['due_day'] = Variable<int>(dueDay.value);
+    }
+    if (creditLimit.present) {
+      map['credit_limit'] = Variable<int>(creditLimit.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCardsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('name: $name, ')
+          ..write('color: $color, ')
+          ..write('closingDay: $closingDay, ')
+          ..write('dueDay: $dueDay, ')
+          ..write('creditLimit: $creditLimit, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FinRecurringsTable extends FinRecurrings with TableInfo<$FinRecurringsTable, FinRecurring> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FinRecurringsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FinKind, String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<FinKind>($FinRecurringsTable.$converterkind);
+  static const VerificationMeta _descriptionMeta = const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>('amount', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta('categoryId');
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_categories (id)'),
+  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+    'card_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_cards (id)'),
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FinFrequency, String> frequency = GeneratedColumn<String>(
+    'frequency',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<FinFrequency>($FinRecurringsTable.$converterfrequency);
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<int> day = GeneratedColumn<int>('day', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _monthMeta = const VerificationMeta('month');
+  @override
+  late final GeneratedColumn<int> month = GeneratedColumn<int>('month', aliasedName, true, type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _startDateMeta = const VerificationMeta('startDate');
+  @override
+  late final GeneratedColumn<DateTime> startDate = GeneratedColumn<DateTime>(
+    'start_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _endDateMeta = const VerificationMeta('endDate');
+  @override
+  late final GeneratedColumn<DateTime> endDate = GeneratedColumn<DateTime>(
+    'end_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _remindDaysBeforeMeta = const VerificationMeta('remindDaysBefore');
+  @override
+  late final GeneratedColumn<int> remindDaysBefore = GeneratedColumn<int>(
+    'remind_days_before',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta('archivedAt');
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta('sortOrder');
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    kind,
+    description,
+    amount,
+    categoryId,
+    cardId,
+    frequency,
+    day,
+    month,
+    startDate,
+    endDate,
+    remindDaysBefore,
+    archivedAt,
+    sortOrder,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fin_recurrings';
+  @override
+  VerificationContext validateIntegrity(Insertable<FinRecurring> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(_descriptionMeta, description.isAcceptableOrUnknown(data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta, amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(_categoryIdMeta, categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta));
+    }
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta, cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    }
+    if (data.containsKey('day')) {
+      context.handle(_dayMeta, day.isAcceptableOrUnknown(data['day']!, _dayMeta));
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('month')) {
+      context.handle(_monthMeta, month.isAcceptableOrUnknown(data['month']!, _monthMeta));
+    }
+    if (data.containsKey('start_date')) {
+      context.handle(_startDateMeta, startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta));
+    } else if (isInserting) {
+      context.missing(_startDateMeta);
+    }
+    if (data.containsKey('end_date')) {
+      context.handle(_endDateMeta, endDate.isAcceptableOrUnknown(data['end_date']!, _endDateMeta));
+    }
+    if (data.containsKey('remind_days_before')) {
+      context.handle(_remindDaysBeforeMeta, remindDaysBefore.isAcceptableOrUnknown(data['remind_days_before']!, _remindDaysBeforeMeta));
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(_archivedAtMeta, archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta));
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(_sortOrderMeta, sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta));
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FinRecurring map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FinRecurring(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      kind: $FinRecurringsTable.$converterkind.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!),
+      description: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      amount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
+      categoryId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}category_id']),
+      cardId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}card_id']),
+      frequency: $FinRecurringsTable.$converterfrequency.fromSql(
+        attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}frequency'])!,
+      ),
+      day: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}day'])!,
+      month: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}month']),
+      startDate: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}start_date'])!,
+      endDate: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}end_date']),
+      remindDaysBefore: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}remind_days_before']),
+      archivedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}archived_at']),
+      sortOrder: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}sort_order'])!,
+    );
+  }
+
+  @override
+  $FinRecurringsTable createAlias(String alias) {
+    return $FinRecurringsTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<FinKind, String> $converterkind = const TextCodeConverter<FinKind>(FinKind.fromCode);
+  static TypeConverter<FinFrequency, String> $converterfrequency = const TextCodeConverter<FinFrequency>(FinFrequency.fromCode);
+}
+
+class FinRecurring extends DataClass implements Insertable<FinRecurring> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final FinKind kind;
+  final String description;
+  final int amount;
+  final String? categoryId;
+  final String? cardId;
+  final FinFrequency frequency;
+  final int day;
+  final int? month;
+  final DateTime startDate;
+  final DateTime? endDate;
+
+  /// Reminder N days before each due day (0 = on the day); null = none.
+  final int? remindDaysBefore;
+  final DateTime? archivedAt;
+  final int sortOrder;
+  const FinRecurring({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.kind,
+    required this.description,
+    required this.amount,
+    this.categoryId,
+    this.cardId,
+    required this.frequency,
+    required this.day,
+    this.month,
+    required this.startDate,
+    this.endDate,
+    this.remindDaysBefore,
+    this.archivedAt,
+    required this.sortOrder,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    {
+      map['kind'] = Variable<String>($FinRecurringsTable.$converterkind.toSql(kind));
+    }
+    map['description'] = Variable<String>(description);
+    map['amount'] = Variable<int>(amount);
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
+    if (!nullToAbsent || cardId != null) {
+      map['card_id'] = Variable<String>(cardId);
+    }
+    {
+      map['frequency'] = Variable<String>($FinRecurringsTable.$converterfrequency.toSql(frequency));
+    }
+    map['day'] = Variable<int>(day);
+    if (!nullToAbsent || month != null) {
+      map['month'] = Variable<int>(month);
+    }
+    map['start_date'] = Variable<DateTime>(startDate);
+    if (!nullToAbsent || endDate != null) {
+      map['end_date'] = Variable<DateTime>(endDate);
+    }
+    if (!nullToAbsent || remindDaysBefore != null) {
+      map['remind_days_before'] = Variable<int>(remindDaysBefore);
+    }
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    map['sort_order'] = Variable<int>(sortOrder);
+    return map;
+  }
+
+  FinRecurringsCompanion toCompanion(bool nullToAbsent) {
+    return FinRecurringsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      kind: Value(kind),
+      description: Value(description),
+      amount: Value(amount),
+      categoryId: categoryId == null && nullToAbsent ? const Value.absent() : Value(categoryId),
+      cardId: cardId == null && nullToAbsent ? const Value.absent() : Value(cardId),
+      frequency: Value(frequency),
+      day: Value(day),
+      month: month == null && nullToAbsent ? const Value.absent() : Value(month),
+      startDate: Value(startDate),
+      endDate: endDate == null && nullToAbsent ? const Value.absent() : Value(endDate),
+      remindDaysBefore: remindDaysBefore == null && nullToAbsent ? const Value.absent() : Value(remindDaysBefore),
+      archivedAt: archivedAt == null && nullToAbsent ? const Value.absent() : Value(archivedAt),
+      sortOrder: Value(sortOrder),
+    );
+  }
+
+  factory FinRecurring.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FinRecurring(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      kind: serializer.fromJson<FinKind>(json['kind']),
+      description: serializer.fromJson<String>(json['description']),
+      amount: serializer.fromJson<int>(json['amount']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
+      cardId: serializer.fromJson<String?>(json['cardId']),
+      frequency: serializer.fromJson<FinFrequency>(json['frequency']),
+      day: serializer.fromJson<int>(json['day']),
+      month: serializer.fromJson<int?>(json['month']),
+      startDate: serializer.fromJson<DateTime>(json['startDate']),
+      endDate: serializer.fromJson<DateTime?>(json['endDate']),
+      remindDaysBefore: serializer.fromJson<int?>(json['remindDaysBefore']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'kind': serializer.toJson<FinKind>(kind),
+      'description': serializer.toJson<String>(description),
+      'amount': serializer.toJson<int>(amount),
+      'categoryId': serializer.toJson<String?>(categoryId),
+      'cardId': serializer.toJson<String?>(cardId),
+      'frequency': serializer.toJson<FinFrequency>(frequency),
+      'day': serializer.toJson<int>(day),
+      'month': serializer.toJson<int?>(month),
+      'startDate': serializer.toJson<DateTime>(startDate),
+      'endDate': serializer.toJson<DateTime?>(endDate),
+      'remindDaysBefore': serializer.toJson<int?>(remindDaysBefore),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+    };
+  }
+
+  FinRecurring copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    FinKind? kind,
+    String? description,
+    int? amount,
+    Value<String?> categoryId = const Value.absent(),
+    Value<String?> cardId = const Value.absent(),
+    FinFrequency? frequency,
+    int? day,
+    Value<int?> month = const Value.absent(),
+    DateTime? startDate,
+    Value<DateTime?> endDate = const Value.absent(),
+    Value<int?> remindDaysBefore = const Value.absent(),
+    Value<DateTime?> archivedAt = const Value.absent(),
+    int? sortOrder,
+  }) => FinRecurring(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    kind: kind ?? this.kind,
+    description: description ?? this.description,
+    amount: amount ?? this.amount,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    cardId: cardId.present ? cardId.value : this.cardId,
+    frequency: frequency ?? this.frequency,
+    day: day ?? this.day,
+    month: month.present ? month.value : this.month,
+    startDate: startDate ?? this.startDate,
+    endDate: endDate.present ? endDate.value : this.endDate,
+    remindDaysBefore: remindDaysBefore.present ? remindDaysBefore.value : this.remindDaysBefore,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+  );
+  FinRecurring copyWithCompanion(FinRecurringsCompanion data) {
+    return FinRecurring(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      description: data.description.present ? data.description.value : this.description,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      categoryId: data.categoryId.present ? data.categoryId.value : this.categoryId,
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      frequency: data.frequency.present ? data.frequency.value : this.frequency,
+      day: data.day.present ? data.day.value : this.day,
+      month: data.month.present ? data.month.value : this.month,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
+      endDate: data.endDate.present ? data.endDate.value : this.endDate,
+      remindDaysBefore: data.remindDaysBefore.present ? data.remindDaysBefore.value : this.remindDaysBefore,
+      archivedAt: data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinRecurring(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('description: $description, ')
+          ..write('amount: $amount, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('cardId: $cardId, ')
+          ..write('frequency: $frequency, ')
+          ..write('day: $day, ')
+          ..write('month: $month, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('remindDaysBefore: $remindDaysBefore, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    kind,
+    description,
+    amount,
+    categoryId,
+    cardId,
+    frequency,
+    day,
+    month,
+    startDate,
+    endDate,
+    remindDaysBefore,
+    archivedAt,
+    sortOrder,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FinRecurring &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.kind == this.kind &&
+          other.description == this.description &&
+          other.amount == this.amount &&
+          other.categoryId == this.categoryId &&
+          other.cardId == this.cardId &&
+          other.frequency == this.frequency &&
+          other.day == this.day &&
+          other.month == this.month &&
+          other.startDate == this.startDate &&
+          other.endDate == this.endDate &&
+          other.remindDaysBefore == this.remindDaysBefore &&
+          other.archivedAt == this.archivedAt &&
+          other.sortOrder == this.sortOrder);
+}
+
+class FinRecurringsCompanion extends UpdateCompanion<FinRecurring> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<FinKind> kind;
+  final Value<String> description;
+  final Value<int> amount;
+  final Value<String?> categoryId;
+  final Value<String?> cardId;
+  final Value<FinFrequency> frequency;
+  final Value<int> day;
+  final Value<int?> month;
+  final Value<DateTime> startDate;
+  final Value<DateTime?> endDate;
+  final Value<int?> remindDaysBefore;
+  final Value<DateTime?> archivedAt;
+  final Value<int> sortOrder;
+  final Value<int> rowid;
+  const FinRecurringsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.description = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.cardId = const Value.absent(),
+    this.frequency = const Value.absent(),
+    this.day = const Value.absent(),
+    this.month = const Value.absent(),
+    this.startDate = const Value.absent(),
+    this.endDate = const Value.absent(),
+    this.remindDaysBefore = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FinRecurringsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required FinKind kind,
+    required String description,
+    required int amount,
+    this.categoryId = const Value.absent(),
+    this.cardId = const Value.absent(),
+    required FinFrequency frequency,
+    required int day,
+    this.month = const Value.absent(),
+    required DateTime startDate,
+    this.endDate = const Value.absent(),
+    this.remindDaysBefore = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    required int sortOrder,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       kind = Value(kind),
+       description = Value(description),
+       amount = Value(amount),
+       frequency = Value(frequency),
+       day = Value(day),
+       startDate = Value(startDate),
+       sortOrder = Value(sortOrder);
+  static Insertable<FinRecurring> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? kind,
+    Expression<String>? description,
+    Expression<int>? amount,
+    Expression<String>? categoryId,
+    Expression<String>? cardId,
+    Expression<String>? frequency,
+    Expression<int>? day,
+    Expression<int>? month,
+    Expression<DateTime>? startDate,
+    Expression<DateTime>? endDate,
+    Expression<int>? remindDaysBefore,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? sortOrder,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (kind != null) 'kind': kind,
+      if (description != null) 'description': description,
+      if (amount != null) 'amount': amount,
+      if (categoryId != null) 'category_id': categoryId,
+      if (cardId != null) 'card_id': cardId,
+      if (frequency != null) 'frequency': frequency,
+      if (day != null) 'day': day,
+      if (month != null) 'month': month,
+      if (startDate != null) 'start_date': startDate,
+      if (endDate != null) 'end_date': endDate,
+      if (remindDaysBefore != null) 'remind_days_before': remindDaysBefore,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FinRecurringsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<FinKind>? kind,
+    Value<String>? description,
+    Value<int>? amount,
+    Value<String?>? categoryId,
+    Value<String?>? cardId,
+    Value<FinFrequency>? frequency,
+    Value<int>? day,
+    Value<int?>? month,
+    Value<DateTime>? startDate,
+    Value<DateTime?>? endDate,
+    Value<int?>? remindDaysBefore,
+    Value<DateTime?>? archivedAt,
+    Value<int>? sortOrder,
+    Value<int>? rowid,
+  }) {
+    return FinRecurringsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      kind: kind ?? this.kind,
+      description: description ?? this.description,
+      amount: amount ?? this.amount,
+      categoryId: categoryId ?? this.categoryId,
+      cardId: cardId ?? this.cardId,
+      frequency: frequency ?? this.frequency,
+      day: day ?? this.day,
+      month: month ?? this.month,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      remindDaysBefore: remindDaysBefore ?? this.remindDaysBefore,
+      archivedAt: archivedAt ?? this.archivedAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>($FinRecurringsTable.$converterkind.toSql(kind.value));
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (frequency.present) {
+      map['frequency'] = Variable<String>($FinRecurringsTable.$converterfrequency.toSql(frequency.value));
+    }
+    if (day.present) {
+      map['day'] = Variable<int>(day.value);
+    }
+    if (month.present) {
+      map['month'] = Variable<int>(month.value);
+    }
+    if (startDate.present) {
+      map['start_date'] = Variable<DateTime>(startDate.value);
+    }
+    if (endDate.present) {
+      map['end_date'] = Variable<DateTime>(endDate.value);
+    }
+    if (remindDaysBefore.present) {
+      map['remind_days_before'] = Variable<int>(remindDaysBefore.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinRecurringsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('description: $description, ')
+          ..write('amount: $amount, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('cardId: $cardId, ')
+          ..write('frequency: $frequency, ')
+          ..write('day: $day, ')
+          ..write('month: $month, ')
+          ..write('startDate: $startDate, ')
+          ..write('endDate: $endDate, ')
+          ..write('remindDaysBefore: $remindDaysBefore, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FinEntriesTable extends FinEntries with TableInfo<$FinEntriesTable, FinEntry> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FinEntriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<FinKind, String> kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<FinKind>($FinEntriesTable.$converterkind);
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>('amount', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _categoryIdMeta = const VerificationMeta('categoryId');
+  @override
+  late final GeneratedColumn<String> categoryId = GeneratedColumn<String>(
+    'category_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_categories (id)'),
+  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+    'card_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_cards (id)'),
+  );
+  static const VerificationMeta _invoiceMonthMeta = const VerificationMeta('invoiceMonth');
+  @override
+  late final GeneratedColumn<DateTime> invoiceMonth = GeneratedColumn<DateTime>(
+    'invoice_month',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _installmentGroupMeta = const VerificationMeta('installmentGroup');
+  @override
+  late final GeneratedColumn<String> installmentGroup = GeneratedColumn<String>(
+    'installment_group',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _installmentIndexMeta = const VerificationMeta('installmentIndex');
+  @override
+  late final GeneratedColumn<int> installmentIndex = GeneratedColumn<int>(
+    'installment_index',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _installmentCountMeta = const VerificationMeta('installmentCount');
+  @override
+  late final GeneratedColumn<int> installmentCount = GeneratedColumn<int>(
+    'installment_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _recurringIdMeta = const VerificationMeta('recurringId');
+  @override
+  late final GeneratedColumn<String> recurringId = GeneratedColumn<String>(
+    'recurring_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_recurrings (id)'),
+  );
+  static const VerificationMeta _recurringDueMeta = const VerificationMeta('recurringDue');
+  @override
+  late final GeneratedColumn<DateTime> recurringDue = GeneratedColumn<DateTime>(
+    'recurring_due',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    kind,
+    amount,
+    date,
+    description,
+    categoryId,
+    cardId,
+    invoiceMonth,
+    installmentGroup,
+    installmentIndex,
+    installmentCount,
+    recurringId,
+    recurringDue,
+    note,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fin_entries';
+  @override
+  VerificationContext validateIntegrity(Insertable<FinEntry> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta, amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(_dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(_descriptionMeta, description.isAcceptableOrUnknown(data['description']!, _descriptionMeta));
+    }
+    if (data.containsKey('category_id')) {
+      context.handle(_categoryIdMeta, categoryId.isAcceptableOrUnknown(data['category_id']!, _categoryIdMeta));
+    }
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta, cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    }
+    if (data.containsKey('invoice_month')) {
+      context.handle(_invoiceMonthMeta, invoiceMonth.isAcceptableOrUnknown(data['invoice_month']!, _invoiceMonthMeta));
+    }
+    if (data.containsKey('installment_group')) {
+      context.handle(_installmentGroupMeta, installmentGroup.isAcceptableOrUnknown(data['installment_group']!, _installmentGroupMeta));
+    }
+    if (data.containsKey('installment_index')) {
+      context.handle(_installmentIndexMeta, installmentIndex.isAcceptableOrUnknown(data['installment_index']!, _installmentIndexMeta));
+    }
+    if (data.containsKey('installment_count')) {
+      context.handle(_installmentCountMeta, installmentCount.isAcceptableOrUnknown(data['installment_count']!, _installmentCountMeta));
+    }
+    if (data.containsKey('recurring_id')) {
+      context.handle(_recurringIdMeta, recurringId.isAcceptableOrUnknown(data['recurring_id']!, _recurringIdMeta));
+    }
+    if (data.containsKey('recurring_due')) {
+      context.handle(_recurringDueMeta, recurringDue.isAcceptableOrUnknown(data['recurring_due']!, _recurringDueMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(_noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FinEntry map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FinEntry(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      kind: $FinEntriesTable.$converterkind.fromSql(attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}kind'])!),
+      amount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
+      date: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      description: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      categoryId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}category_id']),
+      cardId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}card_id']),
+      invoiceMonth: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}invoice_month']),
+      installmentGroup: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}installment_group']),
+      installmentIndex: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}installment_index']),
+      installmentCount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}installment_count']),
+      recurringId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}recurring_id']),
+      recurringDue: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}recurring_due']),
+      note: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}note'])!,
+    );
+  }
+
+  @override
+  $FinEntriesTable createAlias(String alias) {
+    return $FinEntriesTable(attachedDatabase, alias);
+  }
+
+  static TypeConverter<FinKind, String> $converterkind = const TextCodeConverter<FinKind>(FinKind.fromCode);
+}
+
+class FinEntry extends DataClass implements Insertable<FinEntry> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final FinKind kind;
+  final int amount;
+  final DateTime date;
+  final String description;
+  final String? categoryId;
+  final String? cardId;
+  final DateTime? invoiceMonth;
+  final String? installmentGroup;
+  final int? installmentIndex;
+  final int? installmentCount;
+
+  /// The recurring bill it paid, and which occurrence (its due day).
+  final String? recurringId;
+  final DateTime? recurringDue;
+  final String note;
+  const FinEntry({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.kind,
+    required this.amount,
+    required this.date,
+    required this.description,
+    this.categoryId,
+    this.cardId,
+    this.invoiceMonth,
+    this.installmentGroup,
+    this.installmentIndex,
+    this.installmentCount,
+    this.recurringId,
+    this.recurringDue,
+    required this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    {
+      map['kind'] = Variable<String>($FinEntriesTable.$converterkind.toSql(kind));
+    }
+    map['amount'] = Variable<int>(amount);
+    map['date'] = Variable<DateTime>(date);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || categoryId != null) {
+      map['category_id'] = Variable<String>(categoryId);
+    }
+    if (!nullToAbsent || cardId != null) {
+      map['card_id'] = Variable<String>(cardId);
+    }
+    if (!nullToAbsent || invoiceMonth != null) {
+      map['invoice_month'] = Variable<DateTime>(invoiceMonth);
+    }
+    if (!nullToAbsent || installmentGroup != null) {
+      map['installment_group'] = Variable<String>(installmentGroup);
+    }
+    if (!nullToAbsent || installmentIndex != null) {
+      map['installment_index'] = Variable<int>(installmentIndex);
+    }
+    if (!nullToAbsent || installmentCount != null) {
+      map['installment_count'] = Variable<int>(installmentCount);
+    }
+    if (!nullToAbsent || recurringId != null) {
+      map['recurring_id'] = Variable<String>(recurringId);
+    }
+    if (!nullToAbsent || recurringDue != null) {
+      map['recurring_due'] = Variable<DateTime>(recurringDue);
+    }
+    map['note'] = Variable<String>(note);
+    return map;
+  }
+
+  FinEntriesCompanion toCompanion(bool nullToAbsent) {
+    return FinEntriesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      kind: Value(kind),
+      amount: Value(amount),
+      date: Value(date),
+      description: Value(description),
+      categoryId: categoryId == null && nullToAbsent ? const Value.absent() : Value(categoryId),
+      cardId: cardId == null && nullToAbsent ? const Value.absent() : Value(cardId),
+      invoiceMonth: invoiceMonth == null && nullToAbsent ? const Value.absent() : Value(invoiceMonth),
+      installmentGroup: installmentGroup == null && nullToAbsent ? const Value.absent() : Value(installmentGroup),
+      installmentIndex: installmentIndex == null && nullToAbsent ? const Value.absent() : Value(installmentIndex),
+      installmentCount: installmentCount == null && nullToAbsent ? const Value.absent() : Value(installmentCount),
+      recurringId: recurringId == null && nullToAbsent ? const Value.absent() : Value(recurringId),
+      recurringDue: recurringDue == null && nullToAbsent ? const Value.absent() : Value(recurringDue),
+      note: Value(note),
+    );
+  }
+
+  factory FinEntry.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FinEntry(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      kind: serializer.fromJson<FinKind>(json['kind']),
+      amount: serializer.fromJson<int>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      description: serializer.fromJson<String>(json['description']),
+      categoryId: serializer.fromJson<String?>(json['categoryId']),
+      cardId: serializer.fromJson<String?>(json['cardId']),
+      invoiceMonth: serializer.fromJson<DateTime?>(json['invoiceMonth']),
+      installmentGroup: serializer.fromJson<String?>(json['installmentGroup']),
+      installmentIndex: serializer.fromJson<int?>(json['installmentIndex']),
+      installmentCount: serializer.fromJson<int?>(json['installmentCount']),
+      recurringId: serializer.fromJson<String?>(json['recurringId']),
+      recurringDue: serializer.fromJson<DateTime?>(json['recurringDue']),
+      note: serializer.fromJson<String>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'kind': serializer.toJson<FinKind>(kind),
+      'amount': serializer.toJson<int>(amount),
+      'date': serializer.toJson<DateTime>(date),
+      'description': serializer.toJson<String>(description),
+      'categoryId': serializer.toJson<String?>(categoryId),
+      'cardId': serializer.toJson<String?>(cardId),
+      'invoiceMonth': serializer.toJson<DateTime?>(invoiceMonth),
+      'installmentGroup': serializer.toJson<String?>(installmentGroup),
+      'installmentIndex': serializer.toJson<int?>(installmentIndex),
+      'installmentCount': serializer.toJson<int?>(installmentCount),
+      'recurringId': serializer.toJson<String?>(recurringId),
+      'recurringDue': serializer.toJson<DateTime?>(recurringDue),
+      'note': serializer.toJson<String>(note),
+    };
+  }
+
+  FinEntry copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    FinKind? kind,
+    int? amount,
+    DateTime? date,
+    String? description,
+    Value<String?> categoryId = const Value.absent(),
+    Value<String?> cardId = const Value.absent(),
+    Value<DateTime?> invoiceMonth = const Value.absent(),
+    Value<String?> installmentGroup = const Value.absent(),
+    Value<int?> installmentIndex = const Value.absent(),
+    Value<int?> installmentCount = const Value.absent(),
+    Value<String?> recurringId = const Value.absent(),
+    Value<DateTime?> recurringDue = const Value.absent(),
+    String? note,
+  }) => FinEntry(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    kind: kind ?? this.kind,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+    description: description ?? this.description,
+    categoryId: categoryId.present ? categoryId.value : this.categoryId,
+    cardId: cardId.present ? cardId.value : this.cardId,
+    invoiceMonth: invoiceMonth.present ? invoiceMonth.value : this.invoiceMonth,
+    installmentGroup: installmentGroup.present ? installmentGroup.value : this.installmentGroup,
+    installmentIndex: installmentIndex.present ? installmentIndex.value : this.installmentIndex,
+    installmentCount: installmentCount.present ? installmentCount.value : this.installmentCount,
+    recurringId: recurringId.present ? recurringId.value : this.recurringId,
+    recurringDue: recurringDue.present ? recurringDue.value : this.recurringDue,
+    note: note ?? this.note,
+  );
+  FinEntry copyWithCompanion(FinEntriesCompanion data) {
+    return FinEntry(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+      description: data.description.present ? data.description.value : this.description,
+      categoryId: data.categoryId.present ? data.categoryId.value : this.categoryId,
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      invoiceMonth: data.invoiceMonth.present ? data.invoiceMonth.value : this.invoiceMonth,
+      installmentGroup: data.installmentGroup.present ? data.installmentGroup.value : this.installmentGroup,
+      installmentIndex: data.installmentIndex.present ? data.installmentIndex.value : this.installmentIndex,
+      installmentCount: data.installmentCount.present ? data.installmentCount.value : this.installmentCount,
+      recurringId: data.recurringId.present ? data.recurringId.value : this.recurringId,
+      recurringDue: data.recurringDue.present ? data.recurringDue.value : this.recurringDue,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinEntry(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('description: $description, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('cardId: $cardId, ')
+          ..write('invoiceMonth: $invoiceMonth, ')
+          ..write('installmentGroup: $installmentGroup, ')
+          ..write('installmentIndex: $installmentIndex, ')
+          ..write('installmentCount: $installmentCount, ')
+          ..write('recurringId: $recurringId, ')
+          ..write('recurringDue: $recurringDue, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    kind,
+    amount,
+    date,
+    description,
+    categoryId,
+    cardId,
+    invoiceMonth,
+    installmentGroup,
+    installmentIndex,
+    installmentCount,
+    recurringId,
+    recurringDue,
+    note,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FinEntry &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.kind == this.kind &&
+          other.amount == this.amount &&
+          other.date == this.date &&
+          other.description == this.description &&
+          other.categoryId == this.categoryId &&
+          other.cardId == this.cardId &&
+          other.invoiceMonth == this.invoiceMonth &&
+          other.installmentGroup == this.installmentGroup &&
+          other.installmentIndex == this.installmentIndex &&
+          other.installmentCount == this.installmentCount &&
+          other.recurringId == this.recurringId &&
+          other.recurringDue == this.recurringDue &&
+          other.note == this.note);
+}
+
+class FinEntriesCompanion extends UpdateCompanion<FinEntry> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<FinKind> kind;
+  final Value<int> amount;
+  final Value<DateTime> date;
+  final Value<String> description;
+  final Value<String?> categoryId;
+  final Value<String?> cardId;
+  final Value<DateTime?> invoiceMonth;
+  final Value<String?> installmentGroup;
+  final Value<int?> installmentIndex;
+  final Value<int?> installmentCount;
+  final Value<String?> recurringId;
+  final Value<DateTime?> recurringDue;
+  final Value<String> note;
+  final Value<int> rowid;
+  const FinEntriesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.description = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.cardId = const Value.absent(),
+    this.invoiceMonth = const Value.absent(),
+    this.installmentGroup = const Value.absent(),
+    this.installmentIndex = const Value.absent(),
+    this.installmentCount = const Value.absent(),
+    this.recurringId = const Value.absent(),
+    this.recurringDue = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FinEntriesCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required FinKind kind,
+    required int amount,
+    required DateTime date,
+    this.description = const Value.absent(),
+    this.categoryId = const Value.absent(),
+    this.cardId = const Value.absent(),
+    this.invoiceMonth = const Value.absent(),
+    this.installmentGroup = const Value.absent(),
+    this.installmentIndex = const Value.absent(),
+    this.installmentCount = const Value.absent(),
+    this.recurringId = const Value.absent(),
+    this.recurringDue = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       kind = Value(kind),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<FinEntry> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? kind,
+    Expression<int>? amount,
+    Expression<DateTime>? date,
+    Expression<String>? description,
+    Expression<String>? categoryId,
+    Expression<String>? cardId,
+    Expression<DateTime>? invoiceMonth,
+    Expression<String>? installmentGroup,
+    Expression<int>? installmentIndex,
+    Expression<int>? installmentCount,
+    Expression<String>? recurringId,
+    Expression<DateTime>? recurringDue,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (kind != null) 'kind': kind,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (description != null) 'description': description,
+      if (categoryId != null) 'category_id': categoryId,
+      if (cardId != null) 'card_id': cardId,
+      if (invoiceMonth != null) 'invoice_month': invoiceMonth,
+      if (installmentGroup != null) 'installment_group': installmentGroup,
+      if (installmentIndex != null) 'installment_index': installmentIndex,
+      if (installmentCount != null) 'installment_count': installmentCount,
+      if (recurringId != null) 'recurring_id': recurringId,
+      if (recurringDue != null) 'recurring_due': recurringDue,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FinEntriesCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<FinKind>? kind,
+    Value<int>? amount,
+    Value<DateTime>? date,
+    Value<String>? description,
+    Value<String?>? categoryId,
+    Value<String?>? cardId,
+    Value<DateTime?>? invoiceMonth,
+    Value<String?>? installmentGroup,
+    Value<int?>? installmentIndex,
+    Value<int?>? installmentCount,
+    Value<String?>? recurringId,
+    Value<DateTime?>? recurringDue,
+    Value<String>? note,
+    Value<int>? rowid,
+  }) {
+    return FinEntriesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      kind: kind ?? this.kind,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      description: description ?? this.description,
+      categoryId: categoryId ?? this.categoryId,
+      cardId: cardId ?? this.cardId,
+      invoiceMonth: invoiceMonth ?? this.invoiceMonth,
+      installmentGroup: installmentGroup ?? this.installmentGroup,
+      installmentIndex: installmentIndex ?? this.installmentIndex,
+      installmentCount: installmentCount ?? this.installmentCount,
+      recurringId: recurringId ?? this.recurringId,
+      recurringDue: recurringDue ?? this.recurringDue,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>($FinEntriesTable.$converterkind.toSql(kind.value));
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (categoryId.present) {
+      map['category_id'] = Variable<String>(categoryId.value);
+    }
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (invoiceMonth.present) {
+      map['invoice_month'] = Variable<DateTime>(invoiceMonth.value);
+    }
+    if (installmentGroup.present) {
+      map['installment_group'] = Variable<String>(installmentGroup.value);
+    }
+    if (installmentIndex.present) {
+      map['installment_index'] = Variable<int>(installmentIndex.value);
+    }
+    if (installmentCount.present) {
+      map['installment_count'] = Variable<int>(installmentCount.value);
+    }
+    if (recurringId.present) {
+      map['recurring_id'] = Variable<String>(recurringId.value);
+    }
+    if (recurringDue.present) {
+      map['recurring_due'] = Variable<DateTime>(recurringDue.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinEntriesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('kind: $kind, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('description: $description, ')
+          ..write('categoryId: $categoryId, ')
+          ..write('cardId: $cardId, ')
+          ..write('invoiceMonth: $invoiceMonth, ')
+          ..write('installmentGroup: $installmentGroup, ')
+          ..write('installmentIndex: $installmentIndex, ')
+          ..write('installmentCount: $installmentCount, ')
+          ..write('recurringId: $recurringId, ')
+          ..write('recurringDue: $recurringDue, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FinCardPaymentsTable extends FinCardPayments with TableInfo<$FinCardPaymentsTable, FinCardPayment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FinCardPaymentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cardIdMeta = const VerificationMeta('cardId');
+  @override
+  late final GeneratedColumn<String> cardId = GeneratedColumn<String>(
+    'card_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES fin_cards (id)'),
+  );
+  static const VerificationMeta _invoiceMonthMeta = const VerificationMeta('invoiceMonth');
+  @override
+  late final GeneratedColumn<DateTime> invoiceMonth = GeneratedColumn<DateTime>(
+    'invoice_month',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>('amount', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, createdAt, updatedAt, deletedAt, cardId, invoiceMonth, amount, date];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'fin_card_payments';
+  @override
+  VerificationContext validateIntegrity(Insertable<FinCardPayment> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('card_id')) {
+      context.handle(_cardIdMeta, cardId.isAcceptableOrUnknown(data['card_id']!, _cardIdMeta));
+    } else if (isInserting) {
+      context.missing(_cardIdMeta);
+    }
+    if (data.containsKey('invoice_month')) {
+      context.handle(_invoiceMonthMeta, invoiceMonth.isAcceptableOrUnknown(data['invoice_month']!, _invoiceMonthMeta));
+    } else if (isInserting) {
+      context.missing(_invoiceMonthMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta, amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(_dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  FinCardPayment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FinCardPayment(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      cardId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}card_id'])!,
+      invoiceMonth: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}invoice_month'])!,
+      amount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
+      date: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+    );
+  }
+
+  @override
+  $FinCardPaymentsTable createAlias(String alias) {
+    return $FinCardPaymentsTable(attachedDatabase, alias);
+  }
+}
+
+class FinCardPayment extends DataClass implements Insertable<FinCardPayment> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final String cardId;
+  final DateTime invoiceMonth;
+  final int amount;
+  final DateTime date;
+  const FinCardPayment({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.cardId,
+    required this.invoiceMonth,
+    required this.amount,
+    required this.date,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['card_id'] = Variable<String>(cardId);
+    map['invoice_month'] = Variable<DateTime>(invoiceMonth);
+    map['amount'] = Variable<int>(amount);
+    map['date'] = Variable<DateTime>(date);
+    return map;
+  }
+
+  FinCardPaymentsCompanion toCompanion(bool nullToAbsent) {
+    return FinCardPaymentsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      cardId: Value(cardId),
+      invoiceMonth: Value(invoiceMonth),
+      amount: Value(amount),
+      date: Value(date),
+    );
+  }
+
+  factory FinCardPayment.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FinCardPayment(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      cardId: serializer.fromJson<String>(json['cardId']),
+      invoiceMonth: serializer.fromJson<DateTime>(json['invoiceMonth']),
+      amount: serializer.fromJson<int>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'cardId': serializer.toJson<String>(cardId),
+      'invoiceMonth': serializer.toJson<DateTime>(invoiceMonth),
+      'amount': serializer.toJson<int>(amount),
+      'date': serializer.toJson<DateTime>(date),
+    };
+  }
+
+  FinCardPayment copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? cardId,
+    DateTime? invoiceMonth,
+    int? amount,
+    DateTime? date,
+  }) => FinCardPayment(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    cardId: cardId ?? this.cardId,
+    invoiceMonth: invoiceMonth ?? this.invoiceMonth,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+  );
+  FinCardPayment copyWithCompanion(FinCardPaymentsCompanion data) {
+    return FinCardPayment(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      cardId: data.cardId.present ? data.cardId.value : this.cardId,
+      invoiceMonth: data.invoiceMonth.present ? data.invoiceMonth.value : this.invoiceMonth,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCardPayment(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('cardId: $cardId, ')
+          ..write('invoiceMonth: $invoiceMonth, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, deletedAt, cardId, invoiceMonth, amount, date);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FinCardPayment &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.cardId == this.cardId &&
+          other.invoiceMonth == this.invoiceMonth &&
+          other.amount == this.amount &&
+          other.date == this.date);
+}
+
+class FinCardPaymentsCompanion extends UpdateCompanion<FinCardPayment> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> cardId;
+  final Value<DateTime> invoiceMonth;
+  final Value<int> amount;
+  final Value<DateTime> date;
+  final Value<int> rowid;
+  const FinCardPaymentsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.cardId = const Value.absent(),
+    this.invoiceMonth = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FinCardPaymentsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String cardId,
+    required DateTime invoiceMonth,
+    required int amount,
+    required DateTime date,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       cardId = Value(cardId),
+       invoiceMonth = Value(invoiceMonth),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<FinCardPayment> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? cardId,
+    Expression<DateTime>? invoiceMonth,
+    Expression<int>? amount,
+    Expression<DateTime>? date,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (cardId != null) 'card_id': cardId,
+      if (invoiceMonth != null) 'invoice_month': invoiceMonth,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FinCardPaymentsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? cardId,
+    Value<DateTime>? invoiceMonth,
+    Value<int>? amount,
+    Value<DateTime>? date,
+    Value<int>? rowid,
+  }) {
+    return FinCardPaymentsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      cardId: cardId ?? this.cardId,
+      invoiceMonth: invoiceMonth ?? this.invoiceMonth,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (cardId.present) {
+      map['card_id'] = Variable<String>(cardId.value);
+    }
+    if (invoiceMonth.present) {
+      map['invoice_month'] = Variable<DateTime>(invoiceMonth.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FinCardPaymentsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('cardId: $cardId, ')
+          ..write('invoiceMonth: $invoiceMonth, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LoansTable extends Loans with TableInfo<$LoansTable, Loan> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LoansTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _borrowerMeta = const VerificationMeta('borrower');
+  @override
+  late final GeneratedColumn<String> borrower = GeneratedColumn<String>(
+    'borrower',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _principalMeta = const VerificationMeta('principal');
+  @override
+  late final GeneratedColumn<int> principal = GeneratedColumn<int>(
+    'principal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalMeta = const VerificationMeta('total');
+  @override
+  late final GeneratedColumn<int> total = GeneratedColumn<int>('total', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _lentOnMeta = const VerificationMeta('lentOn');
+  @override
+  late final GeneratedColumn<DateTime> lentOn = GeneratedColumn<DateTime>(
+    'lent_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _dueOnMeta = const VerificationMeta('dueOn');
+  @override
+  late final GeneratedColumn<DateTime> dueOn = GeneratedColumn<DateTime>(
+    'due_on',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _remindMeta = const VerificationMeta('remind');
+  @override
+  late final GeneratedColumn<bool> remind = GeneratedColumn<bool>(
+    'remind',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('CHECK ("remind" IN (0, 1))'),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _archivedAtMeta = const VerificationMeta('archivedAt');
+  @override
+  late final GeneratedColumn<DateTime> archivedAt = GeneratedColumn<DateTime>(
+    'archived_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, createdAt, updatedAt, deletedAt, borrower, principal, total, lentOn, dueOn, note, remind, archivedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'loans';
+  @override
+  VerificationContext validateIntegrity(Insertable<Loan> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('borrower')) {
+      context.handle(_borrowerMeta, borrower.isAcceptableOrUnknown(data['borrower']!, _borrowerMeta));
+    } else if (isInserting) {
+      context.missing(_borrowerMeta);
+    }
+    if (data.containsKey('principal')) {
+      context.handle(_principalMeta, principal.isAcceptableOrUnknown(data['principal']!, _principalMeta));
+    } else if (isInserting) {
+      context.missing(_principalMeta);
+    }
+    if (data.containsKey('total')) {
+      context.handle(_totalMeta, total.isAcceptableOrUnknown(data['total']!, _totalMeta));
+    } else if (isInserting) {
+      context.missing(_totalMeta);
+    }
+    if (data.containsKey('lent_on')) {
+      context.handle(_lentOnMeta, lentOn.isAcceptableOrUnknown(data['lent_on']!, _lentOnMeta));
+    } else if (isInserting) {
+      context.missing(_lentOnMeta);
+    }
+    if (data.containsKey('due_on')) {
+      context.handle(_dueOnMeta, dueOn.isAcceptableOrUnknown(data['due_on']!, _dueOnMeta));
+    } else if (isInserting) {
+      context.missing(_dueOnMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(_noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('remind')) {
+      context.handle(_remindMeta, remind.isAcceptableOrUnknown(data['remind']!, _remindMeta));
+    }
+    if (data.containsKey('archived_at')) {
+      context.handle(_archivedAtMeta, archivedAt.isAcceptableOrUnknown(data['archived_at']!, _archivedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Loan map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Loan(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      borrower: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}borrower'])!,
+      principal: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}principal'])!,
+      total: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}total'])!,
+      lentOn: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}lent_on'])!,
+      dueOn: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}due_on'])!,
+      note: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}note'])!,
+      remind: attachedDatabase.typeMapping.read(DriftSqlType.bool, data['${effectivePrefix}remind'])!,
+      archivedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}archived_at']),
+    );
+  }
+
+  @override
+  $LoansTable createAlias(String alias) {
+    return $LoansTable(attachedDatabase, alias);
+  }
+}
+
+class Loan extends DataClass implements Insertable<Loan> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final String borrower;
+  final int principal;
+  final int total;
+  final DateTime lentOn;
+  final DateTime dueOn;
+  final String note;
+
+  /// Notify on the due day and while it is overdue.
+  final bool remind;
+  final DateTime? archivedAt;
+  const Loan({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.borrower,
+    required this.principal,
+    required this.total,
+    required this.lentOn,
+    required this.dueOn,
+    required this.note,
+    required this.remind,
+    this.archivedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['borrower'] = Variable<String>(borrower);
+    map['principal'] = Variable<int>(principal);
+    map['total'] = Variable<int>(total);
+    map['lent_on'] = Variable<DateTime>(lentOn);
+    map['due_on'] = Variable<DateTime>(dueOn);
+    map['note'] = Variable<String>(note);
+    map['remind'] = Variable<bool>(remind);
+    if (!nullToAbsent || archivedAt != null) {
+      map['archived_at'] = Variable<DateTime>(archivedAt);
+    }
+    return map;
+  }
+
+  LoansCompanion toCompanion(bool nullToAbsent) {
+    return LoansCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      borrower: Value(borrower),
+      principal: Value(principal),
+      total: Value(total),
+      lentOn: Value(lentOn),
+      dueOn: Value(dueOn),
+      note: Value(note),
+      remind: Value(remind),
+      archivedAt: archivedAt == null && nullToAbsent ? const Value.absent() : Value(archivedAt),
+    );
+  }
+
+  factory Loan.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Loan(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      borrower: serializer.fromJson<String>(json['borrower']),
+      principal: serializer.fromJson<int>(json['principal']),
+      total: serializer.fromJson<int>(json['total']),
+      lentOn: serializer.fromJson<DateTime>(json['lentOn']),
+      dueOn: serializer.fromJson<DateTime>(json['dueOn']),
+      note: serializer.fromJson<String>(json['note']),
+      remind: serializer.fromJson<bool>(json['remind']),
+      archivedAt: serializer.fromJson<DateTime?>(json['archivedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'borrower': serializer.toJson<String>(borrower),
+      'principal': serializer.toJson<int>(principal),
+      'total': serializer.toJson<int>(total),
+      'lentOn': serializer.toJson<DateTime>(lentOn),
+      'dueOn': serializer.toJson<DateTime>(dueOn),
+      'note': serializer.toJson<String>(note),
+      'remind': serializer.toJson<bool>(remind),
+      'archivedAt': serializer.toJson<DateTime?>(archivedAt),
+    };
+  }
+
+  Loan copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? borrower,
+    int? principal,
+    int? total,
+    DateTime? lentOn,
+    DateTime? dueOn,
+    String? note,
+    bool? remind,
+    Value<DateTime?> archivedAt = const Value.absent(),
+  }) => Loan(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    borrower: borrower ?? this.borrower,
+    principal: principal ?? this.principal,
+    total: total ?? this.total,
+    lentOn: lentOn ?? this.lentOn,
+    dueOn: dueOn ?? this.dueOn,
+    note: note ?? this.note,
+    remind: remind ?? this.remind,
+    archivedAt: archivedAt.present ? archivedAt.value : this.archivedAt,
+  );
+  Loan copyWithCompanion(LoansCompanion data) {
+    return Loan(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      borrower: data.borrower.present ? data.borrower.value : this.borrower,
+      principal: data.principal.present ? data.principal.value : this.principal,
+      total: data.total.present ? data.total.value : this.total,
+      lentOn: data.lentOn.present ? data.lentOn.value : this.lentOn,
+      dueOn: data.dueOn.present ? data.dueOn.value : this.dueOn,
+      note: data.note.present ? data.note.value : this.note,
+      remind: data.remind.present ? data.remind.value : this.remind,
+      archivedAt: data.archivedAt.present ? data.archivedAt.value : this.archivedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Loan(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('borrower: $borrower, ')
+          ..write('principal: $principal, ')
+          ..write('total: $total, ')
+          ..write('lentOn: $lentOn, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('note: $note, ')
+          ..write('remind: $remind, ')
+          ..write('archivedAt: $archivedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, deletedAt, borrower, principal, total, lentOn, dueOn, note, remind, archivedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Loan &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.borrower == this.borrower &&
+          other.principal == this.principal &&
+          other.total == this.total &&
+          other.lentOn == this.lentOn &&
+          other.dueOn == this.dueOn &&
+          other.note == this.note &&
+          other.remind == this.remind &&
+          other.archivedAt == this.archivedAt);
+}
+
+class LoansCompanion extends UpdateCompanion<Loan> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> borrower;
+  final Value<int> principal;
+  final Value<int> total;
+  final Value<DateTime> lentOn;
+  final Value<DateTime> dueOn;
+  final Value<String> note;
+  final Value<bool> remind;
+  final Value<DateTime?> archivedAt;
+  final Value<int> rowid;
+  const LoansCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.borrower = const Value.absent(),
+    this.principal = const Value.absent(),
+    this.total = const Value.absent(),
+    this.lentOn = const Value.absent(),
+    this.dueOn = const Value.absent(),
+    this.note = const Value.absent(),
+    this.remind = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LoansCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String borrower,
+    required int principal,
+    required int total,
+    required DateTime lentOn,
+    required DateTime dueOn,
+    this.note = const Value.absent(),
+    this.remind = const Value.absent(),
+    this.archivedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       borrower = Value(borrower),
+       principal = Value(principal),
+       total = Value(total),
+       lentOn = Value(lentOn),
+       dueOn = Value(dueOn);
+  static Insertable<Loan> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? borrower,
+    Expression<int>? principal,
+    Expression<int>? total,
+    Expression<DateTime>? lentOn,
+    Expression<DateTime>? dueOn,
+    Expression<String>? note,
+    Expression<bool>? remind,
+    Expression<DateTime>? archivedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (borrower != null) 'borrower': borrower,
+      if (principal != null) 'principal': principal,
+      if (total != null) 'total': total,
+      if (lentOn != null) 'lent_on': lentOn,
+      if (dueOn != null) 'due_on': dueOn,
+      if (note != null) 'note': note,
+      if (remind != null) 'remind': remind,
+      if (archivedAt != null) 'archived_at': archivedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LoansCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? borrower,
+    Value<int>? principal,
+    Value<int>? total,
+    Value<DateTime>? lentOn,
+    Value<DateTime>? dueOn,
+    Value<String>? note,
+    Value<bool>? remind,
+    Value<DateTime?>? archivedAt,
+    Value<int>? rowid,
+  }) {
+    return LoansCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      borrower: borrower ?? this.borrower,
+      principal: principal ?? this.principal,
+      total: total ?? this.total,
+      lentOn: lentOn ?? this.lentOn,
+      dueOn: dueOn ?? this.dueOn,
+      note: note ?? this.note,
+      remind: remind ?? this.remind,
+      archivedAt: archivedAt ?? this.archivedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (borrower.present) {
+      map['borrower'] = Variable<String>(borrower.value);
+    }
+    if (principal.present) {
+      map['principal'] = Variable<int>(principal.value);
+    }
+    if (total.present) {
+      map['total'] = Variable<int>(total.value);
+    }
+    if (lentOn.present) {
+      map['lent_on'] = Variable<DateTime>(lentOn.value);
+    }
+    if (dueOn.present) {
+      map['due_on'] = Variable<DateTime>(dueOn.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (remind.present) {
+      map['remind'] = Variable<bool>(remind.value);
+    }
+    if (archivedAt.present) {
+      map['archived_at'] = Variable<DateTime>(archivedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoansCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('borrower: $borrower, ')
+          ..write('principal: $principal, ')
+          ..write('total: $total, ')
+          ..write('lentOn: $lentOn, ')
+          ..write('dueOn: $dueOn, ')
+          ..write('note: $note, ')
+          ..write('remind: $remind, ')
+          ..write('archivedAt: $archivedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LoanPaymentsTable extends LoanPayments with TableInfo<$LoanPaymentsTable, LoanPayment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LoanPaymentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>('id', aliasedName, false, type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta = const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _loanIdMeta = const VerificationMeta('loanId');
+  @override
+  late final GeneratedColumn<String> loanId = GeneratedColumn<String>(
+    'loan_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('REFERENCES loans (id)'),
+  );
+  static const VerificationMeta _amountMeta = const VerificationMeta('amount');
+  @override
+  late final GeneratedColumn<int> amount = GeneratedColumn<int>('amount', aliasedName, false, type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, createdAt, updatedAt, deletedAt, loanId, amount, date, note];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'loan_payments';
+  @override
+  VerificationContext validateIntegrity(Insertable<LoanPayment> instance, {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta, createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta, updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta, deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    }
+    if (data.containsKey('loan_id')) {
+      context.handle(_loanIdMeta, loanId.isAcceptableOrUnknown(data['loan_id']!, _loanIdMeta));
+    } else if (isInserting) {
+      context.missing(_loanIdMeta);
+    }
+    if (data.containsKey('amount')) {
+      context.handle(_amountMeta, amount.isAcceptableOrUnknown(data['amount']!, _amountMeta));
+    } else if (isInserting) {
+      context.missing(_amountMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(_dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(_noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LoanPayment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LoanPayment(
+      id: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      createdAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      updatedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+      deletedAt: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at']),
+      loanId: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}loan_id'])!,
+      amount: attachedDatabase.typeMapping.read(DriftSqlType.int, data['${effectivePrefix}amount'])!,
+      date: attachedDatabase.typeMapping.read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      note: attachedDatabase.typeMapping.read(DriftSqlType.string, data['${effectivePrefix}note'])!,
+    );
+  }
+
+  @override
+  $LoanPaymentsTable createAlias(String alias) {
+    return $LoanPaymentsTable(attachedDatabase, alias);
+  }
+}
+
+class LoanPayment extends DataClass implements Insertable<LoanPayment> {
+  final String id;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Set when the item goes to the Trash; "Delete forever" removes the row.
+  final DateTime? deletedAt;
+  final String loanId;
+  final int amount;
+  final DateTime date;
+  final String note;
+  const LoanPayment({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.loanId,
+    required this.amount,
+    required this.date,
+    required this.note,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['loan_id'] = Variable<String>(loanId);
+    map['amount'] = Variable<int>(amount);
+    map['date'] = Variable<DateTime>(date);
+    map['note'] = Variable<String>(note);
+    return map;
+  }
+
+  LoanPaymentsCompanion toCompanion(bool nullToAbsent) {
+    return LoanPaymentsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent ? const Value.absent() : Value(deletedAt),
+      loanId: Value(loanId),
+      amount: Value(amount),
+      date: Value(date),
+      note: Value(note),
+    );
+  }
+
+  factory LoanPayment.fromJson(Map<String, dynamic> json, {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LoanPayment(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      loanId: serializer.fromJson<String>(json['loanId']),
+      amount: serializer.fromJson<int>(json['amount']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      note: serializer.fromJson<String>(json['note']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'loanId': serializer.toJson<String>(loanId),
+      'amount': serializer.toJson<int>(amount),
+      'date': serializer.toJson<DateTime>(date),
+      'note': serializer.toJson<String>(note),
+    };
+  }
+
+  LoanPayment copyWith({
+    String? id,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? loanId,
+    int? amount,
+    DateTime? date,
+    String? note,
+  }) => LoanPayment(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    loanId: loanId ?? this.loanId,
+    amount: amount ?? this.amount,
+    date: date ?? this.date,
+    note: note ?? this.note,
+  );
+  LoanPayment copyWithCompanion(LoanPaymentsCompanion data) {
+    return LoanPayment(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      loanId: data.loanId.present ? data.loanId.value : this.loanId,
+      amount: data.amount.present ? data.amount.value : this.amount,
+      date: data.date.present ? data.date.value : this.date,
+      note: data.note.present ? data.note.value : this.note,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoanPayment(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('loanId: $loanId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('note: $note')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, createdAt, updatedAt, deletedAt, loanId, amount, date, note);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LoanPayment &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.loanId == this.loanId &&
+          other.amount == this.amount &&
+          other.date == this.date &&
+          other.note == this.note);
+}
+
+class LoanPaymentsCompanion extends UpdateCompanion<LoanPayment> {
+  final Value<String> id;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> loanId;
+  final Value<int> amount;
+  final Value<DateTime> date;
+  final Value<String> note;
+  final Value<int> rowid;
+  const LoanPaymentsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.loanId = const Value.absent(),
+    this.amount = const Value.absent(),
+    this.date = const Value.absent(),
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LoanPaymentsCompanion.insert({
+    required String id,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String loanId,
+    required int amount,
+    required DateTime date,
+    this.note = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       loanId = Value(loanId),
+       amount = Value(amount),
+       date = Value(date);
+  static Insertable<LoanPayment> custom({
+    Expression<String>? id,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? loanId,
+    Expression<int>? amount,
+    Expression<DateTime>? date,
+    Expression<String>? note,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (loanId != null) 'loan_id': loanId,
+      if (amount != null) 'amount': amount,
+      if (date != null) 'date': date,
+      if (note != null) 'note': note,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LoanPaymentsCompanion copyWith({
+    Value<String>? id,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? loanId,
+    Value<int>? amount,
+    Value<DateTime>? date,
+    Value<String>? note,
+    Value<int>? rowid,
+  }) {
+    return LoanPaymentsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      loanId: loanId ?? this.loanId,
+      amount: amount ?? this.amount,
+      date: date ?? this.date,
+      note: note ?? this.note,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (loanId.present) {
+      map['loan_id'] = Variable<String>(loanId.value);
+    }
+    if (amount.present) {
+      map['amount'] = Variable<int>(amount.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LoanPaymentsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('loanId: $loanId, ')
+          ..write('amount: $amount, ')
+          ..write('date: $date, ')
+          ..write('note: $note, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -9231,6 +13256,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $HabitCheckinsTable habitCheckins = $HabitCheckinsTable(this);
   late final $FiltersTable filters = $FiltersTable(this);
   late final $ActivitiesTable activities = $ActivitiesTable(this);
+  late final $FinCategoriesTable finCategories = $FinCategoriesTable(this);
+  late final $FinCardsTable finCards = $FinCardsTable(this);
+  late final $FinRecurringsTable finRecurrings = $FinRecurringsTable(this);
+  late final $FinEntriesTable finEntries = $FinEntriesTable(this);
+  late final $FinCardPaymentsTable finCardPayments = $FinCardPaymentsTable(this);
+  late final $LoansTable loans = $LoansTable(this);
+  late final $LoanPaymentsTable loanPayments = $LoanPaymentsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables => allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
@@ -9252,6 +13284,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     habitCheckins,
     filters,
     activities,
+    finCategories,
+    finCards,
+    finRecurrings,
+    finEntries,
+    finCardPayments,
+    loans,
+    loanPayments,
   ];
   @override
   DriftDatabaseOptions get options => const DriftDatabaseOptions(storeDateTimeAsText: true);
@@ -14544,6 +18583,2581 @@ typedef $$ActivitiesTableProcessedTableManager =
       Activity,
       PrefetchHooks Function()
     >;
+typedef $$FinCategoriesTableCreateCompanionBuilder = FinCategoriesCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required String name,
+  required FinKind kind,
+  Value<String> icon,
+  Value<String?> color,
+  Value<int?> monthlyLimit,
+  Value<DateTime?> archivedAt,
+  required int sortOrder,
+  Value<int> rowid,
+});
+typedef $$FinCategoriesTableUpdateCompanionBuilder = FinCategoriesCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> name,
+  Value<FinKind> kind,
+  Value<String> icon,
+  Value<String?> color,
+  Value<int?> monthlyLimit,
+  Value<DateTime?> archivedAt,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+final class $$FinCategoriesTableReferences extends BaseReferences<_$AppDatabase, $FinCategoriesTable, FinCategory> {
+  $$FinCategoriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$FinRecurringsTable, List<FinRecurring>> _finRecurringsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finRecurrings, aliasName: 'fin_categories__id__fin_recurrings__category_id');
+
+  $$FinRecurringsTableProcessedTableManager get finRecurringsRefs {
+    final manager = $$FinRecurringsTableTableManager($_db, $_db.finRecurrings).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finRecurringsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$FinEntriesTable, List<FinEntry>> _finEntriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finEntries, aliasName: 'fin_categories__id__fin_entries__category_id');
+
+  $$FinEntriesTableProcessedTableManager get finEntriesRefs {
+    final manager = $$FinEntriesTableTableManager($_db, $_db.finEntries).filter((f) => f.categoryId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finEntriesRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$FinCategoriesTableFilterComposer extends Composer<_$AppDatabase, $FinCategoriesTable> {
+  $$FinCategoriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<FinKind, FinKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<String> get icon => $composableBuilder(column: $table.icon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get color => $composableBuilder(column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get monthlyLimit => $composableBuilder(column: $table.monthlyLimit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> finRecurringsRefs(Expression<bool> Function($$FinRecurringsTableFilterComposer f) f) {
+    final $$FinRecurringsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.categoryId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableFilterComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> finEntriesRefs(Expression<bool> Function($$FinEntriesTableFilterComposer f) f) {
+    final $$FinEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.categoryId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableFilterComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinCategoriesTableOrderingComposer extends Composer<_$AppDatabase, $FinCategoriesTable> {
+  $$FinCategoriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get icon => $composableBuilder(column: $table.icon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get color => $composableBuilder(column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get monthlyLimit => $composableBuilder(column: $table.monthlyLimit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$FinCategoriesTableAnnotationComposer extends Composer<_$AppDatabase, $FinCategoriesTable> {
+  $$FinCategoriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FinKind, String> get kind => $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get icon => $composableBuilder(column: $table.icon, builder: (column) => column);
+
+  GeneratedColumn<String> get color => $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<int> get monthlyLimit => $composableBuilder(column: $table.monthlyLimit, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  Expression<T> finRecurringsRefs<T extends Object>(Expression<T> Function($$FinRecurringsTableAnnotationComposer a) f) {
+    final $$FinRecurringsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.categoryId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> finEntriesRefs<T extends Object>(Expression<T> Function($$FinEntriesTableAnnotationComposer a) f) {
+    final $$FinEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.categoryId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinCategoriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FinCategoriesTable,
+          FinCategory,
+          $$FinCategoriesTableFilterComposer,
+          $$FinCategoriesTableOrderingComposer,
+          $$FinCategoriesTableAnnotationComposer,
+          $$FinCategoriesTableCreateCompanionBuilder,
+          $$FinCategoriesTableUpdateCompanionBuilder,
+          (FinCategory, $$FinCategoriesTableReferences),
+          FinCategory,
+          PrefetchHooks Function({bool finRecurringsRefs, bool finEntriesRefs})
+        > {
+  $$FinCategoriesTableTableManager(_$AppDatabase db, $FinCategoriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$FinCategoriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$FinCategoriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$FinCategoriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<FinKind> kind = const Value.absent(),
+                Value<String> icon = const Value.absent(),
+                Value<String?> color = const Value.absent(),
+                Value<int?> monthlyLimit = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinCategoriesCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                kind: kind,
+                icon: icon,
+                color: color,
+                monthlyLimit: monthlyLimit,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String name,
+                required FinKind kind,
+                Value<String> icon = const Value.absent(),
+                Value<String?> color = const Value.absent(),
+                Value<int?> monthlyLimit = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                required int sortOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => FinCategoriesCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                kind: kind,
+                icon: icon,
+                color: color,
+                monthlyLimit: monthlyLimit,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$FinCategoriesTable, FinCategory>(table), $$FinCategoriesTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({finRecurringsRefs = false, finEntriesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (finRecurringsRefs) db.finRecurrings, if (finEntriesRefs) db.finEntries],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (finRecurringsRefs)
+                    await $_getPrefetchedData<FinCategory, $FinCategoriesTable, FinRecurring>(
+                      currentTable: table,
+                      referencedTable: $$FinCategoriesTableReferences._finRecurringsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinCategoriesTableReferences(db, table, p0).finRecurringsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.categoryId == item.id),
+                      typedResults: items,
+                    ),
+                  if (finEntriesRefs)
+                    await $_getPrefetchedData<FinCategory, $FinCategoriesTable, FinEntry>(
+                      currentTable: table,
+                      referencedTable: $$FinCategoriesTableReferences._finEntriesRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinCategoriesTableReferences(db, table, p0).finEntriesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.categoryId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FinCategoriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FinCategoriesTable,
+      FinCategory,
+      $$FinCategoriesTableFilterComposer,
+      $$FinCategoriesTableOrderingComposer,
+      $$FinCategoriesTableAnnotationComposer,
+      $$FinCategoriesTableCreateCompanionBuilder,
+      $$FinCategoriesTableUpdateCompanionBuilder,
+      (FinCategory, $$FinCategoriesTableReferences),
+      FinCategory,
+      PrefetchHooks Function({bool finRecurringsRefs, bool finEntriesRefs})
+    >;
+typedef $$FinCardsTableCreateCompanionBuilder = FinCardsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required String name,
+  Value<String?> color,
+  required int closingDay,
+  required int dueDay,
+  Value<int?> creditLimit,
+  Value<DateTime?> archivedAt,
+  required int sortOrder,
+  Value<int> rowid,
+});
+typedef $$FinCardsTableUpdateCompanionBuilder = FinCardsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> name,
+  Value<String?> color,
+  Value<int> closingDay,
+  Value<int> dueDay,
+  Value<int?> creditLimit,
+  Value<DateTime?> archivedAt,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+final class $$FinCardsTableReferences extends BaseReferences<_$AppDatabase, $FinCardsTable, FinCard> {
+  $$FinCardsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$FinRecurringsTable, List<FinRecurring>> _finRecurringsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finRecurrings, aliasName: 'fin_cards__id__fin_recurrings__card_id');
+
+  $$FinRecurringsTableProcessedTableManager get finRecurringsRefs {
+    final manager = $$FinRecurringsTableTableManager($_db, $_db.finRecurrings).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finRecurringsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$FinEntriesTable, List<FinEntry>> _finEntriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finEntries, aliasName: 'fin_cards__id__fin_entries__card_id');
+
+  $$FinEntriesTableProcessedTableManager get finEntriesRefs {
+    final manager = $$FinEntriesTableTableManager($_db, $_db.finEntries).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finEntriesRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$FinCardPaymentsTable, List<FinCardPayment>> _finCardPaymentsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finCardPayments, aliasName: 'fin_cards__id__fin_card_payments__card_id');
+
+  $$FinCardPaymentsTableProcessedTableManager get finCardPaymentsRefs {
+    final manager = $$FinCardPaymentsTableTableManager($_db, $_db.finCardPayments).filter((f) => f.cardId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finCardPaymentsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$FinCardsTableFilterComposer extends Composer<_$AppDatabase, $FinCardsTable> {
+  $$FinCardsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get color => $composableBuilder(column: $table.color, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get closingDay => $composableBuilder(column: $table.closingDay, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get dueDay => $composableBuilder(column: $table.dueDay, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get creditLimit => $composableBuilder(column: $table.creditLimit, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> finRecurringsRefs(Expression<bool> Function($$FinRecurringsTableFilterComposer f) f) {
+    final $$FinRecurringsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableFilterComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> finEntriesRefs(Expression<bool> Function($$FinEntriesTableFilterComposer f) f) {
+    final $$FinEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableFilterComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> finCardPaymentsRefs(Expression<bool> Function($$FinCardPaymentsTableFilterComposer f) f) {
+    final $$FinCardPaymentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finCardPayments,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardPaymentsTableFilterComposer(
+        $db: $db,
+        $table: $db.finCardPayments,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinCardsTableOrderingComposer extends Composer<_$AppDatabase, $FinCardsTable> {
+  $$FinCardsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get color => $composableBuilder(column: $table.color, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get closingDay => $composableBuilder(column: $table.closingDay, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get dueDay => $composableBuilder(column: $table.dueDay, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get creditLimit => $composableBuilder(column: $table.creditLimit, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+}
+
+class $$FinCardsTableAnnotationComposer extends Composer<_$AppDatabase, $FinCardsTable> {
+  $$FinCardsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get name => $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get color => $composableBuilder(column: $table.color, builder: (column) => column);
+
+  GeneratedColumn<int> get closingDay => $composableBuilder(column: $table.closingDay, builder: (column) => column);
+
+  GeneratedColumn<int> get dueDay => $composableBuilder(column: $table.dueDay, builder: (column) => column);
+
+  GeneratedColumn<int> get creditLimit => $composableBuilder(column: $table.creditLimit, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  Expression<T> finRecurringsRefs<T extends Object>(Expression<T> Function($$FinRecurringsTableAnnotationComposer a) f) {
+    final $$FinRecurringsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> finEntriesRefs<T extends Object>(Expression<T> Function($$FinEntriesTableAnnotationComposer a) f) {
+    final $$FinEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+
+  Expression<T> finCardPaymentsRefs<T extends Object>(Expression<T> Function($$FinCardPaymentsTableAnnotationComposer a) f) {
+    final $$FinCardPaymentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finCardPayments,
+      getReferencedColumn: (t) => t.cardId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardPaymentsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCardPayments,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinCardsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FinCardsTable,
+          FinCard,
+          $$FinCardsTableFilterComposer,
+          $$FinCardsTableOrderingComposer,
+          $$FinCardsTableAnnotationComposer,
+          $$FinCardsTableCreateCompanionBuilder,
+          $$FinCardsTableUpdateCompanionBuilder,
+          (FinCard, $$FinCardsTableReferences),
+          FinCard,
+          PrefetchHooks Function({bool finRecurringsRefs, bool finEntriesRefs, bool finCardPaymentsRefs})
+        > {
+  $$FinCardsTableTableManager(_$AppDatabase db, $FinCardsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$FinCardsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$FinCardsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$FinCardsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> color = const Value.absent(),
+                Value<int> closingDay = const Value.absent(),
+                Value<int> dueDay = const Value.absent(),
+                Value<int?> creditLimit = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinCardsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                color: color,
+                closingDay: closingDay,
+                dueDay: dueDay,
+                creditLimit: creditLimit,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String name,
+                Value<String?> color = const Value.absent(),
+                required int closingDay,
+                required int dueDay,
+                Value<int?> creditLimit = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                required int sortOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => FinCardsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                name: name,
+                color: color,
+                closingDay: closingDay,
+                dueDay: dueDay,
+                creditLimit: creditLimit,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable<$FinCardsTable, FinCard>(table), $$FinCardsTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({finRecurringsRefs = false, finEntriesRefs = false, finCardPaymentsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (finRecurringsRefs) db.finRecurrings,
+                if (finEntriesRefs) db.finEntries,
+                if (finCardPaymentsRefs) db.finCardPayments,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (finRecurringsRefs)
+                    await $_getPrefetchedData<FinCard, $FinCardsTable, FinRecurring>(
+                      currentTable: table,
+                      referencedTable: $$FinCardsTableReferences._finRecurringsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinCardsTableReferences(db, table, p0).finRecurringsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.cardId == item.id),
+                      typedResults: items,
+                    ),
+                  if (finEntriesRefs)
+                    await $_getPrefetchedData<FinCard, $FinCardsTable, FinEntry>(
+                      currentTable: table,
+                      referencedTable: $$FinCardsTableReferences._finEntriesRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinCardsTableReferences(db, table, p0).finEntriesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.cardId == item.id),
+                      typedResults: items,
+                    ),
+                  if (finCardPaymentsRefs)
+                    await $_getPrefetchedData<FinCard, $FinCardsTable, FinCardPayment>(
+                      currentTable: table,
+                      referencedTable: $$FinCardsTableReferences._finCardPaymentsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinCardsTableReferences(db, table, p0).finCardPaymentsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.cardId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FinCardsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FinCardsTable,
+      FinCard,
+      $$FinCardsTableFilterComposer,
+      $$FinCardsTableOrderingComposer,
+      $$FinCardsTableAnnotationComposer,
+      $$FinCardsTableCreateCompanionBuilder,
+      $$FinCardsTableUpdateCompanionBuilder,
+      (FinCard, $$FinCardsTableReferences),
+      FinCard,
+      PrefetchHooks Function({bool finRecurringsRefs, bool finEntriesRefs, bool finCardPaymentsRefs})
+    >;
+typedef $$FinRecurringsTableCreateCompanionBuilder = FinRecurringsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required FinKind kind,
+  required String description,
+  required int amount,
+  Value<String?> categoryId,
+  Value<String?> cardId,
+  required FinFrequency frequency,
+  required int day,
+  Value<int?> month,
+  required DateTime startDate,
+  Value<DateTime?> endDate,
+  Value<int?> remindDaysBefore,
+  Value<DateTime?> archivedAt,
+  required int sortOrder,
+  Value<int> rowid,
+});
+typedef $$FinRecurringsTableUpdateCompanionBuilder = FinRecurringsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<FinKind> kind,
+  Value<String> description,
+  Value<int> amount,
+  Value<String?> categoryId,
+  Value<String?> cardId,
+  Value<FinFrequency> frequency,
+  Value<int> day,
+  Value<int?> month,
+  Value<DateTime> startDate,
+  Value<DateTime?> endDate,
+  Value<int?> remindDaysBefore,
+  Value<DateTime?> archivedAt,
+  Value<int> sortOrder,
+  Value<int> rowid,
+});
+
+final class $$FinRecurringsTableReferences extends BaseReferences<_$AppDatabase, $FinRecurringsTable, FinRecurring> {
+  $$FinRecurringsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $FinCategoriesTable _categoryIdTable(_$AppDatabase db) => db.finCategories.createAlias('fin_recurrings__category_id__fin_categories__id');
+
+  $$FinCategoriesTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<String>('category_id');
+    if ($_column == null) return null;
+    final manager = $$FinCategoriesTableTableManager($_db, $_db.finCategories).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $FinCardsTable _cardIdTable(_$AppDatabase db) => db.finCards.createAlias('fin_recurrings__card_id__fin_cards__id');
+
+  $$FinCardsTableProcessedTableManager? get cardId {
+    final $_column = $_itemColumn<String>('card_id');
+    if ($_column == null) return null;
+    final manager = $$FinCardsTableTableManager($_db, $_db.finCards).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$FinEntriesTable, List<FinEntry>> _finEntriesRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.finEntries, aliasName: 'fin_recurrings__id__fin_entries__recurring_id');
+
+  $$FinEntriesTableProcessedTableManager get finEntriesRefs {
+    final manager = $$FinEntriesTableTableManager($_db, $_db.finEntries).filter((f) => f.recurringId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_finEntriesRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$FinRecurringsTableFilterComposer extends Composer<_$AppDatabase, $FinRecurringsTable> {
+  $$FinRecurringsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<FinKind, FinKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<FinFrequency, FinFrequency, String> get frequency =>
+      $composableBuilder(column: $table.frequency, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<int> get day => $composableBuilder(column: $table.day, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get month => $composableBuilder(column: $table.month, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startDate => $composableBuilder(column: $table.startDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get endDate => $composableBuilder(column: $table.endDate, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get remindDaysBefore => $composableBuilder(column: $table.remindDaysBefore, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnFilters(column));
+
+  $$FinCategoriesTableFilterComposer get categoryId {
+    final $$FinCategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableFilterComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableFilterComposer get cardId {
+    final $$FinCardsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableFilterComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  Expression<bool> finEntriesRefs(Expression<bool> Function($$FinEntriesTableFilterComposer f) f) {
+    final $$FinEntriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.recurringId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableFilterComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinRecurringsTableOrderingComposer extends Composer<_$AppDatabase, $FinRecurringsTable> {
+  $$FinRecurringsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get frequency => $composableBuilder(column: $table.frequency, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get day => $composableBuilder(column: $table.day, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get month => $composableBuilder(column: $table.month, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startDate => $composableBuilder(column: $table.startDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get endDate => $composableBuilder(column: $table.endDate, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get remindDaysBefore => $composableBuilder(column: $table.remindDaysBefore, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => ColumnOrderings(column));
+
+  $$FinCategoriesTableOrderingComposer get categoryId {
+    final $$FinCategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableOrderingComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableOrderingComposer get cardId {
+    final $$FinCardsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableOrderingComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinRecurringsTableAnnotationComposer extends Composer<_$AppDatabase, $FinRecurringsTable> {
+  $$FinRecurringsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FinKind, String> get kind => $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FinFrequency, String> get frequency => $composableBuilder(column: $table.frequency, builder: (column) => column);
+
+  GeneratedColumn<int> get day => $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<int> get month => $composableBuilder(column: $table.month, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startDate => $composableBuilder(column: $table.startDate, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get endDate => $composableBuilder(column: $table.endDate, builder: (column) => column);
+
+  GeneratedColumn<int> get remindDaysBefore => $composableBuilder(column: $table.remindDaysBefore, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder => $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  $$FinCategoriesTableAnnotationComposer get categoryId {
+    final $$FinCategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableAnnotationComposer get cardId {
+    final $$FinCardsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  Expression<T> finEntriesRefs<T extends Object>(Expression<T> Function($$FinEntriesTableAnnotationComposer a) f) {
+    final $$FinEntriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.finEntries,
+      getReferencedColumn: (t) => t.recurringId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinEntriesTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finEntries,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$FinRecurringsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FinRecurringsTable,
+          FinRecurring,
+          $$FinRecurringsTableFilterComposer,
+          $$FinRecurringsTableOrderingComposer,
+          $$FinRecurringsTableAnnotationComposer,
+          $$FinRecurringsTableCreateCompanionBuilder,
+          $$FinRecurringsTableUpdateCompanionBuilder,
+          (FinRecurring, $$FinRecurringsTableReferences),
+          FinRecurring,
+          PrefetchHooks Function({bool categoryId, bool cardId, bool finEntriesRefs})
+        > {
+  $$FinRecurringsTableTableManager(_$AppDatabase db, $FinRecurringsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$FinRecurringsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$FinRecurringsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$FinRecurringsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<FinKind> kind = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
+                Value<String?> cardId = const Value.absent(),
+                Value<FinFrequency> frequency = const Value.absent(),
+                Value<int> day = const Value.absent(),
+                Value<int?> month = const Value.absent(),
+                Value<DateTime> startDate = const Value.absent(),
+                Value<DateTime?> endDate = const Value.absent(),
+                Value<int?> remindDaysBefore = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinRecurringsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                kind: kind,
+                description: description,
+                amount: amount,
+                categoryId: categoryId,
+                cardId: cardId,
+                frequency: frequency,
+                day: day,
+                month: month,
+                startDate: startDate,
+                endDate: endDate,
+                remindDaysBefore: remindDaysBefore,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required FinKind kind,
+                required String description,
+                required int amount,
+                Value<String?> categoryId = const Value.absent(),
+                Value<String?> cardId = const Value.absent(),
+                required FinFrequency frequency,
+                required int day,
+                Value<int?> month = const Value.absent(),
+                required DateTime startDate,
+                Value<DateTime?> endDate = const Value.absent(),
+                Value<int?> remindDaysBefore = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                required int sortOrder,
+                Value<int> rowid = const Value.absent(),
+              }) => FinRecurringsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                kind: kind,
+                description: description,
+                amount: amount,
+                categoryId: categoryId,
+                cardId: cardId,
+                frequency: frequency,
+                day: day,
+                month: month,
+                startDate: startDate,
+                endDate: endDate,
+                remindDaysBefore: remindDaysBefore,
+                archivedAt: archivedAt,
+                sortOrder: sortOrder,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$FinRecurringsTable, FinRecurring>(table), $$FinRecurringsTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({categoryId = false, cardId = false, finEntriesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (finEntriesRefs) db.finEntries],
+              addJoins:
+                  <T extends TableManagerState<dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic>>(
+                    state,
+                  ) {
+                    if (categoryId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.categoryId,
+                        referencedTable: $$FinRecurringsTableReferences._categoryIdTable(db),
+                        referencedColumn: $$FinRecurringsTableReferences._categoryIdTable(db).id,
+                      ) as T;
+                    }
+                    if (cardId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.cardId,
+                        referencedTable: $$FinRecurringsTableReferences._cardIdTable(db),
+                        referencedColumn: $$FinRecurringsTableReferences._cardIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (finEntriesRefs)
+                    await $_getPrefetchedData<FinRecurring, $FinRecurringsTable, FinEntry>(
+                      currentTable: table,
+                      referencedTable: $$FinRecurringsTableReferences._finEntriesRefsTable(db),
+                      managerFromTypedResult: (p0) => $$FinRecurringsTableReferences(db, table, p0).finEntriesRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.recurringId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FinRecurringsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FinRecurringsTable,
+      FinRecurring,
+      $$FinRecurringsTableFilterComposer,
+      $$FinRecurringsTableOrderingComposer,
+      $$FinRecurringsTableAnnotationComposer,
+      $$FinRecurringsTableCreateCompanionBuilder,
+      $$FinRecurringsTableUpdateCompanionBuilder,
+      (FinRecurring, $$FinRecurringsTableReferences),
+      FinRecurring,
+      PrefetchHooks Function({bool categoryId, bool cardId, bool finEntriesRefs})
+    >;
+typedef $$FinEntriesTableCreateCompanionBuilder = FinEntriesCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required FinKind kind,
+  required int amount,
+  required DateTime date,
+  Value<String> description,
+  Value<String?> categoryId,
+  Value<String?> cardId,
+  Value<DateTime?> invoiceMonth,
+  Value<String?> installmentGroup,
+  Value<int?> installmentIndex,
+  Value<int?> installmentCount,
+  Value<String?> recurringId,
+  Value<DateTime?> recurringDue,
+  Value<String> note,
+  Value<int> rowid,
+});
+typedef $$FinEntriesTableUpdateCompanionBuilder = FinEntriesCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<FinKind> kind,
+  Value<int> amount,
+  Value<DateTime> date,
+  Value<String> description,
+  Value<String?> categoryId,
+  Value<String?> cardId,
+  Value<DateTime?> invoiceMonth,
+  Value<String?> installmentGroup,
+  Value<int?> installmentIndex,
+  Value<int?> installmentCount,
+  Value<String?> recurringId,
+  Value<DateTime?> recurringDue,
+  Value<String> note,
+  Value<int> rowid,
+});
+
+final class $$FinEntriesTableReferences extends BaseReferences<_$AppDatabase, $FinEntriesTable, FinEntry> {
+  $$FinEntriesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $FinCategoriesTable _categoryIdTable(_$AppDatabase db) => db.finCategories.createAlias('fin_entries__category_id__fin_categories__id');
+
+  $$FinCategoriesTableProcessedTableManager? get categoryId {
+    final $_column = $_itemColumn<String>('category_id');
+    if ($_column == null) return null;
+    final manager = $$FinCategoriesTableTableManager($_db, $_db.finCategories).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_categoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $FinCardsTable _cardIdTable(_$AppDatabase db) => db.finCards.createAlias('fin_entries__card_id__fin_cards__id');
+
+  $$FinCardsTableProcessedTableManager? get cardId {
+    final $_column = $_itemColumn<String>('card_id');
+    if ($_column == null) return null;
+    final manager = $$FinCardsTableTableManager($_db, $_db.finCards).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $FinRecurringsTable _recurringIdTable(_$AppDatabase db) => db.finRecurrings.createAlias('fin_entries__recurring_id__fin_recurrings__id');
+
+  $$FinRecurringsTableProcessedTableManager? get recurringId {
+    final $_column = $_itemColumn<String>('recurring_id');
+    if ($_column == null) return null;
+    final manager = $$FinRecurringsTableTableManager($_db, $_db.finRecurrings).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_recurringIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$FinEntriesTableFilterComposer extends Composer<_$AppDatabase, $FinEntriesTable> {
+  $$FinEntriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnWithTypeConverterFilters<FinKind, FinKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => ColumnWithTypeConverterFilters(column));
+
+  ColumnFilters<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get installmentGroup => $composableBuilder(column: $table.installmentGroup, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get installmentIndex => $composableBuilder(column: $table.installmentIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get installmentCount => $composableBuilder(column: $table.installmentCount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get recurringDue => $composableBuilder(column: $table.recurringDue, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnFilters(column));
+
+  $$FinCategoriesTableFilterComposer get categoryId {
+    final $$FinCategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableFilterComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableFilterComposer get cardId {
+    final $$FinCardsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableFilterComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinRecurringsTableFilterComposer get recurringId {
+    final $$FinRecurringsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recurringId,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableFilterComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinEntriesTableOrderingComposer extends Composer<_$AppDatabase, $FinEntriesTable> {
+  $$FinEntriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get installmentGroup => $composableBuilder(column: $table.installmentGroup, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get installmentIndex => $composableBuilder(column: $table.installmentIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get installmentCount => $composableBuilder(column: $table.installmentCount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get recurringDue => $composableBuilder(column: $table.recurringDue, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  $$FinCategoriesTableOrderingComposer get categoryId {
+    final $$FinCategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableOrderingComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableOrderingComposer get cardId {
+    final $$FinCardsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableOrderingComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinRecurringsTableOrderingComposer get recurringId {
+    final $$FinRecurringsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recurringId,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableOrderingComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinEntriesTableAnnotationComposer extends Composer<_$AppDatabase, $FinEntriesTable> {
+  $$FinEntriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<FinKind, String> get kind => $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => column);
+
+  GeneratedColumn<String> get installmentGroup => $composableBuilder(column: $table.installmentGroup, builder: (column) => column);
+
+  GeneratedColumn<int> get installmentIndex => $composableBuilder(column: $table.installmentIndex, builder: (column) => column);
+
+  GeneratedColumn<int> get installmentCount => $composableBuilder(column: $table.installmentCount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get recurringDue => $composableBuilder(column: $table.recurringDue, builder: (column) => column);
+
+  GeneratedColumn<String> get note => $composableBuilder(column: $table.note, builder: (column) => column);
+
+  $$FinCategoriesTableAnnotationComposer get categoryId {
+    final $$FinCategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.categoryId,
+      referencedTable: $db.finCategories,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCategoriesTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCategories,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinCardsTableAnnotationComposer get cardId {
+    final $$FinCardsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+
+  $$FinRecurringsTableAnnotationComposer get recurringId {
+    final $$FinRecurringsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.recurringId,
+      referencedTable: $db.finRecurrings,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinRecurringsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finRecurrings,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinEntriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FinEntriesTable,
+          FinEntry,
+          $$FinEntriesTableFilterComposer,
+          $$FinEntriesTableOrderingComposer,
+          $$FinEntriesTableAnnotationComposer,
+          $$FinEntriesTableCreateCompanionBuilder,
+          $$FinEntriesTableUpdateCompanionBuilder,
+          (FinEntry, $$FinEntriesTableReferences),
+          FinEntry,
+          PrefetchHooks Function({bool categoryId, bool cardId, bool recurringId})
+        > {
+  $$FinEntriesTableTableManager(_$AppDatabase db, $FinEntriesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$FinEntriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$FinEntriesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$FinEntriesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<FinKind> kind = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
+                Value<String?> cardId = const Value.absent(),
+                Value<DateTime?> invoiceMonth = const Value.absent(),
+                Value<String?> installmentGroup = const Value.absent(),
+                Value<int?> installmentIndex = const Value.absent(),
+                Value<int?> installmentCount = const Value.absent(),
+                Value<String?> recurringId = const Value.absent(),
+                Value<DateTime?> recurringDue = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinEntriesCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                kind: kind,
+                amount: amount,
+                date: date,
+                description: description,
+                categoryId: categoryId,
+                cardId: cardId,
+                invoiceMonth: invoiceMonth,
+                installmentGroup: installmentGroup,
+                installmentIndex: installmentIndex,
+                installmentCount: installmentCount,
+                recurringId: recurringId,
+                recurringDue: recurringDue,
+                note: note,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required FinKind kind,
+                required int amount,
+                required DateTime date,
+                Value<String> description = const Value.absent(),
+                Value<String?> categoryId = const Value.absent(),
+                Value<String?> cardId = const Value.absent(),
+                Value<DateTime?> invoiceMonth = const Value.absent(),
+                Value<String?> installmentGroup = const Value.absent(),
+                Value<int?> installmentIndex = const Value.absent(),
+                Value<int?> installmentCount = const Value.absent(),
+                Value<String?> recurringId = const Value.absent(),
+                Value<DateTime?> recurringDue = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinEntriesCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                kind: kind,
+                amount: amount,
+                date: date,
+                description: description,
+                categoryId: categoryId,
+                cardId: cardId,
+                invoiceMonth: invoiceMonth,
+                installmentGroup: installmentGroup,
+                installmentIndex: installmentIndex,
+                installmentCount: installmentCount,
+                recurringId: recurringId,
+                recurringDue: recurringDue,
+                note: note,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$FinEntriesTable, FinEntry>(table), $$FinEntriesTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({categoryId = false, cardId = false, recurringId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <T extends TableManagerState<dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic>>(
+                    state,
+                  ) {
+                    if (categoryId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.categoryId,
+                        referencedTable: $$FinEntriesTableReferences._categoryIdTable(db),
+                        referencedColumn: $$FinEntriesTableReferences._categoryIdTable(db).id,
+                      ) as T;
+                    }
+                    if (cardId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.cardId,
+                        referencedTable: $$FinEntriesTableReferences._cardIdTable(db),
+                        referencedColumn: $$FinEntriesTableReferences._cardIdTable(db).id,
+                      ) as T;
+                    }
+                    if (recurringId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.recurringId,
+                        referencedTable: $$FinEntriesTableReferences._recurringIdTable(db),
+                        referencedColumn: $$FinEntriesTableReferences._recurringIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FinEntriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FinEntriesTable,
+      FinEntry,
+      $$FinEntriesTableFilterComposer,
+      $$FinEntriesTableOrderingComposer,
+      $$FinEntriesTableAnnotationComposer,
+      $$FinEntriesTableCreateCompanionBuilder,
+      $$FinEntriesTableUpdateCompanionBuilder,
+      (FinEntry, $$FinEntriesTableReferences),
+      FinEntry,
+      PrefetchHooks Function({bool categoryId, bool cardId, bool recurringId})
+    >;
+typedef $$FinCardPaymentsTableCreateCompanionBuilder = FinCardPaymentsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required String cardId,
+  required DateTime invoiceMonth,
+  required int amount,
+  required DateTime date,
+  Value<int> rowid,
+});
+typedef $$FinCardPaymentsTableUpdateCompanionBuilder = FinCardPaymentsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> cardId,
+  Value<DateTime> invoiceMonth,
+  Value<int> amount,
+  Value<DateTime> date,
+  Value<int> rowid,
+});
+
+final class $$FinCardPaymentsTableReferences extends BaseReferences<_$AppDatabase, $FinCardPaymentsTable, FinCardPayment> {
+  $$FinCardPaymentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $FinCardsTable _cardIdTable(_$AppDatabase db) => db.finCards.createAlias('fin_card_payments__card_id__fin_cards__id');
+
+  $$FinCardsTableProcessedTableManager get cardId {
+    final $_column = $_itemColumn<String>('card_id')!;
+
+    final manager = $$FinCardsTableTableManager($_db, $_db.finCards).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_cardIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$FinCardPaymentsTableFilterComposer extends Composer<_$AppDatabase, $FinCardPaymentsTable> {
+  $$FinCardPaymentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnFilters(column));
+
+  $$FinCardsTableFilterComposer get cardId {
+    final $$FinCardsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableFilterComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinCardPaymentsTableOrderingComposer extends Composer<_$AppDatabase, $FinCardPaymentsTable> {
+  $$FinCardPaymentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  $$FinCardsTableOrderingComposer get cardId {
+    final $$FinCardsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableOrderingComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinCardPaymentsTableAnnotationComposer extends Composer<_$AppDatabase, $FinCardPaymentsTable> {
+  $$FinCardPaymentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get invoiceMonth => $composableBuilder(column: $table.invoiceMonth, builder: (column) => column);
+
+  GeneratedColumn<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => column);
+
+  $$FinCardsTableAnnotationComposer get cardId {
+    final $$FinCardsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.cardId,
+      referencedTable: $db.finCards,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$FinCardsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.finCards,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$FinCardPaymentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FinCardPaymentsTable,
+          FinCardPayment,
+          $$FinCardPaymentsTableFilterComposer,
+          $$FinCardPaymentsTableOrderingComposer,
+          $$FinCardPaymentsTableAnnotationComposer,
+          $$FinCardPaymentsTableCreateCompanionBuilder,
+          $$FinCardPaymentsTableUpdateCompanionBuilder,
+          (FinCardPayment, $$FinCardPaymentsTableReferences),
+          FinCardPayment,
+          PrefetchHooks Function({bool cardId})
+        > {
+  $$FinCardPaymentsTableTableManager(_$AppDatabase db, $FinCardPaymentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$FinCardPaymentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$FinCardPaymentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$FinCardPaymentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> cardId = const Value.absent(),
+                Value<DateTime> invoiceMonth = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FinCardPaymentsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                cardId: cardId,
+                invoiceMonth: invoiceMonth,
+                amount: amount,
+                date: date,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String cardId,
+                required DateTime invoiceMonth,
+                required int amount,
+                required DateTime date,
+                Value<int> rowid = const Value.absent(),
+              }) => FinCardPaymentsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                cardId: cardId,
+                invoiceMonth: invoiceMonth,
+                amount: amount,
+                date: date,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$FinCardPaymentsTable, FinCardPayment>(table), $$FinCardPaymentsTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({cardId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <T extends TableManagerState<dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic>>(
+                    state,
+                  ) {
+                    if (cardId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.cardId,
+                        referencedTable: $$FinCardPaymentsTableReferences._cardIdTable(db),
+                        referencedColumn: $$FinCardPaymentsTableReferences._cardIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$FinCardPaymentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FinCardPaymentsTable,
+      FinCardPayment,
+      $$FinCardPaymentsTableFilterComposer,
+      $$FinCardPaymentsTableOrderingComposer,
+      $$FinCardPaymentsTableAnnotationComposer,
+      $$FinCardPaymentsTableCreateCompanionBuilder,
+      $$FinCardPaymentsTableUpdateCompanionBuilder,
+      (FinCardPayment, $$FinCardPaymentsTableReferences),
+      FinCardPayment,
+      PrefetchHooks Function({bool cardId})
+    >;
+typedef $$LoansTableCreateCompanionBuilder = LoansCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required String borrower,
+  required int principal,
+  required int total,
+  required DateTime lentOn,
+  required DateTime dueOn,
+  Value<String> note,
+  Value<bool> remind,
+  Value<DateTime?> archivedAt,
+  Value<int> rowid,
+});
+typedef $$LoansTableUpdateCompanionBuilder = LoansCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> borrower,
+  Value<int> principal,
+  Value<int> total,
+  Value<DateTime> lentOn,
+  Value<DateTime> dueOn,
+  Value<String> note,
+  Value<bool> remind,
+  Value<DateTime?> archivedAt,
+  Value<int> rowid,
+});
+
+final class $$LoansTableReferences extends BaseReferences<_$AppDatabase, $LoansTable, Loan> {
+  $$LoansTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$LoanPaymentsTable, List<LoanPayment>> _loanPaymentsRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(db.loanPayments, aliasName: 'loans__id__loan_payments__loan_id');
+
+  $$LoanPaymentsTableProcessedTableManager get loanPaymentsRefs {
+    final manager = $$LoanPaymentsTableTableManager($_db, $_db.loanPayments).filter((f) => f.loanId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_loanPaymentsRefsTable($_db));
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$LoansTableFilterComposer extends Composer<_$AppDatabase, $LoansTable> {
+  $$LoansTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get borrower => $composableBuilder(column: $table.borrower, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get principal => $composableBuilder(column: $table.principal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get total => $composableBuilder(column: $table.total, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lentOn => $composableBuilder(column: $table.lentOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dueOn => $composableBuilder(column: $table.dueOn, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get remind => $composableBuilder(column: $table.remind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> loanPaymentsRefs(Expression<bool> Function($$LoanPaymentsTableFilterComposer f) f) {
+    final $$LoanPaymentsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loanPayments,
+      getReferencedColumn: (t) => t.loanId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$LoanPaymentsTableFilterComposer(
+        $db: $db,
+        $table: $db.loanPayments,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LoansTableOrderingComposer extends Composer<_$AppDatabase, $LoansTable> {
+  $$LoansTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get borrower => $composableBuilder(column: $table.borrower, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get principal => $composableBuilder(column: $table.principal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get total => $composableBuilder(column: $table.total, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lentOn => $composableBuilder(column: $table.lentOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dueOn => $composableBuilder(column: $table.dueOn, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get remind => $composableBuilder(column: $table.remind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LoansTableAnnotationComposer extends Composer<_$AppDatabase, $LoansTable> {
+  $$LoansTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get borrower => $composableBuilder(column: $table.borrower, builder: (column) => column);
+
+  GeneratedColumn<int> get principal => $composableBuilder(column: $table.principal, builder: (column) => column);
+
+  GeneratedColumn<int> get total => $composableBuilder(column: $table.total, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lentOn => $composableBuilder(column: $table.lentOn, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dueOn => $composableBuilder(column: $table.dueOn, builder: (column) => column);
+
+  GeneratedColumn<String> get note => $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<bool> get remind => $composableBuilder(column: $table.remind, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get archivedAt => $composableBuilder(column: $table.archivedAt, builder: (column) => column);
+
+  Expression<T> loanPaymentsRefs<T extends Object>(Expression<T> Function($$LoanPaymentsTableAnnotationComposer a) f) {
+    final $$LoanPaymentsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.loanPayments,
+      getReferencedColumn: (t) => t.loanId,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$LoanPaymentsTableAnnotationComposer(
+        $db: $db,
+        $table: $db.loanPayments,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return f(composer);
+  }
+}
+
+class $$LoansTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LoansTable,
+          Loan,
+          $$LoansTableFilterComposer,
+          $$LoansTableOrderingComposer,
+          $$LoansTableAnnotationComposer,
+          $$LoansTableCreateCompanionBuilder,
+          $$LoansTableUpdateCompanionBuilder,
+          (Loan, $$LoansTableReferences),
+          Loan,
+          PrefetchHooks Function({bool loanPaymentsRefs})
+        > {
+  $$LoansTableTableManager(_$AppDatabase db, $LoansTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$LoansTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$LoansTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$LoansTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> borrower = const Value.absent(),
+                Value<int> principal = const Value.absent(),
+                Value<int> total = const Value.absent(),
+                Value<DateTime> lentOn = const Value.absent(),
+                Value<DateTime> dueOn = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<bool> remind = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LoansCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                borrower: borrower,
+                principal: principal,
+                total: total,
+                lentOn: lentOn,
+                dueOn: dueOn,
+                note: note,
+                remind: remind,
+                archivedAt: archivedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String borrower,
+                required int principal,
+                required int total,
+                required DateTime lentOn,
+                required DateTime dueOn,
+                Value<String> note = const Value.absent(),
+                Value<bool> remind = const Value.absent(),
+                Value<DateTime?> archivedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LoansCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                borrower: borrower,
+                principal: principal,
+                total: total,
+                lentOn: lentOn,
+                dueOn: dueOn,
+                note: note,
+                remind: remind,
+                archivedAt: archivedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0.map((e) => (e.readTable<$LoansTable, Loan>(table), $$LoansTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({loanPaymentsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (loanPaymentsRefs) db.loanPayments],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (loanPaymentsRefs)
+                    await $_getPrefetchedData<Loan, $LoansTable, LoanPayment>(
+                      currentTable: table,
+                      referencedTable: $$LoansTableReferences._loanPaymentsRefsTable(db),
+                      managerFromTypedResult: (p0) => $$LoansTableReferences(db, table, p0).loanPaymentsRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) => referencedItems.where((e) => e.loanId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LoansTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LoansTable,
+      Loan,
+      $$LoansTableFilterComposer,
+      $$LoansTableOrderingComposer,
+      $$LoansTableAnnotationComposer,
+      $$LoansTableCreateCompanionBuilder,
+      $$LoansTableUpdateCompanionBuilder,
+      (Loan, $$LoansTableReferences),
+      Loan,
+      PrefetchHooks Function({bool loanPaymentsRefs})
+    >;
+typedef $$LoanPaymentsTableCreateCompanionBuilder = LoanPaymentsCompanion Function({
+  required String id,
+  required DateTime createdAt,
+  required DateTime updatedAt,
+  Value<DateTime?> deletedAt,
+  required String loanId,
+  required int amount,
+  required DateTime date,
+  Value<String> note,
+  Value<int> rowid,
+});
+typedef $$LoanPaymentsTableUpdateCompanionBuilder = LoanPaymentsCompanion Function({
+  Value<String> id,
+  Value<DateTime> createdAt,
+  Value<DateTime> updatedAt,
+  Value<DateTime?> deletedAt,
+  Value<String> loanId,
+  Value<int> amount,
+  Value<DateTime> date,
+  Value<String> note,
+  Value<int> rowid,
+});
+
+final class $$LoanPaymentsTableReferences extends BaseReferences<_$AppDatabase, $LoanPaymentsTable, LoanPayment> {
+  $$LoanPaymentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $LoansTable _loanIdTable(_$AppDatabase db) => db.loans.createAlias('loan_payments__loan_id__loans__id');
+
+  $$LoansTableProcessedTableManager get loanId {
+    final $_column = $_itemColumn<String>('loan_id')!;
+
+    final manager = $$LoansTableTableManager($_db, $_db.loans).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_loanIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$LoanPaymentsTableFilterComposer extends Composer<_$AppDatabase, $LoanPaymentsTable> {
+  $$LoanPaymentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnFilters(column));
+
+  $$LoansTableFilterComposer get loanId {
+    final $$LoansTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.loanId,
+      referencedTable: $db.loans,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$LoansTableFilterComposer(
+        $db: $db,
+        $table: $db.loans,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$LoanPaymentsTableOrderingComposer extends Composer<_$AppDatabase, $LoanPaymentsTable> {
+  $$LoanPaymentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  $$LoansTableOrderingComposer get loanId {
+    final $$LoansTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.loanId,
+      referencedTable: $db.loans,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$LoansTableOrderingComposer(
+        $db: $db,
+        $table: $db.loans,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$LoanPaymentsTableAnnotationComposer extends Composer<_$AppDatabase, $LoanPaymentsTable> {
+  $$LoanPaymentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id => $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt => $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt => $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt => $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get amount => $composableBuilder(column: $table.amount, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get date => $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get note => $composableBuilder(column: $table.note, builder: (column) => column);
+
+  $$LoansTableAnnotationComposer get loanId {
+    final $$LoansTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.loanId,
+      referencedTable: $db.loans,
+      getReferencedColumn: (t) => t.id,
+      builder: (joinBuilder, {$addJoinBuilderToRootComposer, $removeJoinBuilderFromRootComposer}) => $$LoansTableAnnotationComposer(
+        $db: $db,
+        $table: $db.loans,
+        $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+        joinBuilder: joinBuilder,
+        $removeJoinBuilderFromRootComposer: $removeJoinBuilderFromRootComposer,
+      ),
+    );
+    return composer;
+  }
+}
+
+class $$LoanPaymentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LoanPaymentsTable,
+          LoanPayment,
+          $$LoanPaymentsTableFilterComposer,
+          $$LoanPaymentsTableOrderingComposer,
+          $$LoanPaymentsTableAnnotationComposer,
+          $$LoanPaymentsTableCreateCompanionBuilder,
+          $$LoanPaymentsTableUpdateCompanionBuilder,
+          (LoanPayment, $$LoanPaymentsTableReferences),
+          LoanPayment,
+          PrefetchHooks Function({bool loanId})
+        > {
+  $$LoanPaymentsTableTableManager(_$AppDatabase db, $LoanPaymentsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () => $$LoanPaymentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () => $$LoanPaymentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () => $$LoanPaymentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> loanId = const Value.absent(),
+                Value<int> amount = const Value.absent(),
+                Value<DateTime> date = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LoanPaymentsCompanion(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                loanId: loanId,
+                amount: amount,
+                date: date,
+                note: note,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String loanId,
+                required int amount,
+                required DateTime date,
+                Value<String> note = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LoanPaymentsCompanion.insert(
+                id: id,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                loanId: loanId,
+                amount: amount,
+                date: date,
+                note: note,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) =>
+              p0.map((e) => (e.readTable<$LoanPaymentsTable, LoanPayment>(table), $$LoanPaymentsTableReferences(db, table, e))).toList(),
+          prefetchHooksCallback: ({loanId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <T extends TableManagerState<dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic, dynamic>>(
+                    state,
+                  ) {
+                    if (loanId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.loanId,
+                        referencedTable: $$LoanPaymentsTableReferences._loanIdTable(db),
+                        referencedColumn: $$LoanPaymentsTableReferences._loanIdTable(db).id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LoanPaymentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LoanPaymentsTable,
+      LoanPayment,
+      $$LoanPaymentsTableFilterComposer,
+      $$LoanPaymentsTableOrderingComposer,
+      $$LoanPaymentsTableAnnotationComposer,
+      $$LoanPaymentsTableCreateCompanionBuilder,
+      $$LoanPaymentsTableUpdateCompanionBuilder,
+      (LoanPayment, $$LoanPaymentsTableReferences),
+      LoanPayment,
+      PrefetchHooks Function({bool loanId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -14565,4 +21179,11 @@ class $AppDatabaseManager {
   $$HabitCheckinsTableTableManager get habitCheckins => $$HabitCheckinsTableTableManager(_db, _db.habitCheckins);
   $$FiltersTableTableManager get filters => $$FiltersTableTableManager(_db, _db.filters);
   $$ActivitiesTableTableManager get activities => $$ActivitiesTableTableManager(_db, _db.activities);
+  $$FinCategoriesTableTableManager get finCategories => $$FinCategoriesTableTableManager(_db, _db.finCategories);
+  $$FinCardsTableTableManager get finCards => $$FinCardsTableTableManager(_db, _db.finCards);
+  $$FinRecurringsTableTableManager get finRecurrings => $$FinRecurringsTableTableManager(_db, _db.finRecurrings);
+  $$FinEntriesTableTableManager get finEntries => $$FinEntriesTableTableManager(_db, _db.finEntries);
+  $$FinCardPaymentsTableTableManager get finCardPayments => $$FinCardPaymentsTableTableManager(_db, _db.finCardPayments);
+  $$LoansTableTableManager get loans => $$LoansTableTableManager(_db, _db.loans);
+  $$LoanPaymentsTableTableManager get loanPayments => $$LoanPaymentsTableTableManager(_db, _db.loanPayments);
 }

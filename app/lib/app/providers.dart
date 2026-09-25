@@ -7,9 +7,11 @@ import 'package:path/path.dart' as p;
 import '../core/clock.dart';
 import '../data/attachment_store.dart';
 import '../data/db/database.dart';
+import '../data/finance_repository.dart';
 import '../data/preferences_repository.dart';
 import '../data/repository.dart';
 import '../domain/enums.dart';
+import '../domain/finance/finance.dart';
 import '../domain/snapshot.dart';
 import '../domain/views.dart';
 
@@ -30,6 +32,13 @@ final preferencesRepositoryProvider = Provider<PreferencesRepository>(
 );
 
 final snapshotProvider = StreamProvider<Snapshot>((ref) => ref.watch(repositoryProvider).watchSnapshot());
+
+final financeRepositoryProvider = Provider<FinanceRepository>(
+  (ref) => FinanceRepository(ref.watch(databaseProvider), clock: ref.watch(clockProvider)),
+);
+
+/// Finanças, apart from the tasks' snapshot.
+final financeProvider = StreamProvider<FinanceSnapshot>((ref) => ref.watch(financeRepositoryProvider).watch());
 
 final preferencesProvider = StreamProvider<Preferences>((ref) => ref.watch(preferencesRepositoryProvider).watch());
 

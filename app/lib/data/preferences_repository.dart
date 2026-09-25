@@ -42,7 +42,8 @@ enum AppFeature {
   matrix('matrix'),
   habit('habit'),
   focus('focus'),
-  countdown('countdown');
+  countdown('countdown'),
+  finance('finance');
 
   const AppFeature(this.code);
   final String code;
@@ -535,6 +536,14 @@ class PreferencesRepository {
       (await (_db.select(_db.preferences)..where((p) => p.name.equals(_countdownsSeededKey))).getSingleOrNull()) != null;
 
   Future<void> markBuiltInCountdownsSeeded() => _set(_countdownsSeededKey, true);
+
+  static const _financeSeededKey = 'finance.categoriesSeeded';
+
+  /// Whether the default finance categories were created (once: deleting them all keeps them gone).
+  Future<bool> financeCategoriesSeeded() async =>
+      (await (_db.select(_db.preferences)..where((p) => p.name.equals(_financeSeededKey))).getSingleOrNull()) != null;
+
+  Future<void> markFinanceCategoriesSeeded() => _set(_financeSeededKey, true);
 
   Future<void> _remove(String name) => (_db.delete(_db.preferences)..where((p) => p.name.equals(name))).go();
 

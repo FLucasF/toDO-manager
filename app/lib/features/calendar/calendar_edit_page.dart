@@ -266,8 +266,9 @@ class _EditPageState extends ConsumerState<_EditPage> {
     final day = _start;
     final code = byDayCodes[day.weekday - 1];
     final place = weekdayInMonth(day);
-    final repeats = <String?, String>{
-      null: t.calendarNoRepeat,
+    // '' is "Não se repete": a menu can't return null (it would look like closing it).
+    final repeats = <String, String>{
+      '': t.calendarNoRepeat,
       'FREQ=DAILY;INTERVAL=1': t.repeatDaily,
       'FREQ=WEEKLY;INTERVAL=1;BYDAY=$code': t.recurrenceWeeklyOn(dates.weekday(day).toLowerCase()),
       if (place.nth <= 4) 'FREQ=MONTHLY;INTERVAL=1;BYDAY=${place.nth}$code': t.repeatMonthlyOn(weekdayOfMonth(t, dates, place.nth, day.weekday)),
@@ -404,11 +405,11 @@ class _EditPageState extends ConsumerState<_EditPage> {
                           ),
                         ],
                       ),
-                      PopupMenuButton<String?>(
+                      PopupMenuButton<String>(
                         tooltip: '',
                         onSelected: (rule) async {
                           if (rule != '*') {
-                            setState(() => _rule = rule);
+                            setState(() => _rule = rule.isEmpty ? null : rule);
                             return;
                           }
                           // "Personalizar…": Google's "Repetição personalizada".
@@ -421,8 +422,8 @@ class _EditPageState extends ConsumerState<_EditPage> {
                           if (picked != null && mounted) setState(() => _rule = picked);
                         },
                         itemBuilder: (_) => [
-                          for (final e in repeats.entries) PopupMenuItem<String?>(value: e.key, height: 36, child: Text(e.value)),
-                          PopupMenuItem<String?>(value: '*', height: 36, child: Text('${t.repeatCustom}…')),
+                          for (final e in repeats.entries) PopupMenuItem<String>(value: e.key, height: 36, child: Text(e.value)),
+                          PopupMenuItem<String>(value: '*', height: 36, child: Text('${t.repeatCustom}…')),
                         ],
                         child: IgnorePointer(child: pill(ruleLabel, () {}, menu: true)),
                       ),
