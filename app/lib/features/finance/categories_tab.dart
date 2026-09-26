@@ -12,12 +12,15 @@ import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/emoji_picker.dart';
 import '../common/feedback.dart';
+import '../common/shell_widgets.dart';
 import 'finance_widgets.dart';
 
-/// "Categorias": expenses and income, each with this month's total; a category with a limit shows
-/// how much of it is gone (orange from 80%, red past it).
-class CategoriesTab extends ConsumerWidget {
-  const CategoriesTab({super.key});
+/// "Categorias" of [month]: expenses and income, each category with the month's total; one with a
+/// limit shows how much of it is gone (orange from 80%, red past it).
+class CategoriesBody extends ConsumerWidget {
+  const CategoriesBody({super.key, required this.month});
+
+  final DateTime month;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,27 +28,16 @@ class CategoriesTab extends ConsumerWidget {
     final tt = context.tt;
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
-    final month = monthOf(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
     final monthEntries = entriesOfMonth(s, month);
     int totalOf(String id) => monthEntries.where((e) => e.categoryId == id).fold(0, (sum, e) => sum + e.amount);
 
-    Widget section(FinKind kind, String title) => Padding(
-      padding: const EdgeInsets.fromLTRB(4, 16, 0, 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: TextStyle(fontSize: TtText.small, fontWeight: FontWeight.w600, color: tt.textSecondary),
-            ),
-          ),
-          IconButton(
-            tooltip: t.finNewCategory,
-            visualDensity: VisualDensity.compact,
-            icon: Icon(Icons.add, size: 18, color: tt.textTertiary),
-            onPressed: () => unawaited(showCategoryForm(context, kind: kind)),
-          ),
-        ],
+    Widget section(FinKind kind, String title) => BodyHeading(
+      title,
+      trailing: IconButton(
+        tooltip: t.finNewCategory,
+        visualDensity: VisualDensity.compact,
+        icon: Icon(Icons.add, size: 18, color: tt.textSecondary),
+        onPressed: () => unawaited(showCategoryForm(context, kind: kind)),
       ),
     );
 
@@ -53,19 +45,24 @@ class CategoriesTab extends ConsumerWidget {
       padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 0, narrow ? 12 : 20, 32),
       children: [
         section(FinKind.expense, t.finExpenses),
-        for (final c in s.categoriesOf(FinKind.expense)) _CategoryRow(category: c, total: totalOf(c.id)),
+        for (final c in s.categoriesOf(FinKind.expense)) _CategoryRow(category: c, total: totalOf(c.id), color: categoryColor(context, s, c)),
+        const SizedBox(height: 8),
+        Divider(height: 1, color: tt.divider),
         section(FinKind.income, t.finIncomes),
-        for (final c in s.categoriesOf(FinKind.income)) _CategoryRow(category: c, total: totalOf(c.id)),
+        for (final c in s.categoriesOf(FinKind.income)) _CategoryRow(category: c, total: totalOf(c.id), color: categoryColor(context, s, c)),
       ],
     );
   }
 }
 
 class _CategoryRow extends ConsumerWidget {
-  const _CategoryRow({required this.category, required this.total});
+  const _CategoryRow({required this.category, required this.total, required this.color});
 
   final FinCategory category;
   final int total;
+
+  /// The category's color: its dot, as in the panel and the charts.
+  final Color color;
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context);
@@ -117,8 +114,13 @@ class _CategoryRow extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
           child: Row(
             children: [
-              CategoryIcon(category: category),
-              const SizedBox(width: 12),
+              Container(
+                width: 10,
+                height: 10,
+                margin: const EdgeInsets.symmetric(horizontal: 2),
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,10 +129,10 @@ class _CategoryRow extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            category.name,
+                            '${category.icon} ${category.name}'.trim(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: tt.text, fontSize: TtText.body),
+                            style: TextStyle(color: tt.text, fontSize: TtText.body, fontWeight: FontWeight.w600),
                           ),
                         ),
                         Text(

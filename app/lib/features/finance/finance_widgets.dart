@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
+import '../../domain/finance/finance.dart';
 import '../../domain/finance/finance_enums.dart';
 import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/color_choice.dart';
 
 /// Green for money in, red for money out.
 Color finKindColor(BuildContext context, FinKind kind) => kind == FinKind.income ? context.tt.palette.green : context.tt.overdue;
@@ -120,4 +122,27 @@ class FinChip extends StatelessWidget {
       onSelected: (_) => onTap(),
     );
   }
+}
+
+/// Colors of the categories without one of their own, in their order.
+const financePalette = [
+  Color(0xFF4772FA),
+  Color(0xFFE5484D),
+  Color(0xFFF5A524),
+  Color(0xFF30A46C),
+  Color(0xFF8E4EC6),
+  Color(0xFF12A594),
+  Color(0xFFD6409F),
+  Color(0xFF978365),
+  Color(0xFF0090FF),
+  Color(0xFFE54D2E),
+];
+
+/// A category's color: its own, or the palette's by its place (the same everywhere: panel, lists,
+/// charts); "Sem categoria" is grey.
+Color categoryColor(BuildContext context, FinanceSnapshot s, FinCategory? c) {
+  if (c == null) return context.tt.textTertiary;
+  if (parseHexColor(c.color) case final own?) return own;
+  final i = s.categories.indexWhere((x) => x.id == c.id);
+  return financePalette[(i < 0 ? 0 : i) % financePalette.length];
 }

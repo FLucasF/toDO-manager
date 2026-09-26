@@ -12,67 +12,38 @@ import '../../domain/finance/loans.dart';
 import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
+import '../common/shell_widgets.dart';
 import 'finance_widgets.dart';
 
-enum _LoanFilter { open, overdue, paid, all }
+/// "Empréstimos": the figures (lent, to receive, profit received, late), then the loans by month
+/// (of the due day or of the day lent), each on its day as in the Agenda. The status filter and the
+/// grouping are in the left panel.
+class LoansBody extends ConsumerWidget {
+  const LoansBody({super.key, required this.statuses, required this.byDue, required this.today});
 
-/// "Empréstimos": the overview (lent, to receive, profit received, overdue), the loans with their
-/// status, and each loan's payments.
-class LoansTab extends ConsumerStatefulWidget {
-  const LoansTab({super.key});
-
-  @override
-  ConsumerState<LoansTab> createState() => _LoansTabState();
-}
-
-class _LoansTabState extends ConsumerState<LoansTab> {
-  _LoanFilter _filter = _LoanFilter.open;
-
-  /// Months of the due day (what comes in each month) or of the day the money was lent.
-  bool _byDue = true;
+  final Set<LoanStatus> statuses;
+  final bool byDue;
+  final DateTime today;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
+    final dates = DateLabels(t);
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
-    final today = startOfDay(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
     final loans = loanSummaries(s, today);
     final shown = [
       for (final l in loans)
-        if (switch (_filter) {
-          _LoanFilter.open => l.status != LoanStatus.paid,
-          _LoanFilter.overdue => l.status == LoanStatus.overdue,
-          _LoanFilter.paid => l.status == LoanStatus.paid,
-          _LoanFilter.all => true,
-        })
-          l,
+        if (statuses.contains(l.status)) l,
     ];
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 8, narrow ? 12 : 20, 32),
+      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 4, narrow ? 12 : 20, 32),
       children: [
-        LoansOverviewCards(overview: loansOverview(loans)),
+        LoansFigures(overview: loansOverview(loans)),
         const SizedBox(height: 12),
-        // "Novo empréstimo" is the "+" of the header.
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              for (final (f, label) in [
-                (_LoanFilter.open, t.finLoansOpen),
-                (_LoanFilter.overdue, t.finLoansOverdue),
-                (_LoanFilter.paid, t.finLoansPaid),
-                (_LoanFilter.all, t.finLoansAll),
-              ])
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: FinChip(label: label, selected: _filter == f, onTap: () => setState(() => _filter = f)),
-                ),
-            ],
-          ),
-        ),
+        Divider(height: 1, color: tt.divider),
         if (shown.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
@@ -82,82 +53,33 @@ class _LoansTabState extends ConsumerState<LoansTab> {
               style: TextStyle(color: tt.textTertiary),
             ),
           ),
-        if (shown.isNotEmpty)
-          Align(
-            alignment: Alignment.centerLeft,
-            child: PopupMenuButton<bool>(
-              tooltip: '',
-              onSelected: (v) => setState(() => _byDue = v),
-              itemBuilder: (_) => [
-                CheckedPopupMenuItem(value: true, checked: _byDue, child: Text(t.finByDueMonth)),
-                CheckedPopupMenuItem(value: false, checked: !_byDue, child: Text(t.finByLentMonth)),
-              ],
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.calendar_month_outlined, size: 16, color: tt.textSecondary),
-                    const SizedBox(width: 6),
-                    Text(
-                      _byDue ? t.finByDueMonth : t.finByLentMonth,
-                      style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
-                    ),
-                    Icon(Icons.expand_more, size: 16, color: tt.textTertiary),
-                  ],
-                ),
-              ),
+        for (final group in loansByMonth(shown, byDue: byDue)) ...[
+          // The month's count, what is left and the profit: beside the month, or under it on a phone.
+          if (Text(
+                '${t.finLoansCount(group.loans.length)} · ${t.finMonthLoanTotals(formatMoney(group.loans.fold(0, (sum, l) => sum + l.balance)), formatMoney(group.loans.fold(0, (sum, l) => sum + l.interest)))}',
+                style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
+              )
+              case final totals) ...[
+            BodyHeading(dates.monthTitle(group.month), trailing: narrow ? null : totals),
+            if (narrow) Padding(padding: const EdgeInsets.only(bottom: 4), child: totals),
+          ],
+          for (final (i, l) in group.loans.indexed) ...[
+            if (i > 0) Divider(height: 1, color: tt.divider),
+            AgendaBlock(
+              day: finDay(byDue ? l.loan.dueOn : l.loan.lentOn),
+              today: today,
+              children: [_LoanLine(summary: l)],
             ),
-          ),
-        for (final group in loansByMonth(shown, byDue: _byDue)) ...[
-          _MonthHeader(month: group.month, loans: group.loans),
-          for (final l in group.loans) _LoanRow(summary: l),
+          ],
         ],
       ],
     );
   }
 }
 
-/// "Outubro 2026" with the month's count, what is left to receive and the profit.
-class _MonthHeader extends StatelessWidget {
-  const _MonthHeader({required this.month, required this.loans});
-
-  final DateTime month;
-  final List<LoanSummary> loans;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final tt = context.tt;
-    final toReceive = loans.fold(0, (sum, l) => sum + l.balance);
-    final profit = loans.fold(0, (sum, l) => sum + l.interest);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Text(
-            DateLabels(t).monthTitle(month),
-            style: TextStyle(fontSize: TtText.small, fontWeight: FontWeight.w700, color: tt.textSecondary),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${t.finLoansCount(loans.length)} · ${t.finMonthLoanTotals(formatMoney(toReceive), formatMoney(profit))}',
-              textAlign: TextAlign.end,
-              maxLines: 2,
-              style: TextStyle(fontSize: 11, color: tt.textTertiary),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The four numbers of the loans (also on Relatórios).
-class LoansOverviewCards extends StatelessWidget {
-  const LoansOverviewCards({super.key, required this.overview});
+/// The four figures of the loans (also on Relatórios).
+class LoansFigures extends StatelessWidget {
+  const LoansFigures({super.key, required this.overview});
 
   final LoansOverview overview;
 
@@ -165,50 +87,28 @@ class LoansOverviewCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    Widget card(String label, int cents, Color color, String? hint) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              formatMoney(cents),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color),
-            ),
-          ),
-          if (hint != null)
-            Text(
-              hint,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 11, color: tt.textTertiary),
-            ),
-        ],
-      ),
-    );
-    final cards = [
-      card(t.finLentOpen, overview.lentOpen, tt.text, t.finLoansCount(overview.open)),
-      card(t.finToReceive, overview.toReceive, tt.primary, t.finInterestToCome(formatMoney(overview.interestToCome))),
-      card(t.finInterestReceived, overview.interestReceived, tt.palette.green, t.finLentTotal(formatMoney(overview.lentTotal))),
-      card(t.finOverdueAmount, overview.overdue, overview.overdue > 0 ? tt.overdue : tt.text, t.finLoansCount(overview.overdueCount)),
-    ];
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final perRow = constraints.maxWidth < 560 ? 2 : 4;
-        final width = (constraints.maxWidth - 8 * (perRow - 1)) / perRow;
-        return Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [for (final c in cards) SizedBox(width: width, child: c)],
-        );
-      },
+    return FigureStrip(
+      figures: [
+        (label: t.finLentOpen, value: formatMoney(overview.lentOpen), color: null, hint: t.finLoansCount(overview.open)),
+        (
+          label: t.finToReceive,
+          value: formatMoney(overview.toReceive),
+          color: tt.primary,
+          hint: t.finInterestToCome(formatMoney(overview.interestToCome)),
+        ),
+        (
+          label: t.finInterestReceived,
+          value: formatMoney(overview.interestReceived),
+          color: tt.palette.green,
+          hint: t.finLentTotal(formatMoney(overview.lentTotal)),
+        ),
+        (
+          label: t.finOverdueAmount,
+          value: formatMoney(overview.overdue),
+          color: overview.overdue > 0 ? tt.overdue : null,
+          hint: t.finLoansCount(overview.overdueCount),
+        ),
+      ],
     );
   }
 }
@@ -224,8 +124,10 @@ class LoansOverviewCards extends StatelessWidget {
   };
 }
 
-class _LoanRow extends StatelessWidget {
-  const _LoanRow({required this.summary});
+/// A loan as a line of the Agenda: the status' dot and word, the borrower, what is left and the
+/// profit; a click opens its detail.
+class _LoanLine extends StatelessWidget {
+  const _LoanLine({required this.summary});
 
   final LoanSummary summary;
 
@@ -235,62 +137,17 @@ class _LoanRow extends StatelessWidget {
     final tt = context.tt;
     final loan = summary.loan;
     final (status, color) = loanStatusLabel(context, summary);
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
+    return AgendaLine(
+      color: color,
+      secondary: status,
+      title: t.finCalendarLoan(loan.borrower),
+      subtitle: t.finProfit(formatMoney(summary.interest), formatPercent(summary.rate)),
+      struck: summary.status == LoanStatus.paid,
+      faded: summary.status == LoanStatus.paid,
       onTap: () => unawaited(showLoanDetail(context, loan.id)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: tt.fieldFill,
-              child: Text(
-                loan.borrower.isEmpty ? '?' : loan.borrower.characters.first.toUpperCase(),
-                style: TextStyle(color: tt.textSecondary, fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    loan.borrower,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: tt.text, fontSize: TtText.body),
-                  ),
-                  Text.rich(
-                    TextSpan(
-                      children: [
-                        TextSpan(
-                          text: status,
-                          style: TextStyle(color: color, fontWeight: FontWeight.w600),
-                        ),
-                        TextSpan(text: ' · ${t.finDueOn(DateLabels.numeric(finDay(loan.dueOn)))}'),
-                      ],
-                    ),
-                    style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  summary.status == LoanStatus.paid ? formatMoney(loan.total) : t.finLoanLeft(formatMoney(summary.balance)),
-                  style: TextStyle(color: tt.text, fontWeight: FontWeight.w600),
-                ),
-                Text(
-                  t.finProfit(formatMoney(summary.interest), formatPercent(summary.rate)),
-                  style: TextStyle(fontSize: TtText.small, color: tt.palette.green),
-                ),
-              ],
-            ),
-          ],
-        ),
+      trailing: Text(
+        summary.status == LoanStatus.paid ? formatMoney(loan.total) : t.finLoanLeft(formatMoney(summary.balance)),
+        style: TextStyle(color: summary.status == LoanStatus.overdue ? tt.overdue : tt.text, fontWeight: FontWeight.w600),
       ),
     );
   }

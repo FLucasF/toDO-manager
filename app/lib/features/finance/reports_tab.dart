@@ -6,92 +6,41 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/format/date_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
-import '../../core/clock.dart';
 import '../../domain/finance/finance.dart';
 import '../../domain/finance/loans.dart';
 import '../../domain/finance/money.dart';
 import '../../domain/finance/reports.dart';
 import '../../l10n/app_localizations.dart';
-import '../common/color_choice.dart';
+import '../common/shell_widgets.dart';
 import '../statistics/charts.dart';
 import 'finance_widgets.dart';
 import 'loans_tab.dart';
 
-/// Colors of the categories without one of their own, in order.
-const _sliceColors = [
-  Color(0xFF4772FA),
-  Color(0xFFE5484D),
-  Color(0xFFF5A524),
-  Color(0xFF30A46C),
-  Color(0xFF8E4EC6),
-  Color(0xFF12A594),
-  Color(0xFFD6409F),
-  Color(0xFF978365),
-  Color(0xFF0090FF),
-  Color(0xFFE54D2E),
-];
+/// "Relatórios" of [month] (chosen in the top bar or the panel): the expenses by category, income ×
+/// expenses of the last 6 months, [month] against [compare] by category, and the loans.
+class ReportsBody extends ConsumerWidget {
+  const ReportsBody({super.key, required this.month, required this.compare, required this.onCompare, required this.today});
 
-/// "Relatórios": the month's expenses by category, income × expenses of the last 6 months, one
-/// month against another by category, and the loans.
-class ReportsTab extends ConsumerStatefulWidget {
-  const ReportsTab({super.key});
+  final DateTime month;
+  final DateTime compare;
+  final ValueChanged<DateTime> onCompare;
+  final DateTime today;
 
   @override
-  ConsumerState<ReportsTab> createState() => _ReportsTabState();
-}
-
-class _ReportsTabState extends ConsumerState<ReportsTab> {
-  late DateTime _month = monthOf(ref.read(clockProvider).now());
-
-  /// The month compared with [_month]; the one before it to begin with.
-  DateTime? _other;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
     final dates = DateLabels(t);
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
-    final today = startOfDay(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
-    final other = _other ?? DateTime(_month.year, _month.month - 1);
-    final slices = expensesByCategory(s, _month);
+    final slices = expensesByCategory(s, month);
     final spent = slices.fold(0, (sum, x) => sum + x.amount);
-    Color colorOf(int i, CategorySlice slice) => parseHexColor(slice.category?.color) ?? _sliceColors[i % _sliceColors.length];
-    final months = monthlyTotals(s, _month, 6);
-    final compared = compareMonths(s, other, _month);
-
-    Widget title(String text) => Padding(
-      padding: const EdgeInsets.fromLTRB(0, 24, 0, 8),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: tt.text),
-      ),
-    );
-
-    Widget monthButton(DateTime month, ValueChanged<DateTime> onChanged) => Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () => onChanged(DateTime(month.year, month.month - 1)),
-        ),
-        Text(
-          dates.monthTitle(month),
-          style: TextStyle(fontWeight: FontWeight.w600, color: tt.text),
-        ),
-        IconButton(
-          visualDensity: VisualDensity.compact,
-          icon: const Icon(Icons.chevron_right),
-          onPressed: () => onChanged(DateTime(month.year, month.month + 1)),
-        ),
-      ],
-    );
+    final months = monthlyTotals(s, month, 6);
+    final compared = compareMonths(s, compare, month);
 
     final legend = Column(
       children: [
-        for (final (i, slice) in slices.indexed)
+        for (final slice in slices)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Row(
@@ -99,9 +48,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                 Container(
                   width: 10,
                   height: 10,
-                  decoration: BoxDecoration(color: colorOf(i, slice), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: categoryColor(context, s, slice.category), shape: BoxShape.circle),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     '${slice.category?.icon ?? ''} ${categoryName(t, slice.category)}'.trim(),
@@ -126,7 +75,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     );
     final donut = DonutChart(
       size: 150,
-      parts: [for (final (i, slice) in slices.indexed) (slice.amount.toDouble(), colorOf(i, slice))],
+      parts: [for (final slice in slices) (slice.amount.toDouble(), categoryColor(context, s, slice.category))],
       center: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -142,10 +91,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     );
 
     return ListView(
-      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 4, narrow ? 12 : 20, 32),
+      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 0, narrow ? 12 : 20, 32),
       children: [
-        Align(alignment: Alignment.centerLeft, child: monthButton(_month, (m) => setState(() => _month = m))),
-        title(t.finByCategory),
+        BodyHeading(t.finByCategory),
         if (slices.isEmpty)
           Text(t.finNoExpenses, style: TextStyle(color: tt.textTertiary))
         else if (narrow)
@@ -156,12 +104,16 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
             children: [
               donut,
               const SizedBox(width: 32),
-              Expanded(child: legend),
+              Flexible(
+                child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 520), child: legend),
+              ),
             ],
           ),
-        title(t.finIncomeVsExpenses),
+        const SizedBox(height: 8),
+        Divider(height: 1, color: tt.divider),
+        BodyHeading(t.finIncomeVsExpenses),
         PairedBarChart(
-          labels: [for (final m in months) dates.monthShort(m.month)],
+          labels: [for (final m in months) dates.monthShort(m.month).toUpperCase()],
           first: [for (final m in months) m.totals.income],
           second: [for (final m in months) m.totals.expense],
           firstColor: tt.palette.green,
@@ -179,24 +131,44 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
               ),
           ],
         ),
-        title(t.finCompareMonths),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            monthButton(other, (m) => setState(() => _other = m)),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Text(t.finVersus, style: TextStyle(color: tt.textTertiary)),
-            ),
-            monthButton(_month, (m) => setState(() => _month = m)),
-          ],
+        const SizedBox(height: 8),
+        Divider(height: 1, color: tt.divider),
+        BodyHeading(
+          t.finCompareMonths,
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.chevron_left, size: 18, color: tt.textSecondary),
+                onPressed: () => onCompare(DateTime(compare.year, compare.month - 1)),
+              ),
+              Text(
+                '${dates.monthTitle(compare)} ${t.finVersus} ${dates.monthTitle(month)}',
+                style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
+              ),
+              IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.chevron_right, size: 18, color: tt.textSecondary),
+                onPressed: () => onCompare(DateTime(compare.year, compare.month + 1)),
+              ),
+            ],
+          ),
         ),
         if (compared.isEmpty)
           Text(t.finNoExpenses, style: TextStyle(color: tt.textTertiary))
         else
-          _CompareTable(rows: compared, first: dates.monthShort(other), second: dates.monthShort(_month)),
-        title(t.finLoansSummary),
-        LoansOverviewCards(overview: loansOverview(loanSummaries(s, today))),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: _CompareTable(rows: compared, first: dates.monthShort(compare), second: dates.monthShort(month)),
+            ),
+          ),
+        const SizedBox(height: 8),
+        Divider(height: 1, color: tt.divider),
+        BodyHeading(t.finLoansSummary),
+        LoansFigures(overview: loansOverview(loanSummaries(s, today))),
       ],
     );
   }

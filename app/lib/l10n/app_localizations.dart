@@ -8622,6 +8622,54 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Cobrar {name}'**
   String finCalendarLoan(String name);
+
+  /// No description provided for @finThisMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este mês'**
+  String get finThisMonth;
+
+  /// No description provided for @finCurrentInvoice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fatura atual'**
+  String get finCurrentInvoice;
+
+  /// No description provided for @finMonthSpending.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gastos do mês'**
+  String get finMonthSpending;
+
+  /// No description provided for @finMoreReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mais relatórios'**
+  String get finMoreReports;
+
+  /// No description provided for @finCategoriesFilter.
+  ///
+  /// In pt, this message translates to:
+  /// **'Categorias…'**
+  String get finCategoriesFilter;
+
+  /// No description provided for @finSituation.
+  ///
+  /// In pt, this message translates to:
+  /// **'Situação'**
+  String get finSituation;
+
+  /// No description provided for @finGroupBy.
+  ///
+  /// In pt, this message translates to:
+  /// **'Agrupar'**
+  String get finGroupBy;
+
+  /// No description provided for @finCreditAvailable.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limite disponível'**
+  String get finCreditAvailable;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

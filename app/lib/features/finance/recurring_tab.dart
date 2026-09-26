@@ -15,56 +15,67 @@ import '../../domain/finance/money.dart';
 import '../../domain/finance/recurring.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
+import '../common/shell_widgets.dart';
 import 'finance_widgets.dart';
 
-/// "Contas fixas": the month's due bills (paid, to pay, overdue), the overdue ones of earlier months
-/// on top, and the bills themselves. Confirming a payment creates the entry.
-class RecurringTab extends ConsumerStatefulWidget {
-  const RecurringTab({super.key});
+/// "Contas fixas": the month's due days laid out as the Agenda (each bill with its status: paid, to
+/// pay, late) and, on the current month, the late ones of earlier months on top. "Pagar" (or
+/// "Receber") creates the entry; ↶ undoes it. The bills themselves are in the left panel.
+class RecurringBody extends ConsumerWidget {
+  const RecurringBody({super.key, required this.month, required this.today});
+
+  final DateTime month;
+  final DateTime today;
 
   @override
-  ConsumerState<RecurringTab> createState() => _RecurringTabState();
-}
-
-class _RecurringTabState extends ConsumerState<RecurringTab> {
-  late DateTime _month = monthOf(ref.read(clockProvider).now());
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
-    final today = startOfDay(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
-    final monthItems = occurrences(s, _month, DateTime(_month.year, _month.month + 1, 0), today);
-    final isCurrent = _month == monthOf(today);
-    // Earlier months' unpaid bills, shown with the current month.
-    final late = isCurrent ? overdueOccurrences(s, today).where((o) => o.due.isBefore(_month)).toList() : const <Occurrence>[];
-    final bills = [
-      for (final r in s.recurrings)
-        if (r.archivedAt == null) r,
-    ];
+    final monthItems = occurrences(s, month, DateTime(month.year, month.month + 1, 0), today);
+    final late = month == monthOf(today) ? overdueOccurrences(s, today).where((o) => o.due.isBefore(month)).toList() : const <Occurrence>[];
+    final toPay = monthItems
+        .where((o) => o.status != OccurrenceStatus.paid && o.recurring.kind == FinKind.expense)
+        .fold(0, (sum, o) => sum + o.recurring.amount);
+    final paid = monthItems
+        .where((o) => o.status == OccurrenceStatus.paid && o.recurring.kind == FinKind.expense)
+        .fold(0, (sum, o) => sum + (o.entry?.amount ?? 0));
+    final toReceive = monthItems
+        .where((o) => o.status != OccurrenceStatus.paid && o.recurring.kind == FinKind.income)
+        .fold(0, (sum, o) => sum + o.recurring.amount);
+
+    List<Widget> blocks(List<Occurrence> items) {
+      final byDay = <DateTime, List<Occurrence>>{};
+      for (final o in items) {
+        byDay.putIfAbsent(o.due, () => []).add(o);
+      }
+      final days = byDay.keys.toList()..sort();
+      return [
+        for (final (i, day) in days.indexed) ...[
+          if (i > 0) Divider(height: 1, color: tt.divider),
+          AgendaBlock(
+            day: day,
+            today: today,
+            children: [for (final o in byDay[day]!) _OccurrenceLine(occurrence: o, snapshot: s)],
+          ),
+        ],
+      ];
+    }
 
     return ListView(
       padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 4, narrow ? 12 : 20, 32),
       children: [
-        Row(
-          children: [
-            IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => setState(() => _month = DateTime(_month.year, _month.month - 1))),
-            Text(
-              DateLabels(t).monthTitle(_month),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: tt.text),
-            ),
-            IconButton(icon: const Icon(Icons.chevron_right), onPressed: () => setState(() => _month = DateTime(_month.year, _month.month + 1))),
-            const Spacer(),
-            TextButton.icon(
-              icon: const Icon(Icons.add, size: 18),
-              label: Text(t.finNewRecurring),
-              onPressed: () => unawaited(showRecurringForm(context)),
-            ),
+        FigureStrip(
+          figures: [
+            (label: t.finInvoiceRemaining, value: formatMoney(toPay), color: toPay > 0 ? tt.overdue : null, hint: null),
+            (label: t.finInvoicePaidAmount, value: formatMoney(paid), color: tt.palette.green, hint: null),
+            if (toReceive > 0) (label: t.finToReceive, value: formatMoney(toReceive), color: tt.palette.green, hint: null),
           ],
         ),
-        if (bills.isEmpty)
+        const SizedBox(height: 12),
+        Divider(height: 1, color: tt.divider),
+        if (s.recurrings.every((r) => r.archivedAt != null))
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
             child: Text(
@@ -73,28 +84,11 @@ class _RecurringTabState extends ConsumerState<RecurringTab> {
               style: TextStyle(color: tt.textTertiary),
             ),
           ),
-        if (late.isNotEmpty) ...[_Title(t.finOverdueBills, color: tt.overdue), for (final o in late) _OccurrenceRow(occurrence: o, snapshot: s)],
-        if (monthItems.isNotEmpty) ...[_Title(t.finDueThisMonth), for (final o in monthItems) _OccurrenceRow(occurrence: o, snapshot: s)],
-        if (bills.isNotEmpty) ...[_Title(t.finRecurringBills), for (final r in bills) _BillRow(bill: r, snapshot: s)],
+        if (late.isNotEmpty) ...[BodyHeading(t.finOverdueBills, color: tt.overdue), ...blocks(late), Divider(height: 1, color: tt.divider)],
+        ...blocks(monthItems),
       ],
     );
   }
-}
-
-class _Title extends StatelessWidget {
-  const _Title(this.text, {this.color});
-
-  final String text;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(4, 16, 4, 4),
-    child: Text(
-      text,
-      style: TextStyle(fontSize: TtText.small, fontWeight: FontWeight.w600, color: color ?? context.tt.textSecondary),
-    ),
-  );
 }
 
 /// "Todo dia 10", "Todo ano em 10/03".
@@ -102,8 +96,10 @@ String recurringWhen(AppLocalizations t, FinRecurring r) => r.frequency == FinFr
     ? t.finEveryMonthOn(r.day)
     : t.finEveryYearOn('${r.day.toString().padLeft(2, '0')}/${(r.month ?? 1).toString().padLeft(2, '0')}');
 
-class _OccurrenceRow extends ConsumerWidget {
-  const _OccurrenceRow({required this.occurrence, required this.snapshot});
+/// One due day of a bill: the status' dot (green paid, red late, grey to pay), "Pago em 24/09" or the
+/// category, the bill, the amount and "Pagar" (or ↶ when paid). A click edits the bill.
+class _OccurrenceLine extends ConsumerWidget {
+  const _OccurrenceLine({required this.occurrence, required this.snapshot});
 
   final Occurrence occurrence;
   final FinanceSnapshot snapshot;
@@ -125,38 +121,26 @@ class _OccurrenceRow extends ConsumerWidget {
     final tt = context.tt;
     final r = occurrence.recurring;
     final category = r.categoryId == null ? null : snapshot.categoryById[r.categoryId];
-    final (icon, color) = switch (occurrence.status) {
-      OccurrenceStatus.paid => (Icons.check_circle, tt.palette.green),
-      OccurrenceStatus.overdue => (Icons.error_outline, tt.overdue),
-      OccurrenceStatus.pending => (Icons.radio_button_unchecked, tt.textTertiary),
-    };
     final entry = occurrence.entry;
-    final detail = entry == null
-        ? t.finDueOn(DateLabels.numeric(occurrence.due, withYear: false))
-        : t.finPaidOn(DateLabels.numeric(finDay(entry.date), withYear: false));
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-      child: Row(
+    final color = switch (occurrence.status) {
+      OccurrenceStatus.paid => tt.palette.green,
+      OccurrenceStatus.overdue => tt.overdue,
+      OccurrenceStatus.pending => categoryColor(context, snapshot, category),
+    };
+    return AgendaLine(
+      color: color,
+      secondary: switch (occurrence.status) {
+        OccurrenceStatus.paid => t.finPaidOn(DateLabels.numeric(finDay(entry!.date), withYear: false)),
+        OccurrenceStatus.overdue => t.finInvoiceOverdue,
+        OccurrenceStatus.pending => '${category?.icon ?? ''} ${categoryName(t, category)}'.trim(),
+      },
+      title: r.description,
+      struck: occurrence.status == OccurrenceStatus.paid,
+      faded: occurrence.status == OccurrenceStatus.paid,
+      onTap: () => unawaited(showRecurringForm(context, editing: r)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: color, size: 22),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  r.description,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(color: tt.text),
-                ),
-                Text(
-                  [detail, if (category != null) category.name].join(' · '),
-                  style: TextStyle(fontSize: TtText.small, color: occurrence.status == OccurrenceStatus.overdue ? tt.overdue : tt.textTertiary),
-                ),
-              ],
-            ),
-          ),
           Text(
             signedMoney(r.kind, entry?.amount ?? r.amount),
             style: TextStyle(color: finKindColor(context, r.kind), fontWeight: FontWeight.w600),
@@ -175,87 +159,11 @@ class _OccurrenceRow extends ConsumerWidget {
           else
             IconButton(
               tooltip: t.finUndoPayment,
+              visualDensity: VisualDensity.compact,
               icon: Icon(Icons.undo, size: 18, color: tt.textTertiary),
               onPressed: () => unawaited(_undo(context, ref)),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _BillRow extends ConsumerWidget {
-  const _BillRow({required this.bill, required this.snapshot});
-
-  final FinRecurring bill;
-  final FinanceSnapshot snapshot;
-
-  Future<void> _menu(BuildContext context, WidgetRef ref, Offset at) async {
-    final t = AppLocalizations.of(context);
-    final picked = await showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(at.dx, at.dy, at.dx + 1, at.dy + 1),
-      items: [
-        PopupMenuItem(value: 'edit', height: 36, child: Text(t.actionEdit)),
-        PopupMenuItem(
-          value: 'delete',
-          height: 36,
-          child: Text(t.actionDelete, style: TextStyle(color: context.tt.overdue)),
-        ),
-      ],
-    );
-    if (!context.mounted) return;
-    switch (picked) {
-      case 'edit':
-        await showRecurringForm(context, editing: bill);
-      case 'delete':
-        if (!await confirm(context, message: t.finDeleteRecurring(bill.description), confirmLabel: t.actionDelete)) return;
-        await ref.read(financeRepositoryProvider).deleteRecurring(bill.id);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final t = AppLocalizations.of(context);
-    final tt = context.tt;
-    final category = bill.categoryId == null ? null : snapshot.categoryById[bill.categoryId];
-    final card = bill.cardId == null ? null : snapshot.cardById[bill.cardId];
-    return GestureDetector(
-      onSecondaryTapUp: (d) => unawaited(_menu(context, ref, d.globalPosition)),
-      onLongPressStart: (d) => unawaited(_menu(context, ref, d.globalPosition)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () => unawaited(showRecurringForm(context, editing: bill)),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Row(
-            children: [
-              CategoryIcon(category: category),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      bill.description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: tt.text),
-                    ),
-                    Text(
-                      [recurringWhen(t, bill), if (card != null) card.name].join(' · '),
-                      style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                signedMoney(bill.kind, bill.amount),
-                style: TextStyle(color: finKindColor(context, bill.kind), fontWeight: FontWeight.w600),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

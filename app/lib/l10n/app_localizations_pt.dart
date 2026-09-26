@@ -4576,4 +4576,28 @@ class AppLocalizationsPt extends AppLocalizations {
   String finCalendarLoan(String name) {
     return 'Cobrar $name';
   }
+
+  @override
+  String get finThisMonth => 'Este mês';
+
+  @override
+  String get finCurrentInvoice => 'Fatura atual';
+
+  @override
+  String get finMonthSpending => 'Gastos do mês';
+
+  @override
+  String get finMoreReports => 'Mais relatórios';
+
+  @override
+  String get finCategoriesFilter => 'Categorias…';
+
+  @override
+  String get finSituation => 'Situação';
+
+  @override
+  String get finGroupBy => 'Agrupar';
+
+  @override
+  String get finCreditAvailable => 'Limite disponível';
 }

@@ -6,167 +6,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/format/date_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
-import '../../core/clock.dart';
 import '../../data/db/database.dart';
 import '../../domain/finance/cards.dart';
 import '../../domain/finance/finance.dart';
 import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
-import 'entry_form.dart';
+import '../common/shell_widgets.dart';
+import 'entries_tab.dart';
 import 'finance_widgets.dart';
 
-/// "Cartões": the cards as chips; the chosen one shows its invoices month by month (status, closing
-/// and due days, total, paid, left), its purchases and payments, and "Pagar fatura".
-class CardsTab extends ConsumerStatefulWidget {
-  const CardsTab({super.key});
+/// "Cartões" without a card yet.
+class NoCardsBody extends StatelessWidget {
+  const NoCardsBody({super.key});
 
   @override
-  ConsumerState<CardsTab> createState() => _CardsTabState();
-}
-
-class _CardsTabState extends ConsumerState<CardsTab> {
-  String? _cardId;
-  DateTime? _month;
-  bool _archived = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final tt = context.tt;
-    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
-    final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
-    final today = startOfDay(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
-    final cards = [
-      for (final c in s.cards)
-        if ((c.archivedAt != null) == _archived) c,
-    ];
-    final card = cards.where((c) => c.id == _cardId).firstOrNull ?? cards.firstOrNull;
-    final hasArchived = s.cards.any((c) => c.archivedAt != null);
-
-    final chips = SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
+  Widget build(BuildContext context) => Center(
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          for (final c in cards)
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: FinChip(
-                icon: Icons.credit_card,
-                label: c.name,
-                selected: c.id == card?.id,
-                onTap: () => setState(() {
-                  _cardId = c.id;
-                  _month = null;
-                }),
-              ),
-            ),
-          ActionChip(
-            avatar: const Icon(Icons.add, size: 16),
-            label: Text(t.finNewCard),
-            onPressed: () async {
-              final id = await showCardForm(context);
-              if (id != null && mounted) setState(() => _cardId = id);
-            },
+          Text(
+            AppLocalizations.of(context).finNoCards,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: context.tt.textTertiary),
           ),
-          if (hasArchived || _archived) ...[
-            const SizedBox(width: 8),
-            FinChip(
-              label: t.finArchivedCards,
-              selected: _archived,
-              onTap: () => setState(() {
-                _archived = !_archived;
-                _cardId = null;
-                _month = null;
-              }),
-            ),
-          ],
+          const SizedBox(height: 16),
+          CreatePill(label: AppLocalizations.of(context).finNewCard, onPressed: () => unawaited(showCardForm(context))),
         ],
       ),
-    );
-
-    return ListView(
-      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 8, narrow ? 12 : 20, 32),
-      children: [
-        chips,
-        if (card == null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 48),
-            child: Text(
-              t.finNoCards,
-              textAlign: TextAlign.center,
-              style: TextStyle(color: tt.textTertiary),
-            ),
-          )
-        else
-          _CardView(
-            card: card,
-            snapshot: s,
-            today: today,
-            month: _month ?? currentInvoiceMonth(card, today),
-            onMonth: (m) => setState(() => _month = m),
-          ),
-      ],
-    );
-  }
+    ),
+  );
 }
 
-class _CardView extends ConsumerWidget {
-  const _CardView({required this.card, required this.snapshot, required this.today, required this.month, required this.onMonth});
+/// A card's invoice: its figures (Total, Pago, Falta pagar), its status, closing and due days and
+/// "Pagar fatura"; then its purchases laid out as the Agenda (by the day bought) and its payments.
+class CardInvoiceBody extends ConsumerWidget {
+  const CardInvoiceBody({super.key, required this.card, required this.month, required this.today});
 
   final FinCard card;
-  final FinanceSnapshot snapshot;
-  final DateTime today;
   final DateTime month;
-  final ValueChanged<DateTime> onMonth;
-
-  Future<void> _menu(BuildContext context, WidgetRef ref) async {
-    final t = AppLocalizations.of(context);
-    final repo = ref.read(financeRepositoryProvider);
-    final box = context.findRenderObject()! as RenderBox;
-    final at = box.localToGlobal(Offset(box.size.width - 20, 40));
-    final picked = await showMenu<String>(
-      context: context,
-      position: RelativeRect.fromLTRB(at.dx, at.dy, at.dx + 1, at.dy + 1),
-      items: [
-        PopupMenuItem(value: 'edit', height: 36, child: Text(t.actionEdit)),
-        PopupMenuItem(value: 'archive', height: 36, child: Text(card.archivedAt == null ? t.finArchive : t.finUnarchive)),
-        PopupMenuItem(
-          value: 'delete',
-          height: 36,
-          child: Text(t.actionDelete, style: TextStyle(color: context.tt.overdue)),
-        ),
-      ],
-    );
-    if (!context.mounted) return;
-    switch (picked) {
-      case 'edit':
-        await showCardForm(context, editing: card);
-      case 'archive':
-        await repo.archiveCard(card.id, archived: card.archivedAt == null);
-      case 'delete':
-        if (!await confirm(context, message: t.finDeleteCard(card.name), confirmLabel: t.actionDelete)) return;
-        final deleted = await repo.deleteCard(card.id);
-        if (!deleted && context.mounted) showToast(context, t.finCardDeleteBlocked);
-    }
-  }
-
-  Future<void> _pay(BuildContext context, WidgetRef ref, InvoiceSummary invoice) async {
-    final paid = await showFinanceDialog<bool>(
-      context,
-      builder: (_) => _PaymentForm(invoice: invoice, today: today),
-    );
-    if (paid == true && context.mounted) showToast(context, AppLocalizations.of(context).toastSaved);
-  }
+  final DateTime today;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    final dates = DateLabels(t);
-    final invoice = invoiceOf(snapshot, card, month, today);
+    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
+    final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
+    final invoice = invoiceOf(s, card, month, today);
     final limit = card.creditLimit;
-    final used = cardUsed(snapshot, card);
+    final used = cardUsed(s, card);
     final (statusLabel, statusColor) = switch (invoice.status) {
       InvoiceStatus.open => (t.finInvoiceOpen, tt.primary),
       InvoiceStatus.closed => (t.finInvoiceClosed, tt.palette.priorityMedium),
@@ -174,232 +65,112 @@ class _CardView extends ConsumerWidget {
       InvoiceStatus.overdue => (t.finInvoiceOverdue, tt.overdue),
       InvoiceStatus.empty => (t.finInvoiceEmpty, tt.textTertiary),
     };
+    final byDay = <DateTime, List<FinEntry>>{};
+    for (final e in invoice.entries) {
+      byDay.putIfAbsent(finDay(e.date), () => []).add(e);
+    }
+    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
 
-    Widget amount(String label, int cents, {Color? color}) => Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              formatMoney(cents),
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color ?? tt.text),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ListView(
+      padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 4, narrow ? 12 : 20, 32),
       children: [
-        const SizedBox(height: 12),
         Row(
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    card.name,
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: tt.text),
-                  ),
-                  Text(
-                    t.finCardDays(card.closingDay, card.dueDay),
-                    style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
-                  ),
-                ],
-              ),
+            Icon(Icons.credit_card, size: 18, color: tt.textSecondary),
+            const SizedBox(width: 8),
+            Text(
+              card.name,
+              style: TextStyle(fontSize: TtText.body, fontWeight: FontWeight.w600, color: tt.text),
             ),
-            Builder(
-              builder: (context) => IconButton(
-                icon: Icon(Icons.more_horiz, color: tt.textSecondary),
-                onPressed: () => unawaited(_menu(context, ref)),
-              ),
-            ),
-          ],
-        ),
-        if (limit != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            t.finCardUsed(formatMoney(used), formatMoney(limit)),
-            style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(3),
-            child: LinearProgressIndicator(
-              value: limit == 0 ? 1 : (used / limit).clamp(0, 1).toDouble(),
-              minHeight: 5,
-              color: used > limit ? tt.overdue : tt.primary,
-              backgroundColor: tt.fieldFill,
-            ),
-          ),
-        ],
-        const SizedBox(height: 12),
-        // The invoice: ‹ Fatura de Outubro 2026 › and its status.
-        Row(
-          children: [
-            IconButton(icon: const Icon(Icons.chevron_left), onPressed: () => onMonth(DateTime(month.year, month.month - 1))),
-            Expanded(
+            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
               child: Text(
-                t.finInvoiceTitle(dates.monthTitle(month)),
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: tt.text),
+                statusLabel,
+                style: TextStyle(fontSize: TtText.small, color: statusColor, fontWeight: FontWeight.w600),
               ),
             ),
-            IconButton(icon: const Icon(Icons.chevron_right), onPressed: () => onMonth(DateTime(month.year, month.month + 1))),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(12)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      statusLabel,
-                      style: TextStyle(fontSize: TtText.small, color: statusColor, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      t.finInvoiceDates(DateLabels.numeric(invoice.closing, withYear: false), DateLabels.numeric(invoice.due, withYear: false)),
-                      style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  amount(t.finInvoiceTotal, invoice.total),
-                  amount(t.finInvoicePaidAmount, invoice.paid, color: tt.palette.green),
-                  amount(t.finInvoiceRemaining, invoice.remaining < 0 ? 0 : invoice.remaining, color: invoice.remaining > 0 ? tt.overdue : null),
-                ],
-              ),
-              if (invoice.remaining > 0) ...[
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton.icon(
-                    icon: const Icon(Icons.payments_outlined, size: 18),
-                    label: Text(t.finPayInvoice),
-                    onPressed: () => unawaited(_pay(context, ref, invoice)),
+            const Spacer(),
+            if (invoice.remaining > 0)
+              FilledButton.icon(
+                icon: const Icon(Icons.payments_outlined, size: 18),
+                label: Text(t.finPayInvoice),
+                onPressed: () => unawaited(
+                  showFinanceDialog<void>(
+                    context,
+                    builder: (_) => _PaymentForm(invoice: invoice, today: today),
                   ),
                 ),
-              ],
-            ],
-          ),
-        ),
-        if (invoice.entries.isNotEmpty) _SectionTitle(t.finPurchases),
-        for (final e in invoice.entries) _PurchaseRow(entry: e, snapshot: snapshot),
-        if (invoice.payments.isNotEmpty) _SectionTitle(t.finPayments),
-        for (final p in invoice.payments)
-          ListTile(
-            dense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-            leading: Icon(Icons.check_circle_outline, color: tt.palette.green),
-            title: Text(formatMoney(p.amount), style: TextStyle(color: tt.text)),
-            subtitle: Text(DateLabels.numeric(finDay(p.date)), style: TextStyle(color: tt.textTertiary)),
-            trailing: IconButton(
-              tooltip: t.actionDelete,
-              icon: Icon(Icons.close, size: 18, color: tt.textTertiary),
-              onPressed: () async {
-                final repo = ref.read(financeRepositoryProvider);
-                await repo.deleteCardPayment(p.id);
-                if (context.mounted) {
-                  showToast(
-                    context,
-                    t.finPaymentDeleted,
-                    undo: () => repo.deleteCardPayment(p.id, restore: true),
-                    redo: () => repo.deleteCardPayment(p.id),
-                  );
-                }
-              },
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _SectionTitle extends StatelessWidget {
-  const _SectionTitle(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.fromLTRB(4, 18, 4, 4),
-    child: Text(
-      text,
-      style: TextStyle(fontSize: TtText.small, fontWeight: FontWeight.w600, color: context.tt.textSecondary),
-    ),
-  );
-}
-
-/// A purchase of the invoice: a click edits it.
-class _PurchaseRow extends StatelessWidget {
-  const _PurchaseRow({required this.entry, required this.snapshot});
-
-  final FinEntry entry;
-  final FinanceSnapshot snapshot;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final tt = context.tt;
-    final category = entry.categoryId == null ? null : snapshot.categoryById[entry.categoryId];
-    final details = [
-      DateLabels.numeric(finDay(entry.date), withYear: false),
-      if (entry.installmentIndex case final i?) '$i/${entry.installmentCount}',
-      if (entry.description.isNotEmpty) categoryName(t, category),
-    ];
-    return InkWell(
-      borderRadius: BorderRadius.circular(8),
-      onTap: () => unawaited(showEntryForm(context, editing: entry)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        child: Row(
-          children: [
-            CategoryIcon(category: category),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    entry.description.isNotEmpty ? entry.description : categoryName(t, category),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: tt.text),
-                  ),
-                  Text(
-                    details.join(' · '),
-                    style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
-                  ),
-                ],
               ),
-            ),
-            Text(
-              signedMoney(entry.kind, entry.amount),
-              style: TextStyle(color: finKindColor(context, entry.kind), fontWeight: FontWeight.w600),
-            ),
           ],
         ),
-      ),
+        const SizedBox(height: 12),
+        FigureStrip(
+          figures: [
+            (label: t.finInvoiceTotal, value: formatMoney(invoice.total), color: null, hint: null),
+            (label: t.finInvoicePaidAmount, value: formatMoney(invoice.paid), color: tt.palette.green, hint: null),
+            (
+              label: t.finInvoiceRemaining,
+              value: formatMoney(invoice.remaining < 0 ? 0 : invoice.remaining),
+              color: invoice.remaining > 0 ? tt.overdue : null,
+              hint: t.finInvoiceDates(DateLabels.numeric(invoice.closing, withYear: false), DateLabels.numeric(invoice.due, withYear: false)),
+            ),
+            if (limit != null)
+              (
+                label: t.finCreditAvailable,
+                value: formatMoney(limit - used < 0 ? 0 : limit - used),
+                color: used > limit ? tt.overdue : null,
+                hint: t.finCardUsed(formatMoney(used), formatMoney(limit)),
+              ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Divider(height: 1, color: tt.divider),
+        if (days.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48),
+            child: Text(
+              t.finInvoiceEmpty,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: tt.textTertiary),
+            ),
+          ),
+        for (final (i, day) in days.indexed) ...[
+          if (i > 0) Divider(height: 1, color: tt.divider),
+          AgendaBlock(
+            day: day,
+            today: today,
+            children: [for (final e in byDay[day]!) EntryLine(entry: e, snapshot: s, showCard: false)],
+          ),
+        ],
+        if (invoice.payments.isNotEmpty) ...[
+          BodyHeading(t.finPayments),
+          for (final p in invoice.payments)
+            AgendaLine(
+              color: tt.palette.green,
+              secondary: DateLabels.numeric(finDay(p.date)),
+              title: formatMoney(p.amount),
+              trailing: IconButton(
+                tooltip: t.actionDelete,
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.close, size: 18, color: tt.textTertiary),
+                onPressed: () async {
+                  final repo = ref.read(financeRepositoryProvider);
+                  await repo.deleteCardPayment(p.id);
+                  if (context.mounted) {
+                    showToast(
+                      context,
+                      t.finPaymentDeleted,
+                      undo: () => repo.deleteCardPayment(p.id, restore: true),
+                      redo: () => repo.deleteCardPayment(p.id),
+                    );
+                  }
+                },
+              ),
+            ),
+        ],
+      ],
     );
   }
 }

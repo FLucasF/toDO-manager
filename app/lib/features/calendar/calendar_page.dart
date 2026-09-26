@@ -24,6 +24,7 @@ import '../../domain/views.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/color_choice.dart';
 import '../common/labels.dart';
+import '../common/shell_widgets.dart';
 import '../common/time_zone_picker.dart';
 import '../date_picker/date_picker.dart';
 import '../detail/task_detail_pane.dart';
@@ -658,128 +659,84 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       CalendarMode.agenda => CalendarAgenda(from: period.from, days: period.days, entries: entries, today: today, actions: actions),
     };
 
-    const compact = VisualDensity(horizontal: -3, vertical: -3);
-    // A Builder: the ☰ reads the drawer from below the ModuleScaffold.
-    final header = Builder(
-      builder: (context) => Padding(
-        padding: EdgeInsets.fromLTRB(narrow ? 4 : 20, 12, narrow ? 4 : 12, 10),
-        child: Row(
-          children: [
-            const DrawerMenuButton(),
-            if (!narrow)
-              IconButton(
-                tooltip: t.calendarTogglePanel,
-                icon: Icon(Icons.menu, color: tt.textSecondary),
-                onPressed: () => setState(() => _panel = !_panel),
-              ),
-            Expanded(
-              child: Text(
-                title,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: narrow ? 17 : TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
-              ),
-            ),
-            if (!narrow)
-              IconButton(
-                tooltip: t.navSearch,
-                icon: Icon(Icons.search, color: tt.textSecondary),
-                onPressed: () => unawaited(showQuickSearch(context)),
-              ),
-            PopupMenuButton<Object>(
-              tooltip: '',
-              onSelected: (v) => switch (v) {
-                final CalendarMode m => _setMode(m),
-                'weekends' => unawaited(_setOptions(options.copyWith(showWeekends: !options.showWeekends))),
-                'completed' => unawaited(_setOptions(options.copyWith(showCompleted: !options.showCompleted))),
-                _ => null,
-              },
-              itemBuilder: (_) => [
-                for (final m in CalendarMode.values)
-                  CheckedPopupMenuItem<Object>(
-                    value: m,
-                    checked: m == mode,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(switch (m) {
-                            CalendarMode.multiDay => '${calendarModeLabel(t, m)} · ${t.calendarMultiDays(options.multiDays)}',
-                            CalendarMode.multiWeek => '${calendarModeLabel(t, m)} · ${t.calendarMultiWeeks(options.multiWeeks)}',
-                            _ => calendarModeLabel(t, m),
-                          }),
-                        ),
-                        if (_modeKeys[m] case final keys?)
-                          Text(
-                            keys.first.keyLabel,
-                            style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
-                          ),
-                      ],
-                    ),
-                  ),
-                const PopupMenuDivider(),
-                CheckedPopupMenuItem<Object>(value: 'weekends', checked: options.showWeekends, child: Text(t.calendarShowWeekends)),
-                CheckedPopupMenuItem<Object>(value: 'completed', checked: options.showCompleted, child: Text(t.calendarShowCompleted)),
-              ],
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(6)),
+    final header = ShellTopBar(
+      title: title,
+      onTogglePanel: () => setState(() => _panel = !_panel),
+      actions: [
+        if (!narrow)
+          IconButton(
+            tooltip: t.navSearch,
+            icon: Icon(Icons.search, color: tt.textSecondary),
+            onPressed: () => unawaited(showQuickSearch(context)),
+          ),
+        ViewPill<Object>(
+          label: calendarModeLabel(t, mode),
+          onSelected: (v) => switch (v) {
+            final CalendarMode m => _setMode(m),
+            'weekends' => unawaited(_setOptions(options.copyWith(showWeekends: !options.showWeekends))),
+            'completed' => unawaited(_setOptions(options.copyWith(showCompleted: !options.showCompleted))),
+            _ => null,
+          },
+          items: () => [
+            for (final m in CalendarMode.values)
+              CheckedPopupMenuItem<Object>(
+                value: m,
+                checked: m == mode,
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      calendarModeLabel(t, mode),
-                      style: TextStyle(fontSize: TtText.body, color: tt.textSecondary),
+                    Expanded(
+                      child: Text(switch (m) {
+                        CalendarMode.multiDay => '${calendarModeLabel(t, m)} · ${t.calendarMultiDays(options.multiDays)}',
+                        CalendarMode.multiWeek => '${calendarModeLabel(t, m)} · ${t.calendarMultiWeeks(options.multiWeeks)}',
+                        _ => calendarModeLabel(t, m),
+                      }),
                     ),
-                    Icon(Icons.expand_more, size: 16, color: tt.textTertiary),
+                    if (_modeKeys[m] case final keys?)
+                      Text(
+                        keys.first.keyLabel,
+                        style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
+                      ),
                   ],
                 ),
               ),
-            ),
-            SizedBox(width: narrow ? 4 : 8),
-            OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                visualDensity: narrow ? compact : VisualDensity.compact,
-                padding: narrow ? const EdgeInsets.symmetric(horizontal: 8) : null,
-                foregroundColor: tt.textSecondary,
-                side: BorderSide(color: tt.divider),
-              ),
-              onPressed: () => ref.read(calendarAnchorProvider.notifier).set(null),
-              child: Tooltip(message: '${labels.fullDate(today)} (T)', child: Text(t.calendarToday)),
-            ),
-            IconButton(
-              visualDensity: narrow ? compact : null,
-              icon: Icon(Icons.chevron_left, color: tt.textSecondary),
-              onPressed: () => _setAnchor(calendarStep(mode, anchor, -1, options)),
-            ),
-            IconButton(
-              visualDensity: narrow ? compact : null,
-              icon: Icon(Icons.chevron_right, color: tt.textSecondary),
-              onPressed: () => _setAnchor(calendarStep(mode, anchor, 1, options)),
-            ),
-            PopupMenuButton<String>(
-              tooltip: '',
-              icon: Icon(Icons.more_horiz, color: tt.textSecondary),
-              onSelected: (v) => switch (v) {
-                'arrange' => _rightPanel(arrange: !_arrange),
-                'split' => setState(() => _lists = !_lists),
-                'lists' => unawaited(_listFilter()),
-                'insights' when narrow => unawaited(_showInsightsPage(counted, insightsPeriod, insightsTitle)),
-                'insights' => _rightPanel(insights: !_insights),
-                _ => unawaited(_viewOptions()),
-              },
-              itemBuilder: (_) => [
-                if (!narrow) CheckedPopupMenuItem(value: 'arrange', checked: _arrange, child: Text(t.calendarArrange)),
-                if (!narrow) CheckedPopupMenuItem(value: 'split', checked: _lists, child: Text(t.calendarShowLists)),
-                if (narrow)
-                  PopupMenuItem(value: 'insights', height: 36, child: Text(t.insightsTitle))
-                else
-                  CheckedPopupMenuItem(value: 'insights', checked: _insights, child: Text(t.insightsTitle)),
-                PopupMenuItem(value: 'lists', height: 36, child: Text(t.calendarListFilter)),
-                PopupMenuItem(value: 'options', height: 36, child: Text(t.calendarViewOptions)),
-              ],
-            ),
+            const PopupMenuDivider(),
+            CheckedPopupMenuItem<Object>(value: 'weekends', checked: options.showWeekends, child: Text(t.calendarShowWeekends)),
+            CheckedPopupMenuItem<Object>(value: 'completed', checked: options.showCompleted, child: Text(t.calendarShowCompleted)),
           ],
         ),
-      ),
+        SizedBox(width: narrow ? 4 : 8),
+        TodayPill(
+          label: t.calendarToday,
+          tooltip: '${labels.fullDate(today)} (T)',
+          onPressed: () => ref.read(calendarAnchorProvider.notifier).set(null),
+        ),
+        ShellArrows(
+          onPrevious: () => _setAnchor(calendarStep(mode, anchor, -1, options)),
+          onNext: () => _setAnchor(calendarStep(mode, anchor, 1, options)),
+        ),
+        PopupMenuButton<String>(
+          tooltip: '',
+          icon: Icon(Icons.more_horiz, color: tt.textSecondary),
+          onSelected: (v) => switch (v) {
+            'arrange' => _rightPanel(arrange: !_arrange),
+            'split' => setState(() => _lists = !_lists),
+            'lists' => unawaited(_listFilter()),
+            'insights' when narrow => unawaited(_showInsightsPage(counted, insightsPeriod, insightsTitle)),
+            'insights' => _rightPanel(insights: !_insights),
+            _ => unawaited(_viewOptions()),
+          },
+          itemBuilder: (_) => [
+            if (!narrow) CheckedPopupMenuItem(value: 'arrange', checked: _arrange, child: Text(t.calendarArrange)),
+            if (!narrow) CheckedPopupMenuItem(value: 'split', checked: _lists, child: Text(t.calendarShowLists)),
+            if (narrow)
+              PopupMenuItem(value: 'insights', height: 36, child: Text(t.insightsTitle))
+            else
+              CheckedPopupMenuItem(value: 'insights', checked: _insights, child: Text(t.insightsTitle)),
+            PopupMenuItem(value: 'lists', height: 36, child: Text(t.calendarListFilter)),
+            PopupMenuItem(value: 'options', height: 36, child: Text(t.calendarViewOptions)),
+          ],
+        ),
+      ],
     );
 
     return ModuleScaffold(

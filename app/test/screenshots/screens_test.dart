@@ -21,12 +21,14 @@ import 'package:task_manager/app/reminders.dart';
 import 'package:task_manager/core/clock.dart';
 import 'package:task_manager/core/ids.dart';
 import 'package:task_manager/data/db/database.dart';
+import 'package:task_manager/data/finance_repository.dart';
 import 'package:task_manager/data/preferences_repository.dart';
 import 'package:task_manager/data/repository.dart';
 import 'package:task_manager/domain/calendar.dart';
 import 'package:task_manager/domain/color_labels.dart';
 import 'package:task_manager/features/calendar/calendar_insights_panel.dart';
 import 'package:task_manager/domain/enums.dart';
+import 'package:task_manager/domain/finance/finance_enums.dart';
 import 'package:task_manager/domain/filters.dart';
 import 'package:task_manager/domain/subscriptions.dart';
 import 'package:task_manager/domain/focus.dart';
@@ -157,11 +159,13 @@ void main() {
     Size size = const Size(1600, 1000),
     Future<void> Function(WidgetTester tester)? interact,
     Future<void> Function(PreferencesRepository prefs)? configure,
+    Future<void> Function(FinanceRepository finance)? finance,
   }) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final ids = await tester.runAsync(() => seed(Repository(db, clock: clock)));
     if (configure != null) await tester.runAsync(() => configure(PreferencesRepository(db, clock: clock)));
+    if (finance != null) await tester.runAsync(() => finance(FinanceRepository(db, clock: clock)));
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -198,6 +202,67 @@ void main() {
   }
 
   testWidgets('desktop inbox with detail', (tester) => shoot(tester, 'desktop_inbox', '/p/inbox/tasks/{meeting}'));
+
+  // Finanças with a month of sample data.
+  Future<void> financeData(FinanceRepository f) async {
+    final food = await f.createCategory(name: 'Alimentação', kind: FinKind.expense, icon: '🍽️', monthlyLimit: 80000);
+    final market = await f.createCategory(name: 'Mercado', kind: FinKind.expense, icon: '🛒', monthlyLimit: 100000);
+    final home = await f.createCategory(name: 'Moradia', kind: FinKind.expense, icon: '🏠');
+    final fun = await f.createCategory(name: 'Lazer', kind: FinKind.expense, icon: '🎉');
+    final salary = await f.createCategory(name: 'Salário', kind: FinKind.income, icon: '💰');
+    final card = await f.createCard(name: 'Nubank', closingDay: 5, dueDay: 12, creditLimit: 500000);
+    await f.addEntry(kind: FinKind.income, amount: 650000, date: DateTime(2026, 9, 5), description: 'Salário', categoryId: salary);
+    await f.addEntry(kind: FinKind.expense, amount: 4590, date: DateTime(2026, 9, 24), description: 'Lanche', categoryId: food);
+    await f.addEntry(kind: FinKind.expense, amount: 68000, date: DateTime(2026, 9, 20), description: 'Feira do mês', categoryId: market);
+    await f.addEntry(kind: FinKind.expense, amount: 12000, date: DateTime(2026, 9, 18), description: 'Cinema', categoryId: fun);
+    await f.addEntry(kind: FinKind.expense, amount: 2500, date: DateTime(2026, 9, 3), description: 'Café', categoryId: food, cardId: card);
+    await f.addEntry(kind: FinKind.expense, amount: 120000, date: DateTime(2026, 9, 10), description: 'Celular', cardId: card, installments: 3);
+    await f.addEntry(kind: FinKind.expense, amount: 30000, date: DateTime(2026, 8, 12), description: 'Feira', categoryId: market);
+    final rent = await f.createRecurring(
+      FinRecurringsCompanion(
+        kind: const Value(FinKind.expense),
+        description: const Value('Aluguel'),
+        amount: const Value(150000),
+        frequency: const Value(FinFrequency.monthly),
+        day: const Value(5),
+        categoryId: Value(home),
+        startDate: Value(DateTime.utc(2026, 8)),
+        remindDaysBefore: const Value(0),
+      ),
+    );
+    await f.addEntry(
+      kind: FinKind.expense,
+      amount: 150000,
+      date: DateTime(2026, 9, 5),
+      description: 'Aluguel',
+      categoryId: home,
+      recurringId: rent,
+      recurringDue: DateTime(2026, 9, 5),
+    );
+    await f.createRecurring(
+      FinRecurringsCompanion(
+        kind: const Value(FinKind.expense),
+        description: const Value('Internet'),
+        amount: const Value(9990),
+        frequency: const Value(FinFrequency.monthly),
+        day: const Value(28),
+        startDate: Value(DateTime.utc(2026, 9)),
+        remindDaysBefore: const Value(1),
+      ),
+    );
+    final joao = await f.createLoan(borrower: 'João', principal: 100000, total: 130000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 20));
+    await f.addLoanPayment(loanId: joao, amount: 50000, date: DateTime(2026, 9, 20));
+    await f.createLoan(borrower: 'Maria', principal: 50000, total: 60000, lentOn: DateTime(2026, 8, 1), dueOn: DateTime(2026, 9, 10));
+  }
+
+  for (final tab in ['entries', 'cards', 'recurring', 'loans', 'reports', 'categories']) {
+    testWidgets('finance $tab', (tester) => shoot(tester, 'finance_$tab', '/finance/$tab', finance: financeData));
+    testWidgets(
+      'finance $tab on a phone',
+      (tester) => shoot(tester, 'finance_${tab}_phone', '/finance/$tab', size: const Size(412, 915), finance: financeData),
+    );
+  }
+  testWidgets('calendar week with finance', (tester) => shoot(tester, 'calendar_week_finance', '/calendar/w', finance: financeData));
   testWidgets('desktop today', (tester) => shoot(tester, 'desktop_today', '/q/today/tasks'));
   // The light theme, where colors and contrast go wrong first.
   for (final (name, route) in [

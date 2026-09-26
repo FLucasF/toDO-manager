@@ -1541,5 +1541,13 @@
   "finCalendarInvoice": "Fatura {card}",
   "@finCalendarInvoice": {"placeholders": {"card": {"type": "String"}}},
   "finCalendarLoan": "Cobrar {name}",
-  "@finCalendarLoan": {"placeholders": {"name": {"type": "String"}}}
+  "@finCalendarLoan": {"placeholders": {"name": {"type": "String"}}},
+  "finThisMonth": "Este mês",
+  "finCurrentInvoice": "Fatura atual",
+  "finMonthSpending": "Gastos do mês",
+  "finMoreReports": "Mais relatórios",
+  "finCategoriesFilter": "Categorias…",
+  "finSituation": "Situação",
+  "finGroupBy": "Agrupar",
+  "finCreditAvailable": "Limite disponível"
 }
