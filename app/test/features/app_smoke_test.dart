@@ -13,6 +13,7 @@ import 'package:task_manager/core/clock.dart';
 import 'package:task_manager/core/ids.dart';
 import 'package:task_manager/data/db/database.dart';
 import 'package:task_manager/data/repository.dart';
+import 'package:task_manager/domain/color_labels.dart';
 import 'package:task_manager/domain/enums.dart';
 import 'package:task_manager/features/common/shell_widgets.dart';
 import 'package:task_manager/features/countdown/countdown_page.dart';
@@ -612,6 +613,12 @@ void main() {
     await tester.tap(find.text('Criar novo'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).at(1), 'Beber água');
+    // The color beside the name opens the Calendar's color menu, without the tasks' labels.
+    await tester.tap(find.byType(HabitColorButton));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Editar rótulos'), findsNothing);
+    await tester.tap(find.byTooltip('Tomate'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Salvar'));
     await tester.pump();
     for (var i = 0; i < 5; i++) {
@@ -620,6 +627,19 @@ void main() {
     }
     expect(find.text('Beber água'), findsOneWidget);
     expect(find.text('0 dia · 0 dia'), findsOneWidget);
+    Future<String?> color() async => (await tester.runAsync(() => db.select(db.habits).getSingle()))!.color;
+    expect(await color(), '#DA5234');
+    // Right-click › Cor changes it on the spot.
+    await tester.tap(find.text('Beber água'), buttons: kSecondaryButton);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cor'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Mirtilo'));
+    for (var i = 0; i < 5; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+    expect(await color(), eventPalette[13]);
     // The last of the 7 dots is today.
     await tester.tap(find.byType(HabitDot).last);
     for (var i = 0; i < 5; i++) {

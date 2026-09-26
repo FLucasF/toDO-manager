@@ -1557,5 +1557,7 @@
   "countdownTypes": "Tipos",
   "countdownCreateWhich": "Criar",
   "matrixQuadrants": "Quadrantes",
-  "focusShortcuts": "Atalhos"
+  "focusShortcuts": "Atalhos",
+  "habitColor": "Cor do hábito",
+  "habitColorMenu": "Cor"
 }

@@ -1,71 +1,101 @@
-"""Draws the app icon (provisional) and writes every size Android and Windows need.
+"""Writes every size of the app icon that Android and Windows need, from tool/icon_source.png.
 
-Run from the app folder:  python tool/make_icons.py   (needs Pillow: pip install pillow)
-To change the icon, edit COLOR or draw_mark() and run it again.
+Run from the app folder:  python tool/make_icons.py   (needs Pillow and numpy: pip install pillow numpy)
+To use another picture:    python tool/make_icons.py path/to/picture.jpg
+  The picture is the finished icon (a rounded square) on a white background: the white around it is
+  cut away, the result is saved as tool/icon_source.png, then the sizes are written from it.
 """
+import sys
 from pathlib import Path
 
+import numpy as np
 from PIL import Image, ImageDraw
 
-COLOR = (0x47, 0x72, 0xFA)  # the app's primary blue
-WHITE = (255, 255, 255)
 ROOT = Path(__file__).resolve().parent.parent
 RES = ROOT / 'android' / 'app' / 'src' / 'main' / 'res'
-SUPER = 4  # drawn larger, then scaled down, for smooth edges
+SOURCE = ROOT / 'tool' / 'icon_source.png'
+SOURCE_SIZE = 1024
+
+# The gold frame ends this far in from each side of the picture (a fraction of its width), with this
+# corner radius on the inside; Android's adaptive icon uses only what is inside it.
+FRAME = 94 / 2000
+FRAME_RADIUS = 280 / 2000
+# Android's adaptive icon: the picture inside the frame, this wide (of the 108dp layer; launchers
+# show the middle 72dp, masked as a circle or a squircle), on the frame's inner green.
+CONTENT = 70 / 108
+BACKGROUND = (0x15, 0x51, 0x2F)
 
 
-def draw_mark(draw: ImageDraw.ImageDraw, box: tuple[float, float, float, float], color) -> None:
-    """A checked box followed by two list lines, inside [box] (left, top, right, bottom)."""
-    left, top, right, bottom = box
-    size = right - left
-    stroke = size * 0.085
-    # Checkbox.
-    cb = size * 0.42
-    cx0, cy0 = left + size * 0.02, top + (size - cb) / 2
-    draw.rounded_rectangle((cx0, cy0, cx0 + cb, cy0 + cb), radius=cb * 0.22, outline=color, width=round(stroke))
-    # Check mark inside it.
-    points = [(cx0 + cb * 0.24, cy0 + cb * 0.52), (cx0 + cb * 0.43, cy0 + cb * 0.71), (cx0 + cb * 0.78, cy0 + cb * 0.30)]
-    draw.line(points, fill=color, width=round(stroke), joint='curve')
-    for x, y in (points[0], points[-1]):
-        r = stroke / 2
-        draw.ellipse((x - r, y - r, x + r, y + r), fill=color)
-    # Two lines on the right, the second shorter.
-    lx = cx0 + cb + size * 0.1
-    for i, length in enumerate((0.44, 0.30)):
-        y = top + size * (0.42 + 0.17 * i)
-        draw.rounded_rectangle((lx, y - stroke / 2, lx + size * length, y + stroke / 2), radius=stroke / 2, fill=color)
+def cut_white(picture: Image.Image) -> Image.Image:
+    """The icon without the white around it: the white reached from the corners turns transparent,
+    and the pixels blended with it on the icon's edge keep the icon's color with a partial alpha."""
+    rgb = picture.convert('RGB')
+    marked = rgb.copy()
+    w, h = rgb.size
+    for corner in ((0, 0), (w - 1, 0), (0, h - 1), (w - 1, h - 1)):
+        if min(rgb.getpixel(corner)) > 225:
+            ImageDraw.floodfill(marked, corner, (255, 0, 255), thresh=60)
+    pixels = np.asarray(rgb).astype(np.float32)
+    background = np.all(np.asarray(marked) == (255, 0, 255), axis=2)
+
+    def grow(mask: np.ndarray, by: int) -> np.ndarray:
+        padded = np.pad(mask, by)
+        out = np.zeros_like(mask)
+        rows, cols = mask.shape
+        for dy in range(2 * by + 1):
+            for dx in range(2 * by + 1):
+                out |= padded[dy : dy + rows, dx : dx + cols]
+        return out
+
+    # The edge: up to 3px in from the white. Its own color is the one a few pixels further in.
+    edge = grow(background, 3) & ~background
+    inner = grow(background, 7) & ~grow(background, 4)
+    edge_color = np.median(pixels[inner], axis=0) if inner.any() else np.zeros(3)
+    whiteness = (255 - pixels.mean(axis=2)) / max(1.0, 255 - float(edge_color.mean()))
+    alpha = np.where(background, 0.0, 1.0)
+    alpha[edge] = np.clip(whiteness[edge], 0, 1)
+    pixels[edge] = edge_color
+    rgba = np.dstack([pixels, alpha * 255]).round().astype(np.uint8)
+    out = Image.fromarray(rgba, 'RGBA')
+    out = out.crop(out.getbbox())
+    side = max(out.size)
+    square = Image.new('RGBA', (side, side), (0, 0, 0, 0))
+    square.paste(out, ((side - out.width) // 2, (side - out.height) // 2))
+    return square.resize((SOURCE_SIZE, SOURCE_SIZE), Image.LANCZOS)
 
 
-def full_icon(px: int) -> Image.Image:
-    """Blue rounded square with the white mark (legacy Android icon, Windows)."""
-    s = px * SUPER
-    img = Image.new('RGBA', (s, s), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    d.rounded_rectangle((0, 0, s - 1, s - 1), radius=s * 0.22, fill=COLOR + (255,))
-    pad = s * 0.13
-    draw_mark(d, (pad, pad, s - pad, s - pad), WHITE)
-    return img.resize((px, px), Image.LANCZOS)
+def full_icon(source: Image.Image, px: int) -> Image.Image:
+    """The whole icon, frame included (Windows, Android's legacy icon)."""
+    return source.resize((px, px), Image.LANCZOS)
 
 
-def foreground(px: int, color) -> Image.Image:
-    """Adaptive icon layer: the mark alone. Launchers show only the middle 72/108 and mask it (circle,
-    squircle), so the mark keeps to 48/108."""
-    s = px * SUPER
-    img = Image.new('RGBA', (s, s), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    pad = s * (1 - 48 / 108) / 2
-    draw_mark(d, (pad, pad, s - pad, s - pad), color)
-    return img.resize((px, px), Image.LANCZOS)
+def adaptive_foreground(source: Image.Image, px: int) -> Image.Image:
+    """Android's adaptive icon layer: the picture inside the gold frame, centered, [CONTENT] wide."""
+    s = source.width
+    inset = round(s * FRAME)
+    inside = source.crop((inset, inset, s - inset, s - inset))
+    mask = Image.new('L', inside.size, 0)
+    ImageDraw.Draw(mask).rounded_rectangle((0, 0, inside.width - 1, inside.height - 1), radius=s * FRAME_RADIUS, fill=255)
+    inside.putalpha(mask)
+    size = round(px * CONTENT)
+    layer = Image.new('RGBA', (px, px), (0, 0, 0, 0))
+    layer.paste(inside.resize((size, size), Image.LANCZOS), ((px - size) // 2, (px - size) // 2))
+    return layer
 
 
 def main() -> None:
+    if len(sys.argv) > 1:
+        cut_white(Image.open(sys.argv[1])).save(SOURCE)
+    source = Image.open(SOURCE).convert('RGBA')
+
     densities = {'mdpi': 1, 'hdpi': 1.5, 'xhdpi': 2, 'xxhdpi': 3, 'xxxhdpi': 4}
     for name, scale in densities.items():
         folder = RES / f'mipmap-{name}'
         folder.mkdir(parents=True, exist_ok=True)
-        full_icon(round(48 * scale)).save(folder / 'ic_launcher.png')
-        foreground(round(108 * scale), WHITE).save(folder / 'ic_launcher_foreground.png')
-        foreground(round(108 * scale), WHITE).save(folder / 'ic_launcher_monochrome.png')
+        full_icon(source, round(48 * scale)).save(folder / 'ic_launcher.png')
+        adaptive_foreground(source, round(108 * scale)).save(folder / 'ic_launcher_foreground.png')
+        # A picture has no one-color version for Android 13's themed icons: launchers show it as is.
+        (folder / 'ic_launcher_monochrome.png').unlink(missing_ok=True)
 
     anydpi = RES / 'mipmap-anydpi-v26'
     anydpi.mkdir(exist_ok=True)
@@ -75,7 +105,6 @@ def main() -> None:
         '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
         '    <background android:drawable="@color/ic_launcher_background" />\n'
         '    <foreground android:drawable="@mipmap/ic_launcher_foreground" />\n'
-        '    <monochrome android:drawable="@mipmap/ic_launcher_monochrome" />\n'
         '</adaptive-icon>\n',
         encoding='utf-8',
         newline='\n',
@@ -85,14 +114,14 @@ def main() -> None:
         '<!-- Generated by tool/make_icons.py -->\n'
         '<resources>\n'
         '    <color name="ic_launcher_background">#%02X%02X%02X</color>\n'
-        '</resources>\n' % COLOR,
+        '</resources>\n' % BACKGROUND,
         encoding='utf-8',
         newline='\n',
     )
 
     ico = ROOT / 'windows' / 'runner' / 'resources' / 'app_icon.ico'
-    full_icon(256).save(ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
-    full_icon(512).save(ROOT / 'tool' / 'icon_preview.png')
+    full_icon(source, 256).save(ico, sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)])
+    full_icon(source, 512).save(ROOT / 'tool' / 'icon_preview.png')
     print('icons written')
 
 

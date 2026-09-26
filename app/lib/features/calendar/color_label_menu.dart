@@ -35,11 +35,15 @@ final class ColorMenuActed extends ColorMenuResult {
 /// Google Calendar's event color menu (its right-click menu and the one beside the calendar on the
 /// full page): the named labels, ✎ to edit them, the other colors and "Padrão". [current] is the
 /// task's own color; [actions] go on top (Abrir, Concluir, Duplicar, Deletar in the right-click menu).
+/// Without [labels] (a habit's color) the labels are left out; [used] are the colors picked in the
+/// palette before (the tasks' by default).
 Future<ColorMenuResult?> showColorLabelMenu(
   BuildContext context, {
   required Offset near,
   required String? current,
   List<ColorMenuAction> actions = const [],
+  bool labels = true,
+  Iterable<String>? used,
 }) => showGeneralDialog<ColorMenuResult>(
   context: context,
   barrierDismissible: true,
@@ -48,7 +52,7 @@ Future<ColorMenuResult?> showColorLabelMenu(
   transitionDuration: const Duration(milliseconds: 100),
   pageBuilder: (context, _, _) => CustomSingleChildLayout(
     delegate: NearPoint(near),
-    child: _ColorMenu(current: current, actions: actions),
+    child: _ColorMenu(current: current, actions: actions, withLabels: labels, used: used),
   ),
 );
 
@@ -78,23 +82,25 @@ class NearPoint extends SingleChildLayoutDelegate {
 }
 
 class _ColorMenu extends ConsumerWidget {
-  const _ColorMenu({required this.current, required this.actions});
+  const _ColorMenu({required this.current, required this.actions, required this.withLabels, this.used});
 
   final String? current;
   final List<ColorMenuAction> actions;
+  final bool withLabels;
+  final Iterable<String>? used;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    final labels = (ref.watch(preferencesProvider).value ?? Preferences.defaults).colorLabels;
+    final labels = withLabels ? (ref.watch(preferencesProvider).value ?? Preferences.defaults).colorLabels : const <ColorLabel>[];
     final names = t.eventColorNames.split(',');
     final selected = current == null ? null : normalizeColor(current!);
     void pick(ColorMenuResult r) => Navigator.pop(context, r);
     // Colors picked in the palette before (still on some task), to use again.
-    final tasks = (ref.watch(snapshotProvider).value ?? Snapshot.empty()).tasks;
+    final used = this.used ?? [for (final task in (ref.watch(snapshotProvider).value ?? Snapshot.empty()).tasks) ?task.color];
     final custom = {
-      for (final c in [?selected, for (final task in tasks) ?task.color])
+      for (final c in [?selected, ...used])
         if (!eventPalette.contains(normalizeColor(c)) && labelOf(c, labels) == null) normalizeColor(c),
     }.take(12);
 
@@ -155,63 +161,64 @@ class _ColorMenu extends ConsumerWidget {
                 Divider(height: 12, color: tt.divider),
               ],
               // The labels, then ✎ to edit them.
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  for (final l in labels)
-                    Tooltip(
-                      message: l.name,
-                      waitDuration: const Duration(milliseconds: 600),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(16),
-                        onTap: () => pick(ColorPicked(l.color)),
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
-                          decoration: BoxDecoration(
-                            color: l.color == selected ? parseHexColor(l.color)!.withValues(alpha: 0.18) : null,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: l.color == selected ? parseHexColor(l.color)! : tt.divider),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              _Dot(color: parseHexColor(l.color)!, size: 16),
-                              const SizedBox(width: 6),
-                              ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 200),
-                                child: Text(
-                                  l.name,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(fontSize: TtText.body, color: tt.text),
+              if (withLabels)
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    for (final l in labels)
+                      Tooltip(
+                        message: l.name,
+                        waitDuration: const Duration(milliseconds: 600),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => pick(ColorPicked(l.color)),
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(6, 4, 10, 4),
+                            decoration: BoxDecoration(
+                              color: l.color == selected ? parseHexColor(l.color)!.withValues(alpha: 0.18) : null,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: l.color == selected ? parseHexColor(l.color)! : tt.divider),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _Dot(color: parseHexColor(l.color)!, size: 16),
+                                const SizedBox(width: 6),
+                                ConstrainedBox(
+                                  constraints: const BoxConstraints(maxWidth: 200),
+                                  child: Text(
+                                    l.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(fontSize: TtText.body, color: tt.text),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  Tooltip(
-                    message: t.colorLabelsEdit,
-                    child: InkWell(
-                      customBorder: const CircleBorder(),
-                      onTap: () => unawaited(showColorLabelsEditor(context)),
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: tt.divider),
+                    Tooltip(
+                      message: t.colorLabelsEdit,
+                      child: InkWell(
+                        customBorder: const CircleBorder(),
+                        onTap: () => unawaited(showColorLabelsEditor(context)),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: tt.divider),
+                          ),
+                          child: Icon(Icons.edit_outlined, size: 16, color: tt.textSecondary),
                         ),
-                        child: Icon(Icons.edit_outlined, size: 16, color: tt.textSecondary),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
+                  ],
+                ),
+              if (withLabels) const SizedBox(height: 10),
               // The colors without a label.
               Wrap(
                 spacing: 4,

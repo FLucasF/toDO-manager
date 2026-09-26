@@ -10,9 +10,55 @@ import '../../data/db/database.dart';
 import '../../domain/enums.dart';
 import '../../domain/habits.dart';
 import '../../l10n/app_localizations.dart';
+import '../calendar/color_label_menu.dart';
 import '../common/color_choice.dart';
 
 String _number(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1).replaceAll('.', ',');
+
+/// The Calendar's color menu for a habit: Google's colors, the ones picked before on habits, any color
+/// on the rainbow, and "Padrão" (the app's blue). Null when closed without a pick.
+Future<ColorPicked?> showHabitColorMenu(BuildContext context, WidgetRef ref, {required Offset near, required String? current}) async {
+  final habits = ref.read(snapshotProvider).value?.habits ?? const <Habit>[];
+  final picked = await showColorLabelMenu(context, near: near, current: current, labels: false, used: [for (final h in habits) ?h.color]);
+  return picked is ColorPicked ? picked : null;
+}
+
+/// The color beside the habit's name, as the one beside the calendar on the Calendar's full page: its
+/// dot and ▾, opening [showHabitColorMenu].
+class HabitColorButton extends ConsumerWidget {
+  const HabitColorButton({super.key, required this.color, required this.onChanged});
+
+  final String? color;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tt = context.tt;
+    return Tooltip(
+      message: AppLocalizations.of(context).habitColor,
+      child: GestureDetector(
+        onTapUp: (d) async {
+          final picked = await showHabitColorMenu(context, ref, near: d.globalPosition, current: color);
+          if (picked != null) onChanged(picked.color);
+        },
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+            decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(6)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.circle, size: 18, color: parseHexColor(color) ?? tt.primary),
+                Icon(Icons.arrow_drop_down, size: 20, color: tt.textSecondary),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
 
 /// The habit's icon: an emoji or a letter on its color.
 class HabitIcon extends StatelessWidget {

@@ -945,6 +945,21 @@ void main() {
     ),
   );
   testWidgets(
+    'habit color',
+    (tester) => shoot(
+      tester,
+      'habit_color',
+      '/habit',
+      interact: (tester) async {
+        // Right-click › Cor: the Calendar's color menu, without the labels.
+        await tester.tapAt(tester.getCenter(find.text('Beber água').first), buttons: kSecondaryButton, kind: PointerDeviceKind.mouse);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Cor'));
+        await tester.pumpAndSettle();
+      },
+    ),
+  );
+  testWidgets(
     'calendar insights phone',
     (tester) => shoot(
       tester,

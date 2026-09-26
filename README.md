@@ -4,7 +4,7 @@ App pessoal de tarefas e produtividade para **Windows** e **Android**, com o jei
 
 Os dados ficam **só no seu aparelho**: não tem conta, login nem servidor. Para levar os dados de um aparelho para outro, use o backup (veja [Backup](#backup-e-troca-de-aparelho)).
 
-> Projeto pessoal e independente, sem ligação com o TickTick nem com a Appest. Nome, ícone e código são próprios; só o fluxo de uso foi inspirado no app original.
+> Projeto pessoal e independente, sem ligação com o TickTick nem com a Appest. Nome e código são próprios; só o fluxo de uso foi inspirado no app original.
 
 ## O que tem
 
@@ -205,4 +205,4 @@ flutter gen-l10n                                          # depois de mudar os t
 
 - **Idiomas:** o código, os comentários e o banco são em inglês. Só o texto da tela é em português, via `lib/l10n/app_pt.arb`.
 - **Versões novas:** [docs/distribuicao.md](docs/distribuicao.md) explica como gerar o instalador e o APK.
-- **Ícone:** é provisório e sai de `app/tool/make_icons.py`. Para trocar, edite e rode `python tool/make_icons.py`.
+- **Ícone:** a imagem fica em `app/tool/icon_source.png` e os tamanhos de Windows e Android saem de `app/tool/make_icons.py`. Para trocar, rode `python tool/make_icons.py caminho/da/imagem.png` com o ícone pronto em fundo branco: o branco em volta é recortado.

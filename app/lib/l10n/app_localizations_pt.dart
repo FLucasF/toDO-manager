@@ -4624,4 +4624,10 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get focusShortcuts => 'Atalhos';
+
+  @override
+  String get habitColor => 'Cor do hábito';
+
+  @override
+  String get habitColorMenu => 'Cor';
 }

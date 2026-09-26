@@ -7,6 +7,7 @@ import '../../domain/focus.dart';
 import '../../app/routes.dart';
 import '../../app/focus_controller.dart';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -478,6 +479,7 @@ class _HabitPageState extends ConsumerState<HabitPage> {
       position: RelativeRect.fromLTRB(at.dx, at.dy, at.dx + 1, at.dy + 1),
       items: [
         PopupMenuItem(value: 'edit', height: 36, child: Text(t.countdownEdit)),
+        PopupMenuItem(value: 'color', height: 36, child: Text(t.habitColorMenu)),
         PopupMenuItem(value: 'archive', height: 36, child: Text(t.habitArchive)),
         PopupMenuItem(value: 'focus', height: 36, child: Text(t.focusStartFocus)),
         PopupMenuItem(value: 'delete', height: 36, child: Text(t.habitDelete)),
@@ -491,6 +493,9 @@ class _HabitPageState extends ConsumerState<HabitPage> {
         context.go(Routes.focus);
       case 'edit':
         await showHabitForm(context, editing: h);
+      case 'color':
+        final picked = await showHabitColorMenu(context, ref, near: at, current: h.color);
+        if (picked != null) await repo.updateHabit(h.id, HabitsCompanion(color: Value(picked.color)));
       case 'archive':
         await repo.archiveHabit(h.id, archived: true);
         if (context.mounted) showToast(context, t.toastArchived);

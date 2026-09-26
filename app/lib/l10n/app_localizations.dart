@@ -8718,6 +8718,18 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Atalhos'**
   String get focusShortcuts;
+
+  /// No description provided for @habitColor.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor do hábito'**
+  String get habitColor;
+
+  /// No description provided for @habitColorMenu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cor'**
+  String get habitColorMenu;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

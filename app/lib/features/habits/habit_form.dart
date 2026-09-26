@@ -15,6 +15,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/color_choice.dart';
 import '../common/feedback.dart';
 import '../date_picker/date_picker.dart';
+import 'habit_widgets.dart';
 
 /// Habit sections: Manhã, Tarde, Noite, Outros.
 const habitSections = ['morning', 'afternoon', 'evening', 'others'];
@@ -170,7 +171,6 @@ class _HabitFormState extends ConsumerState<_HabitForm> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    final tt = context.tt;
     // Sunday first, as the rest of the app.
     const order = [7, 1, 2, 3, 4, 5, 6];
     final initials = {
@@ -212,30 +212,13 @@ class _HabitFormState extends ConsumerState<_HabitForm> {
                       decoration: InputDecoration(hintText: t.habitNameHint),
                     ),
                   ),
+                  const SizedBox(width: 10),
+                  HabitColorButton(color: _color, onChanged: (c) => setState(() => _color = c)),
                 ],
               ),
               TextField(
                 controller: _motto,
                 decoration: InputDecoration(hintText: t.habitMottoHint, isDense: true),
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                children: [
-                  for (final c in presetColors)
-                    GestureDetector(
-                      onTap: () => setState(() => _color = c),
-                      child: Container(
-                        width: 22,
-                        height: 22,
-                        decoration: BoxDecoration(
-                          color: parseHexColor(c),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: _color == c ? tt.text : Colors.transparent, width: 2),
-                        ),
-                      ),
-                    ),
-                ],
               ),
               const SizedBox(height: 8),
               _row(
