@@ -8,10 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/clock.dart';
 import '../data/db/database.dart';
+import '../data/finance_repository.dart';
 import '../data/preferences_repository.dart';
 import '../data/repository.dart';
 import '../domain/countdown.dart';
 import '../domain/enums.dart';
+import '../domain/finance/finance.dart';
+import '../domain/finance/finance_reminders.dart';
+import '../domain/finance/money.dart';
 import '../domain/reminder_plan.dart';
 import '../domain/snapshot.dart';
 import '../features/countdown/countdown_card.dart';
@@ -71,7 +75,7 @@ class OsNotificationGateway implements NotificationGateway {
     title: r.title.isEmpty ? _t.untitled : r.title,
     body: r.body ?? DateLabels(_t).detailDate(r.due, isAllDay: r.isAllDay, today: startOfDay(r.at)),
     at: r.at,
-    withActions: !r.isDigest && !r.isCountdown && !r.isHabit,
+    withActions: !r.isDigest && !r.isCountdown && !r.isHabit && !r.isFinance,
     persistent: r.persistent,
     reminderSound: r.sound,
     muted: muted,
@@ -107,8 +111,16 @@ Future<void> applyReminderResponse(Repository repo, ReminderResponse r, DateTime
   }
 }
 
-/// Brings the OS notifications in line with [snapshot] and [prefs]: task reminders plus the daily digest.
-Future<void> syncReminders(ReminderScheduler scheduler, Snapshot snapshot, Preferences prefs, DateTime now, AppLocalizations t) {
+/// Brings the OS notifications in line with [snapshot], [finance] and [prefs]: task reminders, the
+/// daily digest, habits, countdowns, recurring bills and loans.
+Future<void> syncReminders(
+  ReminderScheduler scheduler,
+  Snapshot snapshot,
+  Preferences prefs,
+  DateTime now,
+  AppLocalizations t, {
+  FinanceSnapshot? finance,
+}) {
   // "Som do lembrete" for tasks, habits and countdowns; the daily summary keeps the system's sound.
   final sound = prefs.reminderSound;
   final plan = [
@@ -122,6 +134,9 @@ Future<void> syncReminders(ReminderScheduler scheduler, Snapshot snapshot, Prefe
       persistent: prefs.constantReminder,
     ))
       r.withSound(sound),
+    if (finance != null && prefs.has(AppFeature.finance))
+      for (final r in planFinanceReminders(finance, now, title: (a) => financeAlertTitle(t, a), body: (a) => formatMoney(a.amount)))
+        r.withSound(sound),
   ];
   final today = dailyDigestId(now);
   return scheduler.sync(
@@ -133,6 +148,7 @@ Future<void> syncReminders(ReminderScheduler scheduler, Snapshot snapshot, Prefe
       // A countdown's notification stays while the countdown exists and is not archived.
       _ when id.startsWith(habitPrefix) => snapshot.habits.any((h) => '$habitPrefix${h.id}' == id && h.archivedAt == null),
       _ when id.startsWith(countdownPrefix) => snapshot.countdowns.any((c) => '$countdownPrefix${c.id}' == id && c.archivedAt == null),
+      _ when id.startsWith(financePrefix) => finance != null && keepsFinanceReminder(finance, id),
       _ => keepsFiredReminders(snapshot, id),
     },
   );
@@ -203,7 +219,7 @@ Future<void> onBackgroundNotificationResponse(NotificationResponse response) asy
     await service.initialize(onResponse: (_) {});
     final scheduler = ReminderScheduler(OsNotificationGateway(service, t), FileScheduledStore());
     final prefs = await PreferencesRepository(db).watch().first;
-    await syncReminders(scheduler, await repo.loadSnapshot(), prefs, now, t);
+    await syncReminders(scheduler, await repo.loadSnapshot(), prefs, now, t, finance: await FinanceRepository(db).load());
   } finally {
     await db.close();
   }
@@ -226,3 +242,11 @@ class FiredReminders extends Notifier<List<PlannedReminder>> {
 }
 
 final firedRemindersProvider = NotifierProvider<FiredReminders, List<PlannedReminder>>(FiredReminders.new);
+
+/// "Aluguel vence hoje", "Internet vence em 12/10", "Hoje vence o empréstimo de João"…
+String financeAlertTitle(AppLocalizations t, FinanceAlert a) => switch (a.kind) {
+  FinanceAlertKind.billDue => t.finReminderBillTitle(a.name),
+  FinanceAlertKind.billSoon => t.finReminderBillSoon(a.name, DateLabels.numeric(a.due, withYear: false)),
+  FinanceAlertKind.loanDue => t.finReminderLoanDue(a.name),
+  FinanceAlertKind.loanLate => t.finReminderLoanLate(a.name),
+};

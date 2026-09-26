@@ -7938,6 +7938,654 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Renda extra'**
   String get finCatExtra;
+
+  /// No description provided for @finTabCards.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cartões'**
+  String get finTabCards;
+
+  /// No description provided for @finTabRecurring.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contas fixas'**
+  String get finTabRecurring;
+
+  /// No description provided for @finTabLoans.
+  ///
+  /// In pt, this message translates to:
+  /// **'Empréstimos'**
+  String get finTabLoans;
+
+  /// No description provided for @finTabReports.
+  ///
+  /// In pt, this message translates to:
+  /// **'Relatórios'**
+  String get finTabReports;
+
+  /// No description provided for @finNewCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo cartão'**
+  String get finNewCard;
+
+  /// No description provided for @finEditCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar cartão'**
+  String get finEditCard;
+
+  /// No description provided for @finCardName.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nome do cartão'**
+  String get finCardName;
+
+  /// No description provided for @finClosingDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dia do fechamento'**
+  String get finClosingDay;
+
+  /// No description provided for @finDueDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'Dia do vencimento'**
+  String get finDueDay;
+
+  /// No description provided for @finCreditLimit.
+  ///
+  /// In pt, this message translates to:
+  /// **'Limite do cartão (opcional)'**
+  String get finCreditLimit;
+
+  /// No description provided for @finCardDays.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fecha dia {closing} · vence dia {due}'**
+  String finCardDays(int closing, int due);
+
+  /// No description provided for @finCardUsed.
+  ///
+  /// In pt, this message translates to:
+  /// **'{used} usados de {limit}'**
+  String finCardUsed(String used, String limit);
+
+  /// No description provided for @finInvoiceTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fatura de {month}'**
+  String finInvoiceTitle(String month);
+
+  /// No description provided for @finInvoiceOpen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aberta'**
+  String get finInvoiceOpen;
+
+  /// No description provided for @finInvoiceClosed.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fechada'**
+  String get finInvoiceClosed;
+
+  /// No description provided for @finInvoicePaid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Paga'**
+  String get finInvoicePaid;
+
+  /// No description provided for @finInvoiceOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vencida'**
+  String get finInvoiceOverdue;
+
+  /// No description provided for @finInvoiceEmpty.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem compras'**
+  String get finInvoiceEmpty;
+
+  /// No description provided for @finInvoiceDates.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fecha em {closing} · vence em {due}'**
+  String finInvoiceDates(String closing, String due);
+
+  /// No description provided for @finInvoiceTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total'**
+  String get finInvoiceTotal;
+
+  /// No description provided for @finInvoicePaidAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pago'**
+  String get finInvoicePaidAmount;
+
+  /// No description provided for @finInvoiceRemaining.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falta pagar'**
+  String get finInvoiceRemaining;
+
+  /// No description provided for @finPayInvoice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagar fatura'**
+  String get finPayInvoice;
+
+  /// No description provided for @finPaymentAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor pago'**
+  String get finPaymentAmount;
+
+  /// No description provided for @finPaymentDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data do pagamento'**
+  String get finPaymentDate;
+
+  /// No description provided for @finPayments.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamentos'**
+  String get finPayments;
+
+  /// No description provided for @finPurchases.
+  ///
+  /// In pt, this message translates to:
+  /// **'Compras'**
+  String get finPurchases;
+
+  /// No description provided for @finNoCards.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum cartão ainda. Cadastre um para lançar compras no cartão e acompanhar as faturas.'**
+  String get finNoCards;
+
+  /// No description provided for @finArchive.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivar'**
+  String get finArchive;
+
+  /// No description provided for @finUnarchive.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desarquivar'**
+  String get finUnarchive;
+
+  /// No description provided for @finArchivedCards.
+  ///
+  /// In pt, this message translates to:
+  /// **'Arquivados'**
+  String get finArchivedCards;
+
+  /// No description provided for @finCardDeleteBlocked.
+  ///
+  /// In pt, this message translates to:
+  /// **'Este cartão tem compras ou pagamentos. Arquive-o para escondê-lo.'**
+  String get finCardDeleteBlocked;
+
+  /// No description provided for @finDeleteCard.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir o cartão \"{name}\"?'**
+  String finDeleteCard(String name);
+
+  /// No description provided for @finPaymentDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento excluído'**
+  String get finPaymentDeleted;
+
+  /// No description provided for @finNewRecurring.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova conta fixa'**
+  String get finNewRecurring;
+
+  /// No description provided for @finEditRecurring.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar conta fixa'**
+  String get finEditRecurring;
+
+  /// No description provided for @finNoRecurring.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhuma conta fixa ainda. Cadastre aluguel, assinaturas, salário…'**
+  String get finNoRecurring;
+
+  /// No description provided for @finRecurringHint.
+  ///
+  /// In pt, this message translates to:
+  /// **'Aluguel, internet, salário…'**
+  String get finRecurringHint;
+
+  /// No description provided for @finRecurringInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preencha a descrição e um valor maior que zero.'**
+  String get finRecurringInvalid;
+
+  /// No description provided for @finOverdueBills.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atrasadas'**
+  String get finOverdueBills;
+
+  /// No description provided for @finDueThisMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vencimentos do mês'**
+  String get finDueThisMonth;
+
+  /// No description provided for @finRecurringBills.
+  ///
+  /// In pt, this message translates to:
+  /// **'Contas cadastradas'**
+  String get finRecurringBills;
+
+  /// No description provided for @finEveryMonthOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todo dia {day}'**
+  String finEveryMonthOn(int day);
+
+  /// No description provided for @finEveryYearOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todo ano em {date}'**
+  String finEveryYearOn(String date);
+
+  /// No description provided for @finDueOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'vence {date}'**
+  String finDueOn(String date);
+
+  /// No description provided for @finPaidOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'pago em {date}'**
+  String finPaidOn(String date);
+
+  /// No description provided for @finConfirmPaid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagar'**
+  String get finConfirmPaid;
+
+  /// No description provided for @finConfirmReceived.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receber'**
+  String get finConfirmReceived;
+
+  /// No description provided for @finUndoPayment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Desfazer pagamento'**
+  String get finUndoPayment;
+
+  /// No description provided for @finPaymentUndone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Pagamento desfeito'**
+  String get finPaymentUndone;
+
+  /// No description provided for @finDeleteRecurring.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir a conta fixa \"{name}\"? Os lançamentos já feitos continuam.'**
+  String finDeleteRecurring(String name);
+
+  /// No description provided for @finMonthly.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mensal'**
+  String get finMonthly;
+
+  /// No description provided for @finYearly.
+  ///
+  /// In pt, this message translates to:
+  /// **'Anual'**
+  String get finYearly;
+
+  /// No description provided for @finReminder.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembrete'**
+  String get finReminder;
+
+  /// No description provided for @finNoReminder.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem lembrete'**
+  String get finNoReminder;
+
+  /// No description provided for @finRemindOnDay.
+  ///
+  /// In pt, this message translates to:
+  /// **'No dia do vencimento'**
+  String get finRemindOnDay;
+
+  /// No description provided for @finRemindDaysBefore.
+  ///
+  /// In pt, this message translates to:
+  /// **'{days, plural, =1{1 dia antes} other{{days} dias antes}}'**
+  String finRemindDaysBefore(int days);
+
+  /// No description provided for @finStartsOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Começa em'**
+  String get finStartsOn;
+
+  /// No description provided for @finEndsOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Termina em'**
+  String get finEndsOn;
+
+  /// No description provided for @finNoEnd.
+  ///
+  /// In pt, this message translates to:
+  /// **'Sem fim'**
+  String get finNoEnd;
+
+  /// No description provided for @finNewLoan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo empréstimo'**
+  String get finNewLoan;
+
+  /// No description provided for @finEditLoan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar empréstimo'**
+  String get finEditLoan;
+
+  /// No description provided for @finNoLoans.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum empréstimo ainda.'**
+  String get finNoLoans;
+
+  /// No description provided for @finNoLoansHere.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum empréstimo aqui.'**
+  String get finNoLoansHere;
+
+  /// No description provided for @finLoansOpen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em aberto'**
+  String get finLoansOpen;
+
+  /// No description provided for @finLoansOverdue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atrasados'**
+  String get finLoansOverdue;
+
+  /// No description provided for @finLoansPaid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quitados'**
+  String get finLoansPaid;
+
+  /// No description provided for @finLoansAll.
+  ///
+  /// In pt, this message translates to:
+  /// **'Todos'**
+  String get finLoansAll;
+
+  /// No description provided for @finLentOpen.
+  ///
+  /// In pt, this message translates to:
+  /// **'Emprestado'**
+  String get finLentOpen;
+
+  /// No description provided for @finToReceive.
+  ///
+  /// In pt, this message translates to:
+  /// **'A receber'**
+  String get finToReceive;
+
+  /// No description provided for @finInterestReceived.
+  ///
+  /// In pt, this message translates to:
+  /// **'Juros recebidos'**
+  String get finInterestReceived;
+
+  /// No description provided for @finOverdueAmount.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em atraso'**
+  String get finOverdueAmount;
+
+  /// No description provided for @finLoansCount.
+  ///
+  /// In pt, this message translates to:
+  /// **'{count, plural, =0{nenhum} =1{1 empréstimo} other{{count} empréstimos}}'**
+  String finLoansCount(int count);
+
+  /// No description provided for @finInterestToCome.
+  ///
+  /// In pt, this message translates to:
+  /// **'{amount} de juros a receber'**
+  String finInterestToCome(String amount);
+
+  /// No description provided for @finLentTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'{amount} emprestados no total'**
+  String finLentTotal(String amount);
+
+  /// No description provided for @finLoanOnTime.
+  ///
+  /// In pt, this message translates to:
+  /// **'Em dia'**
+  String get finLoanOnTime;
+
+  /// No description provided for @finLoanLate.
+  ///
+  /// In pt, this message translates to:
+  /// **'{days, plural, =0{Atrasado} =1{Atrasado há 1 dia} other{Atrasado há {days} dias}}'**
+  String finLoanLate(int days);
+
+  /// No description provided for @finLoanPaid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quitado'**
+  String get finLoanPaid;
+
+  /// No description provided for @finLoanLeft.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falta {amount}'**
+  String finLoanLeft(String amount);
+
+  /// No description provided for @finProfit.
+  ///
+  /// In pt, this message translates to:
+  /// **'lucro {amount} ({rate})'**
+  String finProfit(String amount, String rate);
+
+  /// No description provided for @finDeleteLoan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir o empréstimo de {name} e os pagamentos dele?'**
+  String finDeleteLoan(String name);
+
+  /// No description provided for @finLoanDeleted.
+  ///
+  /// In pt, this message translates to:
+  /// **'Empréstimo excluído'**
+  String get finLoanDeleted;
+
+  /// No description provided for @finLent.
+  ///
+  /// In pt, this message translates to:
+  /// **'Valor emprestado'**
+  String get finLent;
+
+  /// No description provided for @finLoanTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total a receber'**
+  String get finLoanTotal;
+
+  /// No description provided for @finProfitLabel.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lucro'**
+  String get finProfitLabel;
+
+  /// No description provided for @finReceived.
+  ///
+  /// In pt, this message translates to:
+  /// **'Recebido'**
+  String get finReceived;
+
+  /// No description provided for @finLoanBalance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falta receber'**
+  String get finLoanBalance;
+
+  /// No description provided for @finLentOn.
+  ///
+  /// In pt, this message translates to:
+  /// **'Data do empréstimo'**
+  String get finLentOn;
+
+  /// No description provided for @finDueDate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Vencimento'**
+  String get finDueDate;
+
+  /// No description provided for @finAddLoanPayment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Registrar pagamento'**
+  String get finAddLoanPayment;
+
+  /// No description provided for @finBorrower.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quem pegou emprestado'**
+  String get finBorrower;
+
+  /// No description provided for @finInterestRate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Juros'**
+  String get finInterestRate;
+
+  /// No description provided for @finProfitPreview.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lucro: {amount}'**
+  String finProfitPreview(String amount);
+
+  /// No description provided for @finLoanInvalid.
+  ///
+  /// In pt, this message translates to:
+  /// **'Preencha quem pegou, o valor emprestado e um total a receber igual ou maior que ele.'**
+  String get finLoanInvalid;
+
+  /// No description provided for @finLoanRemind.
+  ///
+  /// In pt, this message translates to:
+  /// **'Lembrar no vencimento e se atrasar'**
+  String get finLoanRemind;
+
+  /// No description provided for @finByCategory.
+  ///
+  /// In pt, this message translates to:
+  /// **'Gastos por categoria'**
+  String get finByCategory;
+
+  /// No description provided for @finNoExpenses.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum gasto neste mês.'**
+  String get finNoExpenses;
+
+  /// No description provided for @finIncomeVsExpenses.
+  ///
+  /// In pt, this message translates to:
+  /// **'Receitas × despesas'**
+  String get finIncomeVsExpenses;
+
+  /// No description provided for @finCompareMonths.
+  ///
+  /// In pt, this message translates to:
+  /// **'Comparação entre meses'**
+  String get finCompareMonths;
+
+  /// No description provided for @finVersus.
+  ///
+  /// In pt, this message translates to:
+  /// **'com'**
+  String get finVersus;
+
+  /// No description provided for @finChange.
+  ///
+  /// In pt, this message translates to:
+  /// **'Variação'**
+  String get finChange;
+
+  /// No description provided for @finTotal.
+  ///
+  /// In pt, this message translates to:
+  /// **'Total'**
+  String get finTotal;
+
+  /// No description provided for @finLoansSummary.
+  ///
+  /// In pt, this message translates to:
+  /// **'Empréstimos'**
+  String get finLoansSummary;
+
+  /// No description provided for @finReminderBillTitle.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} vence hoje'**
+  String finReminderBillTitle(String name);
+
+  /// No description provided for @finReminderBillSoon.
+  ///
+  /// In pt, this message translates to:
+  /// **'{name} vence em {date}'**
+  String finReminderBillSoon(String name, String date);
+
+  /// No description provided for @finReminderLoanDue.
+  ///
+  /// In pt, this message translates to:
+  /// **'Hoje vence o empréstimo de {name}'**
+  String finReminderLoanDue(String name);
+
+  /// No description provided for @finReminderLoanLate.
+  ///
+  /// In pt, this message translates to:
+  /// **'Empréstimo de {name} atrasado'**
+  String finReminderLoanLate(String name);
+
+  /// No description provided for @finReminderLoanBody.
+  ///
+  /// In pt, this message translates to:
+  /// **'Falta receber {amount}'**
+  String finReminderLoanBody(String amount);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

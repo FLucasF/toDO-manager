@@ -190,6 +190,10 @@ class _TasksAppState extends ConsumerState<TasksApp> {
     ref.listenManual(preferencesProvider, (_, next) {
       if (next.value != null) _syncSoon(setup);
     });
+    // Recurring bills and loans have reminders too.
+    ref.listenManual(financeProvider, (_, next) {
+      if (next.value != null) _syncSoon(setup);
+    });
     _periodicSync = Timer.periodic(const Duration(hours: 6), (_) => _syncSoon(setup));
     // Windows: the tray ("Manter na bandeja ao fechar") and "Iniciar com o Windows".
     ref.listenManual(preferencesProvider, (_, next) {
@@ -276,6 +280,7 @@ class _TasksAppState extends ConsumerState<TasksApp> {
           prefs,
           ref.read(clockProvider).now(),
           reminderTexts,
+          finance: ref.read(financeProvider).value,
         ).catchError((Object e) => debugPrint('Reminder sync failed: $e')),
       );
     });
@@ -292,6 +297,10 @@ class _TasksAppState extends ConsumerState<TasksApp> {
     }
     if (r.taskId.startsWith(habitPrefix)) {
       _router.go(Routes.habit);
+      return;
+    }
+    if (r.taskId.startsWith(financePrefix)) {
+      _router.go(Routes.financeOf(r.taskId.startsWith('${financePrefix}loan:') ? 'loans' : 'recurring'));
       return;
     }
     // A notification answered: the despertador stops, and opening it brings the window back.

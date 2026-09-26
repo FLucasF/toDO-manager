@@ -12,13 +12,21 @@ import '../../data/preferences_repository.dart';
 import '../../domain/finance/finance_enums.dart';
 import '../../l10n/app_localizations.dart';
 import '../shell/app_shell.dart';
+import 'cards_tab.dart';
 import 'categories_tab.dart';
 import 'entries_tab.dart';
 import 'entry_form.dart';
+import 'loans_tab.dart';
+import 'recurring_tab.dart';
+import 'reports_tab.dart';
 
 /// Tabs of Finanças (`/finance/{tab}`).
 enum FinanceTab {
   entries('entries'),
+  cards('cards'),
+  recurring('recurring'),
+  loans('loans'),
+  reports('reports'),
   categories('categories');
 
   const FinanceTab(this.route);
@@ -49,7 +57,7 @@ Future<void> seedFinanceCategories(FinanceRepository repo, PreferencesRepository
   await prefs.markFinanceCategoriesSeeded();
 }
 
-/// Finanças: Lançamentos · Categorias.
+/// Finanças: Lançamentos · Cartões · Contas fixas · Empréstimos · Relatórios · Categorias.
 class FinancePage extends ConsumerStatefulWidget {
   const FinancePage({super.key, required this.tab});
 
@@ -108,7 +116,16 @@ class _FinancePageState extends ConsumerState<FinancePage> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: EdgeInsets.symmetric(horizontal: narrow ? 4 : 12),
-            child: Row(children: [tabButton(FinanceTab.entries, t.finTabEntries), tabButton(FinanceTab.categories, t.finTabCategories)]),
+            child: Row(
+              children: [
+                tabButton(FinanceTab.entries, t.finTabEntries),
+                tabButton(FinanceTab.cards, t.finTabCards),
+                tabButton(FinanceTab.recurring, t.finTabRecurring),
+                tabButton(FinanceTab.loans, t.finTabLoans),
+                tabButton(FinanceTab.reports, t.finTabReports),
+                tabButton(FinanceTab.categories, t.finTabCategories),
+              ],
+            ),
           ),
           Expanded(
             child: Align(
@@ -117,6 +134,10 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                 constraints: const BoxConstraints(maxWidth: 900),
                 child: switch (widget.tab) {
                   FinanceTab.entries => const EntriesTab(),
+                  FinanceTab.cards => const CardsTab(),
+                  FinanceTab.recurring => const RecurringTab(),
+                  FinanceTab.loans => const LoansTab(),
+                  FinanceTab.reports => const ReportsTab(),
                   FinanceTab.categories => const CategoriesTab(),
                 },
               ),

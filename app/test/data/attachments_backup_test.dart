@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -7,7 +8,9 @@ import 'package:task_manager/core/clock.dart';
 import 'package:task_manager/core/ids.dart';
 import 'package:task_manager/data/attachment_store.dart';
 import 'package:task_manager/data/db/database.dart';
+import 'package:task_manager/data/finance_repository.dart';
 import 'package:task_manager/data/repository.dart';
+import 'package:task_manager/domain/finance/finance_enums.dart';
 import 'package:task_manager/domain/views.dart';
 import 'package:task_manager/features/backup/backup_service.dart';
 
@@ -82,6 +85,56 @@ void main() {
     await BackupService(target, tempDir: temp, attachments: storeB).import(bytes);
     expect((await Repository(target, clock: clock).loadSnapshot()).taskById[id]!.title, 'Só dados');
     expect(storeB.all().map((e) => e.$1), [kept]);
+    await target.close();
+  });
+
+  test('a backup carries Finanças: categories, cards, entries, bills, invoice and loan payments', () async {
+    final clock = FixedClock(DateTime(2026, 9, 25));
+    final source = AppDatabase(NativeDatabase.memory());
+    final a = FinanceRepository(source, clock: clock);
+    final market = await a.createCategory(name: 'Mercado', kind: FinKind.expense, monthlyLimit: 80000);
+    final card = await a.createCard(name: 'Nubank', closingDay: 5, dueDay: 12);
+    final ids = await a.addEntry(
+      kind: FinKind.expense,
+      amount: 30000,
+      date: DateTime(2026, 9, 10),
+      categoryId: market,
+      cardId: card,
+      installments: 2,
+    );
+    await a.payInvoice(cardId: card, invoiceMonth: DateTime(2026, 10), amount: 15000, date: DateTime(2026, 10, 10));
+    final rent = await a.createRecurring(
+      FinRecurringsCompanion(
+        kind: const Value(FinKind.expense),
+        description: const Value('Aluguel'),
+        amount: const Value(150000),
+        frequency: const Value(FinFrequency.monthly),
+        day: const Value(10),
+        startDate: Value(DateTime.utc(2026, 9)),
+        categoryId: Value(market),
+      ),
+    );
+    await a.addEntry(kind: FinKind.expense, amount: 150000, date: DateTime(2026, 9, 10), recurringId: rent, recurringDue: DateTime(2026, 9, 10));
+    final loan = await a.createLoan(borrower: 'João', principal: 100000, total: 130000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 1));
+    await a.addLoanPayment(loanId: loan, amount: 13000, date: DateTime(2026, 9, 20));
+    final bytes = await BackupService(
+      source,
+      tempDir: temp,
+      attachments: AttachmentStore(Directory(p.join(temp.path, 'a'))),
+    ).export(withFiles: false);
+    await source.close();
+
+    final target = AppDatabase(NativeDatabase.memory());
+    await BackupService(target, tempDir: temp, attachments: AttachmentStore(Directory(p.join(temp.path, 'b')))).import(bytes);
+    final s = await FinanceRepository(target, clock: clock).load();
+    expect(s.categories.single.monthlyLimit, 80000);
+    expect(s.cards.single.name, 'Nubank');
+    expect(s.entries.map((e) => e.id), containsAll(ids));
+    expect(s.entries, hasLength(3));
+    expect(s.cardPayments.single.amount, 15000);
+    expect(s.recurrings.single.id, rent);
+    expect(s.loans.single.borrower, 'João');
+    expect(s.loanPayments.single.amount, 13000);
     await target.close();
   });
 }

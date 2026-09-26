@@ -146,6 +146,150 @@ void main() {
     await dispose(tester);
   });
 
+  Future<void> pickNumber(WidgetTester tester, String field, String option) async {
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<int>, field));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(option).last);
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('Cartões: a new card, a purchase in 3 installments goes to its invoices, paying the invoice', (tester) async {
+    await pumpApp(tester, '/finance/cards');
+    expect(find.textContaining('Nenhum cartão ainda'), findsOneWidget);
+    await tester.tap(find.text('Novo cartão'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Nome do cartão'), 'Nubank');
+    await pickNumber(tester, 'Dia do fechamento', '5');
+    await pickNumber(tester, 'Dia do vencimento', '12');
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('Fecha dia 5 · vence dia 12'), findsOneWidget);
+    // The 24th is after the closing: October's invoice, still open.
+    expect(find.text('Fatura de Outubro 2026'), findsOneWidget);
+    expect(find.text('Sem compras'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Novo lançamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Valor'), '300');
+    await tester.enterText(find.widgetWithText(TextField, 'Descrição'), 'Fone');
+    await pick(tester, 'Cartão', 'Nubank');
+    await pickNumber(tester, 'Parcelas', r'3x de R$ 100,00');
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('Aberta'), findsOneWidget);
+    expect(find.textContaining('1/3'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.chevron_right));
+    await settle(tester);
+    expect(find.text('Fatura de Novembro 2026'), findsOneWidget);
+    expect(find.textContaining('2/3'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.chevron_left));
+    await settle(tester);
+
+    await tester.tap(find.text('Pagar fatura'));
+    await tester.pumpAndSettle();
+    expect(find.widgetWithText(TextField, 'Valor pago'), findsOneWidget);
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('Pagar fatura'), findsNothing);
+    expect(find.text('Pagamentos'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await dispose(tester);
+  });
+
+  testWidgets('Contas fixas: a monthly bill due on the 20th is late; paying it makes the entry', (tester) async {
+    await pumpApp(tester, '/finance/recurring');
+    expect(find.textContaining('Nenhuma conta fixa ainda'), findsOneWidget);
+    await tester.tap(find.text('Nova conta fixa'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Descrição'), 'Aluguel');
+    await tester.enterText(find.widgetWithText(TextField, 'Valor'), '1500');
+    // The menu opens around today (the 24th).
+    await pickNumber(tester, 'Dia do vencimento', '20');
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('Vencimentos do mês'), findsOneWidget);
+    expect(find.text('Contas cadastradas'), findsOneWidget);
+    expect(find.text('vence 20/09'), findsOneWidget);
+    expect(find.text('Todo dia 20'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Pagar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('pago em 24/09'), findsOneWidget);
+    await tester.tap(find.text('Lançamentos'));
+    await settle(tester);
+    expect(find.text('Aluguel'), findsOneWidget);
+    expect(find.text(r'-R$ 1.500,00'), findsWidgets);
+    expect(tester.takeException(), isNull);
+    await dispose(tester);
+  });
+
+  testWidgets('Empréstimos: the rate fills the total; a partial payment brings profit in proportion', (tester) async {
+    await pumpApp(tester, '/finance/loans');
+    expect(find.text('Nenhum empréstimo ainda.'), findsOneWidget);
+    await tester.tap(find.byTooltip('Novo empréstimo'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Quem pegou emprestado'), 'João');
+    await tester.enterText(find.widgetWithText(TextField, 'Valor emprestado'), '1000');
+    await tester.enterText(find.widgetWithText(TextField, 'Juros'), '30');
+    await tester.pump();
+    expect(find.text('1.300,00'), findsOneWidget);
+    expect(find.text(r'Lucro: R$ 300,00'), findsOneWidget);
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text('João'), findsOneWidget);
+    expect(find.text(r'Falta R$ 1.300,00'), findsOneWidget);
+    expect(find.text(r'lucro R$ 300,00 (30%)'), findsOneWidget);
+    expect(find.textContaining('Em dia', findRichText: true), findsOneWidget);
+
+    await tester.tap(find.text('João'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Registrar pagamento'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.widgetWithText(TextField, 'Valor pago'), '130');
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    // In the detail: received 130, of which 30 of profit; 1.170 left.
+    Finder inDetail(String text) => find.descendant(of: find.byType(Dialog), matching: find.text(text));
+    // "Recebido" and the payment.
+    expect(inDetail(r'R$ 130,00'), findsNWidgets(2));
+    expect(inDetail(r'R$ 30,00'), findsOneWidget);
+    expect(inDetail(r'R$ 1.170,00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.byTooltip('Fechar'));
+    await settle(tester);
+    await dispose(tester);
+  });
+
+  testWidgets('Relatórios: by category, income × expenses, comparison and loans', (tester) async {
+    final repo = FinanceRepository(db, clock: clock);
+    await tester.runAsync(() async {
+      final market = await repo.createCategory(name: 'Mercado', kind: FinKind.expense, icon: '🛒');
+      await repo.addEntry(kind: FinKind.expense, amount: 40000, date: DateTime(2026, 8, 3), categoryId: market);
+      await repo.addEntry(kind: FinKind.expense, amount: 60000, date: DateTime(2026, 9, 3), categoryId: market);
+      await repo.addEntry(kind: FinKind.income, amount: 300000, date: DateTime(2026, 9, 1));
+      await repo.createLoan(borrower: 'Ana', principal: 50000, total: 55000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 1));
+    });
+    await pumpApp(tester, '/finance/reports');
+    expect(find.text('Gastos por categoria'), findsOneWidget);
+    expect(find.text('🛒 Mercado'), findsWidgets);
+    expect(find.text('100%'), findsOneWidget);
+    expect(find.text('Receitas × despesas'), findsOneWidget);
+    expect(find.text('Comparação entre meses'), findsOneWidget);
+    // Mercado and the total.
+    expect(find.text('+50%'), findsNWidgets(2));
+    // The page's list (the tabs scroll sideways).
+    await tester.scrollUntilVisible(
+      find.text('A receber'),
+      200,
+      scrollable: find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.down).first,
+    );
+    expect(find.text(r'R$ 550,00'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await dispose(tester);
+  });
+
   testWidgets('phone: Finanças is in the drawer; the form takes the whole screen', (tester) async {
     await pumpApp(tester, '/q/all/tasks', size: const Size(560, 1000));
     await tester.tap(find.byIcon(Icons.menu_open).first);

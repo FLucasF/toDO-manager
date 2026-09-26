@@ -4177,4 +4177,379 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get finCatExtra => 'Renda extra';
+
+  @override
+  String get finTabCards => 'Cartões';
+
+  @override
+  String get finTabRecurring => 'Contas fixas';
+
+  @override
+  String get finTabLoans => 'Empréstimos';
+
+  @override
+  String get finTabReports => 'Relatórios';
+
+  @override
+  String get finNewCard => 'Novo cartão';
+
+  @override
+  String get finEditCard => 'Editar cartão';
+
+  @override
+  String get finCardName => 'Nome do cartão';
+
+  @override
+  String get finClosingDay => 'Dia do fechamento';
+
+  @override
+  String get finDueDay => 'Dia do vencimento';
+
+  @override
+  String get finCreditLimit => 'Limite do cartão (opcional)';
+
+  @override
+  String finCardDays(int closing, int due) {
+    return 'Fecha dia $closing · vence dia $due';
+  }
+
+  @override
+  String finCardUsed(String used, String limit) {
+    return '$used usados de $limit';
+  }
+
+  @override
+  String finInvoiceTitle(String month) {
+    return 'Fatura de $month';
+  }
+
+  @override
+  String get finInvoiceOpen => 'Aberta';
+
+  @override
+  String get finInvoiceClosed => 'Fechada';
+
+  @override
+  String get finInvoicePaid => 'Paga';
+
+  @override
+  String get finInvoiceOverdue => 'Vencida';
+
+  @override
+  String get finInvoiceEmpty => 'Sem compras';
+
+  @override
+  String finInvoiceDates(String closing, String due) {
+    return 'Fecha em $closing · vence em $due';
+  }
+
+  @override
+  String get finInvoiceTotal => 'Total';
+
+  @override
+  String get finInvoicePaidAmount => 'Pago';
+
+  @override
+  String get finInvoiceRemaining => 'Falta pagar';
+
+  @override
+  String get finPayInvoice => 'Pagar fatura';
+
+  @override
+  String get finPaymentAmount => 'Valor pago';
+
+  @override
+  String get finPaymentDate => 'Data do pagamento';
+
+  @override
+  String get finPayments => 'Pagamentos';
+
+  @override
+  String get finPurchases => 'Compras';
+
+  @override
+  String get finNoCards => 'Nenhum cartão ainda. Cadastre um para lançar compras no cartão e acompanhar as faturas.';
+
+  @override
+  String get finArchive => 'Arquivar';
+
+  @override
+  String get finUnarchive => 'Desarquivar';
+
+  @override
+  String get finArchivedCards => 'Arquivados';
+
+  @override
+  String get finCardDeleteBlocked => 'Este cartão tem compras ou pagamentos. Arquive-o para escondê-lo.';
+
+  @override
+  String finDeleteCard(String name) {
+    return 'Excluir o cartão \"$name\"?';
+  }
+
+  @override
+  String get finPaymentDeleted => 'Pagamento excluído';
+
+  @override
+  String get finNewRecurring => 'Nova conta fixa';
+
+  @override
+  String get finEditRecurring => 'Editar conta fixa';
+
+  @override
+  String get finNoRecurring => 'Nenhuma conta fixa ainda. Cadastre aluguel, assinaturas, salário…';
+
+  @override
+  String get finRecurringHint => 'Aluguel, internet, salário…';
+
+  @override
+  String get finRecurringInvalid => 'Preencha a descrição e um valor maior que zero.';
+
+  @override
+  String get finOverdueBills => 'Atrasadas';
+
+  @override
+  String get finDueThisMonth => 'Vencimentos do mês';
+
+  @override
+  String get finRecurringBills => 'Contas cadastradas';
+
+  @override
+  String finEveryMonthOn(int day) {
+    return 'Todo dia $day';
+  }
+
+  @override
+  String finEveryYearOn(String date) {
+    return 'Todo ano em $date';
+  }
+
+  @override
+  String finDueOn(String date) {
+    return 'vence $date';
+  }
+
+  @override
+  String finPaidOn(String date) {
+    return 'pago em $date';
+  }
+
+  @override
+  String get finConfirmPaid => 'Pagar';
+
+  @override
+  String get finConfirmReceived => 'Receber';
+
+  @override
+  String get finUndoPayment => 'Desfazer pagamento';
+
+  @override
+  String get finPaymentUndone => 'Pagamento desfeito';
+
+  @override
+  String finDeleteRecurring(String name) {
+    return 'Excluir a conta fixa \"$name\"? Os lançamentos já feitos continuam.';
+  }
+
+  @override
+  String get finMonthly => 'Mensal';
+
+  @override
+  String get finYearly => 'Anual';
+
+  @override
+  String get finReminder => 'Lembrete';
+
+  @override
+  String get finNoReminder => 'Sem lembrete';
+
+  @override
+  String get finRemindOnDay => 'No dia do vencimento';
+
+  @override
+  String finRemindDaysBefore(int days) {
+    String _temp0 = intl.Intl.pluralLogic(days, locale: localeName, other: '$days dias antes', one: '1 dia antes');
+    return '$_temp0';
+  }
+
+  @override
+  String get finStartsOn => 'Começa em';
+
+  @override
+  String get finEndsOn => 'Termina em';
+
+  @override
+  String get finNoEnd => 'Sem fim';
+
+  @override
+  String get finNewLoan => 'Novo empréstimo';
+
+  @override
+  String get finEditLoan => 'Editar empréstimo';
+
+  @override
+  String get finNoLoans => 'Nenhum empréstimo ainda.';
+
+  @override
+  String get finNoLoansHere => 'Nenhum empréstimo aqui.';
+
+  @override
+  String get finLoansOpen => 'Em aberto';
+
+  @override
+  String get finLoansOverdue => 'Atrasados';
+
+  @override
+  String get finLoansPaid => 'Quitados';
+
+  @override
+  String get finLoansAll => 'Todos';
+
+  @override
+  String get finLentOpen => 'Emprestado';
+
+  @override
+  String get finToReceive => 'A receber';
+
+  @override
+  String get finInterestReceived => 'Juros recebidos';
+
+  @override
+  String get finOverdueAmount => 'Em atraso';
+
+  @override
+  String finLoansCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(count, locale: localeName, other: '$count empréstimos', one: '1 empréstimo', zero: 'nenhum');
+    return '$_temp0';
+  }
+
+  @override
+  String finInterestToCome(String amount) {
+    return '$amount de juros a receber';
+  }
+
+  @override
+  String finLentTotal(String amount) {
+    return '$amount emprestados no total';
+  }
+
+  @override
+  String get finLoanOnTime => 'Em dia';
+
+  @override
+  String finLoanLate(int days) {
+    String _temp0 = intl.Intl.pluralLogic(days, locale: localeName, other: 'Atrasado há $days dias', one: 'Atrasado há 1 dia', zero: 'Atrasado');
+    return '$_temp0';
+  }
+
+  @override
+  String get finLoanPaid => 'Quitado';
+
+  @override
+  String finLoanLeft(String amount) {
+    return 'Falta $amount';
+  }
+
+  @override
+  String finProfit(String amount, String rate) {
+    return 'lucro $amount ($rate)';
+  }
+
+  @override
+  String finDeleteLoan(String name) {
+    return 'Excluir o empréstimo de $name e os pagamentos dele?';
+  }
+
+  @override
+  String get finLoanDeleted => 'Empréstimo excluído';
+
+  @override
+  String get finLent => 'Valor emprestado';
+
+  @override
+  String get finLoanTotal => 'Total a receber';
+
+  @override
+  String get finProfitLabel => 'Lucro';
+
+  @override
+  String get finReceived => 'Recebido';
+
+  @override
+  String get finLoanBalance => 'Falta receber';
+
+  @override
+  String get finLentOn => 'Data do empréstimo';
+
+  @override
+  String get finDueDate => 'Vencimento';
+
+  @override
+  String get finAddLoanPayment => 'Registrar pagamento';
+
+  @override
+  String get finBorrower => 'Quem pegou emprestado';
+
+  @override
+  String get finInterestRate => 'Juros';
+
+  @override
+  String finProfitPreview(String amount) {
+    return 'Lucro: $amount';
+  }
+
+  @override
+  String get finLoanInvalid => 'Preencha quem pegou, o valor emprestado e um total a receber igual ou maior que ele.';
+
+  @override
+  String get finLoanRemind => 'Lembrar no vencimento e se atrasar';
+
+  @override
+  String get finByCategory => 'Gastos por categoria';
+
+  @override
+  String get finNoExpenses => 'Nenhum gasto neste mês.';
+
+  @override
+  String get finIncomeVsExpenses => 'Receitas × despesas';
+
+  @override
+  String get finCompareMonths => 'Comparação entre meses';
+
+  @override
+  String get finVersus => 'com';
+
+  @override
+  String get finChange => 'Variação';
+
+  @override
+  String get finTotal => 'Total';
+
+  @override
+  String get finLoansSummary => 'Empréstimos';
+
+  @override
+  String finReminderBillTitle(String name) {
+    return '$name vence hoje';
+  }
+
+  @override
+  String finReminderBillSoon(String name, String date) {
+    return '$name vence em $date';
+  }
+
+  @override
+  String finReminderLoanDue(String name) {
+    return 'Hoje vence o empréstimo de $name';
+  }
+
+  @override
+  String finReminderLoanLate(String name) {
+    return 'Empréstimo de $name atrasado';
+  }
+
+  @override
+  String finReminderLoanBody(String amount) {
+    return 'Falta receber $amount';
+  }
 }

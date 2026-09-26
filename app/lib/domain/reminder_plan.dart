@@ -74,6 +74,9 @@ class PlannedReminder {
   /// Habit reminders use `habit:<id>` as their task id.
   bool get isHabit => taskId.startsWith(habitPrefix);
 
+  /// Finance reminders (recurring bills, loans) use `finance:…` as their task id.
+  bool get isFinance => taskId.startsWith(financePrefix);
+
   /// Changes whenever the notification must be replaced. Starts with the fire time and the task id
   /// (see [signatureTime] and [signatureTaskId]).
   String get signature => '${at.toIso8601String()}|$owner|${due.toIso8601String()}|$isAllDay|$persistent|$title|${body ?? ''}|${sound.name}';
@@ -97,6 +100,9 @@ const dailyDigestPrefix = 'daily:';
 const countdownPrefix = 'countdown:';
 
 const habitPrefix = 'habit:';
+
+/// Finanças: `finance:recurring:<id>` and `finance:loan:<id>`.
+const financePrefix = 'finance:';
 
 String dailyDigestId(DateTime day) => '$dailyDigestPrefix${day.year}${day.month.toString().padLeft(2, '0')}${day.day.toString().padLeft(2, '0')}';
 

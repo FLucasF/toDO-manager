@@ -225,4 +225,224 @@ class FinanceRepository {
             .get())
       e.id,
   ];
+
+  // ------------------------------------------------------------------ cards
+
+  Future<String> createCard({required String name, required int closingDay, required int dueDay, int? creditLimit, String? color}) async {
+    final id = newId();
+    final last = await (_db.selectOnly(
+      _db.finCards,
+    )..addColumns([_db.finCards.sortOrder.max()])).map((r) => r.read(_db.finCards.sortOrder.max())).getSingle();
+    await _db
+        .into(_db.finCards)
+        .insert(
+          FinCardsCompanion.insert(
+            id: id,
+            createdAt: _now,
+            updatedAt: _now,
+            name: name.trim(),
+            color: Value(color),
+            closingDay: closingDay.clamp(1, 31),
+            dueDay: dueDay.clamp(1, 31),
+            creditLimit: Value(creditLimit),
+            sortOrder: SortOrder.after(last),
+          ),
+        );
+    return id;
+  }
+
+  /// Edits a card. Changing its closing or due day moves its purchases to the invoices of the new
+  /// days (installments keep their order).
+  Future<void> updateCard(String id, {required String name, required int closingDay, required int dueDay, int? creditLimit}) =>
+      _db.transaction(() async {
+        final before = await (_db.select(_db.finCards)..where((c) => c.id.equals(id))).getSingle();
+        await (_db.update(_db.finCards)..where((c) => c.id.equals(id))).write(
+          FinCardsCompanion(
+            name: Value(name.trim()),
+            closingDay: Value(closingDay.clamp(1, 31)),
+            dueDay: Value(dueDay.clamp(1, 31)),
+            creditLimit: Value(creditLimit),
+            updatedAt: Value(_now),
+          ),
+        );
+        if (before.closingDay == closingDay && before.dueDay == dueDay) return;
+        final card = await (_db.select(_db.finCards)..where((c) => c.id.equals(id))).getSingle();
+        final purchases = await (_db.select(_db.finEntries)..where((e) => e.cardId.equals(id) & e.deletedAt.isNull())).get();
+        for (final e in purchases) {
+          final first = invoiceMonthFor(card, finDay(e.date));
+          final offset = (e.installmentIndex ?? 1) - 1;
+          await (_db.update(_db.finEntries)..where((x) => x.id.equals(e.id))).write(
+            FinEntriesCompanion(invoiceMonth: Value(storedDay(DateTime(first.year, first.month + offset))), updatedAt: Value(_now)),
+          );
+        }
+      });
+
+  /// "Arquivar": the card leaves the forms; its invoices stay in the history.
+  Future<void> archiveCard(String id, {required bool archived}) => (_db.update(
+    _db.finCards,
+  )..where((c) => c.id.equals(id))).write(FinCardsCompanion(archivedAt: Value(archived ? _now : null), updatedAt: Value(_now)));
+
+  /// Deletes a card with no purchases nor payments; false (and nothing done) otherwise.
+  Future<bool> deleteCard(String id) => _db.transaction(() async {
+    final used =
+        await (_db.select(_db.finEntries)
+              ..where((e) => e.cardId.equals(id))
+              ..limit(1))
+            .getSingleOrNull() !=
+        null;
+    final paid =
+        await (_db.select(_db.finCardPayments)
+              ..where((p) => p.cardId.equals(id))
+              ..limit(1))
+            .getSingleOrNull() !=
+        null;
+    if (used || paid) return false;
+    await (_db.update(
+      _db.finRecurrings,
+    )..where((r) => r.cardId.equals(id))).write(FinRecurringsCompanion(cardId: const Value(null), updatedAt: Value(_now)));
+    await (_db.delete(_db.finCards)..where((c) => c.id.equals(id))).go();
+    return true;
+  });
+
+  /// "Pagar fatura": not an expense (the purchases are).
+  Future<String> payInvoice({required String cardId, required DateTime invoiceMonth, required int amount, required DateTime date}) async {
+    final id = newId();
+    await _db
+        .into(_db.finCardPayments)
+        .insert(
+          FinCardPaymentsCompanion.insert(
+            id: id,
+            createdAt: _now,
+            updatedAt: _now,
+            cardId: cardId,
+            invoiceMonth: storedDay(DateTime(invoiceMonth.year, invoiceMonth.month)),
+            amount: amount,
+            date: storedDay(date),
+          ),
+        );
+    return id;
+  }
+
+  Future<void> deleteCardPayment(String id, {bool restore = false}) => (_db.update(
+    _db.finCardPayments,
+  )..where((p) => p.id.equals(id))).write(FinCardPaymentsCompanion(deletedAt: Value(restore ? null : _now), updatedAt: Value(_now)));
+
+  // ------------------------------------------------------------------ recurring bills
+
+  Future<String> createRecurring(FinRecurringsCompanion r) async {
+    final id = newId();
+    final last = await (_db.selectOnly(
+      _db.finRecurrings,
+    )..addColumns([_db.finRecurrings.sortOrder.max()])).map((r) => r.read(_db.finRecurrings.sortOrder.max())).getSingle();
+    await _db
+        .into(_db.finRecurrings)
+        .insert(r.copyWith(id: Value(id), sortOrder: Value(SortOrder.after(last)), createdAt: Value(_now), updatedAt: Value(_now)));
+    return id;
+  }
+
+  Future<void> updateRecurring(String id, FinRecurringsCompanion changes) =>
+      (_db.update(_db.finRecurrings)..where((r) => r.id.equals(id))).write(changes.copyWith(updatedAt: Value(_now)));
+
+  /// Deletes a recurring bill; the entries it created stay, as ordinary ones.
+  Future<void> deleteRecurring(String id) => _db.transaction(() async {
+    await (_db.update(_db.finEntries)..where((e) => e.recurringId.equals(id))).write(
+      FinEntriesCompanion(recurringId: const Value(null), recurringDue: const Value(null), updatedAt: Value(_now)),
+    );
+    await (_db.delete(_db.finRecurrings)..where((r) => r.id.equals(id))).go();
+  });
+
+  // ------------------------------------------------------------------ loans
+
+  Future<String> createLoan({
+    required String borrower,
+    required int principal,
+    required int total,
+    required DateTime lentOn,
+    required DateTime dueOn,
+    String note = '',
+    bool remind = true,
+  }) async {
+    final id = newId();
+    await _db
+        .into(_db.loans)
+        .insert(
+          LoansCompanion.insert(
+            id: id,
+            createdAt: _now,
+            updatedAt: _now,
+            borrower: borrower.trim(),
+            principal: principal,
+            total: total,
+            lentOn: storedDay(lentOn),
+            dueOn: storedDay(dueOn),
+            note: Value(note.trim()),
+            remind: Value(remind),
+          ),
+        );
+    return id;
+  }
+
+  Future<void> updateLoan(
+    String id, {
+    required String borrower,
+    required int principal,
+    required int total,
+    required DateTime lentOn,
+    required DateTime dueOn,
+    required String note,
+    required bool remind,
+  }) => (_db.update(_db.loans)..where((l) => l.id.equals(id))).write(
+    LoansCompanion(
+      borrower: Value(borrower.trim()),
+      principal: Value(principal),
+      total: Value(total),
+      lentOn: Value(storedDay(lentOn)),
+      dueOn: Value(storedDay(dueOn)),
+      note: Value(note.trim()),
+      remind: Value(remind),
+      updatedAt: Value(_now),
+    ),
+  );
+
+  /// Deletes a loan and its payments (to the "Desfazer" of the toast: [restoreLoan]).
+  Future<void> deleteLoan(String id) => _db.transaction(() async {
+    await (_db.update(
+      _db.loanPayments,
+    )..where((p) => p.loanId.equals(id) & p.deletedAt.isNull())).write(LoanPaymentsCompanion(deletedAt: Value(_now), updatedAt: Value(_now)));
+    await (_db.update(_db.loans)..where((l) => l.id.equals(id))).write(LoansCompanion(deletedAt: Value(_now), updatedAt: Value(_now)));
+  });
+
+  Future<void> restoreLoan(String id) => _db.transaction(() async {
+    final loan = await (_db.select(_db.loans)..where((l) => l.id.equals(id))).getSingle();
+    final deletedAt = loan.deletedAt;
+    if (deletedAt == null) return;
+    // The payments deleted with it (not the ones deleted before).
+    await (_db.update(_db.loanPayments)..where((p) => p.loanId.equals(id) & p.deletedAt.equals(deletedAt))).write(
+      LoanPaymentsCompanion(deletedAt: const Value(null), updatedAt: Value(_now)),
+    );
+    await (_db.update(_db.loans)..where((l) => l.id.equals(id))).write(LoansCompanion(deletedAt: const Value(null), updatedAt: Value(_now)));
+  });
+
+  /// "Registrar pagamento", partial ones included.
+  Future<String> addLoanPayment({required String loanId, required int amount, required DateTime date, String note = ''}) async {
+    final id = newId();
+    await _db
+        .into(_db.loanPayments)
+        .insert(
+          LoanPaymentsCompanion.insert(
+            id: id,
+            createdAt: _now,
+            updatedAt: _now,
+            loanId: loanId,
+            amount: amount,
+            date: storedDay(date),
+            note: Value(note.trim()),
+          ),
+        );
+    return id;
+  }
+
+  Future<void> deleteLoanPayment(String id, {bool restore = false}) => (_db.update(
+    _db.loanPayments,
+  )..where((p) => p.id.equals(id))).write(LoanPaymentsCompanion(deletedAt: Value(restore ? null : _now), updatedAt: Value(_now)));
 }

@@ -137,6 +137,7 @@ class _EntryFormState extends ConsumerState<_EntryForm> {
     final amount = parseMoney(_amount.text) ?? 0;
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FormHeader(title: _isNew ? t.finNewEntry : t.finEditEntry, onSave: () => unawaited(_save())),
