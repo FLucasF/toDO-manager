@@ -922,4 +922,4 @@ class _AboutTab extends StatelessWidget {
 }
 
 /// The app's version (pubspec.yaml).
-const appVersion = '1.1.1';
+const appVersion = '1.2.0';

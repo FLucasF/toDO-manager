@@ -30,7 +30,7 @@ Os dados ficam **só no seu aparelho**: não tem conta, login nem servidor. Para
 
 ### Baixar e instalar (jeito fácil)
 
-1. Abra a página de [**Releases**](https://github.com/FLucasF/toDO-manager/releases/latest) e baixe o **`TarefasSetup-1.1.1.exe`**.
+1. Abra a página de [**Releases**](https://github.com/FLucasF/toDO-manager/releases/latest) e baixe o **`TarefasSetup-1.2.0.exe`**.
 2. Dê dois cliques no arquivo baixado.
 3. O Windows pode mostrar o aviso azul do **SmartScreen** ("O Windows protegeu o computador"), porque o instalador não tem assinatura digital paga. Clique em **Mais informações → Executar assim mesmo**.
 4. Siga o instalador: **Avançar → Instalar → Concluir**. Ele não pede senha de administrador e cria o atalho **Tarefas** no menu Iniciar. Se você marcar a opção, cria também na área de trabalho.
@@ -70,7 +70,7 @@ Funciona no Android 7.0 ou mais novo.
 
 ### Baixar e instalar (jeito fácil)
 
-1. **No celular**, abra a página de [**Releases**](https://github.com/FLucasF/toDO-manager/releases/latest) e toque em **`Tarefas-1.1.1.apk`** para baixar.
+1. **No celular**, abra a página de [**Releases**](https://github.com/FLucasF/toDO-manager/releases/latest) e toque em **`Tarefas-1.2.0.apk`** para baixar.
 2. Quando terminar, toque na notificação do download, ou abra o app **Arquivos → Downloads** e toque no arquivo.
 3. O Android avisa que, por segurança, o app de onde você está instalando (Chrome ou Arquivos) não pode instalar apps. Toque em **Configurações**, ligue **Permitir desta fonte** e volte.
 4. Toque em **Instalar** e depois em **Abrir**.
@@ -113,6 +113,8 @@ adb install -r app/build/app/outputs/flutter-apk/app-release.apk
 - Para **criar uma lista**, use o **+** ao lado de "Listas". Nela você escolhe a cor, o ícone, a pasta e se é lista de tarefas ou de notas.
 - Para **adicionar uma tarefa**, escreva no campo do topo da lista e aperte Enter. No Windows, a tecla `N` abre a adição rápida de qualquer lugar.
 - **Abrir, concluir e organizar:** clique numa tarefa para abrir o detalhe; a caixinha conclui. O botão direito (ou o **…**) abre o menu: data, prioridade, mover, etiquetas, foco, duplicar, converter em nota…
+- **Editar e apagar qualquer coisa:** tudo o que você adiciona (lançamentos, contas, hábitos, contagens, listas, etiquetas, filtros…) tem o **⋯** na própria linha, com Editar e Deletar. Ao abrir para editar, o formulário tem a **lixeira** vermelha. O que não dá para desfazer pede confirmação antes.
+- **Criar:** em cada tela, o botão azul no canto de cima diz o que cria (**+ Novo lançamento**, **+ Novo hábito**, **+ Nova tarefa**…). No celular é o **+** redondo embaixo.
 
 ### Adição rápida
 
@@ -142,7 +144,7 @@ Escreva tudo no título, e o app entende:
   - use Ctrl/Alt ao arrastar para copiar;
   - Shift + roda do mouse muda as datas, e Ctrl + roda dá zoom nas horas.
   - no estilo do Google Agenda: clique num horário para abrir o cartão de criar, e use **Mais opções** para a página completa (repetições como "Mensal na última sexta", lembretes, prioridade);
-  - o painel da esquerda (☰) tem o **+ Criar**, o mini calendário e as listas como calendários, com caixa de seleção para mostrar ou esconder cada uma;
+  - o painel da esquerda (☰) tem o mini calendário e as listas como calendários, com caixa de seleção para mostrar ou esconder cada uma;
   - clique numa tarefa para ver o **popup de detalhes** (editar, apagar, concluir e mais opções no ⋮); o botão direito tem abrir, concluir, duplicar, deletar e as cores;
   - ao mover ou esticar uma tarefa aparece **Salvo** com **Desfazer** (a tecla `Z` também desfaz);
   - numa tarefa que se repete, editar, apagar ou mover pergunta: **Somente esta**, **Esta e as seguintes** ou **Todas**;
@@ -152,9 +154,9 @@ Escreva tudo no título, e o app entende:
   - teclas do Google: `D` `W` `M` `X` `A` `Y` mudam a visualização, `J`/`K` avançam e voltam, `T` vai para hoje, `C` cria e `G` vai para uma data.
 - **Matriz:** as tarefas se dividem por urgência e importância. Arraste entre os quadrantes, e use o **…** do topo para editar as regras.
 - **Foco:** Pomodoro ou cronômetro, com ou sem tarefa vinculada. Os registros aparecem na própria tela e nas Estatísticas. O aviso de fim do Pomo e da pausa chega mesmo com o app fechado, com som de **despertador** (troque em **… → Configurações de foco → Som do Pomo**). Fechar o app não perde o Pomo em andamento.
-- **Hábitos:** marque o dia no círculo. Ao criar, escolha na galeria ou crie o seu, com meta, frequência e lembrete.
-- **Contagem regressiva:** para contagens, datas especiais, aniversários e feriados. O **…** do topo agrupa por tipo.
-- **Finanças** (valores em reais):
+- **Hábitos:** marque o dia no círculo; clicar num dia já marcado abre o menu para desfazer ou registrar como foi. Ao criar, escolha na galeria ou crie o seu, com meta, frequência, lembrete e **cor** (o botão ao lado do nome abre as mesmas cores do Calendário, com o arco-íris para qualquer cor; o botão direito → **Cor** troca na hora).
+- **Contagem regressiva:** para contagens, datas especiais, aniversários e feriados, agrupadas por tipo. Os **Tipos** do painel da esquerda mostram ou escondem cada um.
+- **Finanças** (valores em reais). As partes ficam nas **abas** do topo:
   - **Lançamentos:** receitas e despesas com valor, data, descrição, categoria e cartão. Veja por mês, ano ou período, filtre por categoria, tipo ou palavra;
   - **Categorias:** as prontas e as suas, com **limite por mês**; o app avisa a partir de 80% do limite;
   - **Cartões:** dia de fechamento e de vencimento, fatura de cada mês (aberta, fechada, paga ou vencida), compras **parceladas** distribuídas nas faturas seguintes e **Pagar fatura** (o pagamento não conta como gasto de novo). A compra conta no mês da fatura;
