@@ -162,6 +162,13 @@ class _CalendarSidePanelState extends ConsumerState<CalendarSidePanel> {
               shown: options.showFocus,
               onChanged: (v) => unawaited(_setOptions(options.copyWith(showFocus: v))),
             ),
+            if (prefs.has(AppFeature.finance))
+              _CalendarRow(
+                color: tt.palette.green,
+                label: t.navFinance,
+                shown: options.showFinance,
+                onChanged: (v) => unawaited(_setOptions(options.copyWith(showFinance: v))),
+              ),
           ],
           section(
             t.calendarOtherCalendars,

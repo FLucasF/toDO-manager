@@ -8604,6 +8604,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'a receber {amount} · lucro {profit}'**
   String finMonthLoanTotals(String amount, String profit);
+
+  /// No description provided for @calendarShowFinance.
+  ///
+  /// In pt, this message translates to:
+  /// **'Mostrar finanças (contas, faturas e cobranças)'**
+  String get calendarShowFinance;
+
+  /// No description provided for @finCalendarInvoice.
+  ///
+  /// In pt, this message translates to:
+  /// **'Fatura {card}'**
+  String finCalendarInvoice(String card);
+
+  /// No description provided for @finCalendarLoan.
+  ///
+  /// In pt, this message translates to:
+  /// **'Cobrar {name}'**
+  String finCalendarLoan(String name);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

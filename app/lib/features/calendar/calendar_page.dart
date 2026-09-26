@@ -15,6 +15,7 @@ import '../../core/time_zones.dart';
 import '../../data/db/database.dart';
 import '../../data/preferences_repository.dart';
 import '../../domain/calendar.dart';
+import '../../domain/finance/finance_calendar.dart';
 import '../../domain/enums.dart';
 import '../../domain/snapshot.dart';
 import '../../domain/reminders.dart';
@@ -158,6 +159,14 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         context.go(Routes.countdown);
       case CalendarEntryKind.event:
         await showSubscribedEvent(context, ref, e.title, e.start, e.end, isAllDay: e.isAllDay, calendarId: e.id);
+      case CalendarEntryKind.finance:
+        context.go(
+          Routes.financeOf(switch (e.id.split(':').first) {
+            'invoice' => 'cards',
+            'loan' => 'loans',
+            _ => 'recurring',
+          }),
+        );
       case CalendarEntryKind.focus:
         if (e.task case final task?) {
           await showTaskDetailDialog(context, task);
@@ -377,6 +386,13 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
         return tt.textTertiary;
       case CalendarEntryKind.event:
         return subscriptionColor(context, ref, e.id);
+      // Bills to pay in red, invoices in orange, money coming in (income, loans) in green.
+      case CalendarEntryKind.finance:
+        return switch (e.id.split(':').first) {
+          'bill' => tt.overdue,
+          'invoice' => tt.palette.priorityMedium,
+          _ => tt.palette.green,
+        };
       case CalendarEntryKind.task || CalendarEntryKind.checklistItem:
         final task = e.task;
         if (task == null) return tt.primary;
@@ -546,6 +562,12 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
       focusRecords: focusRecords,
       events: subscribedEventsBetween(ref, period.from, to),
     );
+    // Finanças: recurring bills, card invoices and the day to collect each loan.
+    if (options.showFinance && prefs.has(AppFeature.finance)) {
+      if (ref.watch(financeProvider).value case final finance?) {
+        entries.addAll(financeCalendarEntries(t, financeDues(finance, period.from, to, today)));
+      }
+    }
     // Time Insights count what is scheduled, not the task being drawn; a month counts only its days.
     final counted = List.of(entries);
     final insightsPeriod = mode == CalendarMode.month
@@ -955,7 +977,8 @@ class _ViewOptionsDialog extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    final o = (ref.watch(preferencesProvider).value ?? Preferences.defaults).calendarOptions;
+    final prefs = ref.watch(preferencesProvider).value ?? Preferences.defaults;
+    final o = prefs.calendarOptions;
     void set(CalendarOptions next) => unawaited(ref.read(preferencesRepositoryProvider).setCalendarOptions(next));
     Widget toggle(String label, bool value, CalendarOptions Function(bool) next) => SwitchListTile(
       dense: true,
@@ -994,6 +1017,7 @@ class _ViewOptionsDialog extends ConsumerWidget {
               toggle(t.calendarShowHabits, o.showHabits, (v) => o.copyWith(showHabits: v)),
               toggle(t.calendarShowFocus, o.showFocus, (v) => o.copyWith(showFocus: v)),
               toggle(t.calendarShowCountdowns, o.showCountdowns, (v) => o.copyWith(showCountdowns: v)),
+              if (prefs.has(AppFeature.finance)) toggle(t.calendarShowFinance, o.showFinance, (v) => o.copyWith(showFinance: v)),
               toggle(t.calendarShowWeekends, o.showWeekends, (v) => o.copyWith(showWeekends: v)),
               toggle(t.calendarDimPast, o.dimPast, (v) => o.copyWith(dimPast: v)),
               toggle(t.calendarShortAs30, o.shortAs30, (v) => o.copyWith(shortAs30: v)),

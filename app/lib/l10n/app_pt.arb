@@ -1536,5 +1536,10 @@
   "finByDueMonth": "Por mês do vencimento",
   "finByLentMonth": "Por mês do empréstimo",
   "finMonthLoanTotals": "a receber {amount} · lucro {profit}",
-  "@finMonthLoanTotals": {"placeholders": {"amount": {"type": "String"}, "profit": {"type": "String"}}}
+  "@finMonthLoanTotals": {"placeholders": {"amount": {"type": "String"}, "profit": {"type": "String"}}},
+  "calendarShowFinance": "Mostrar finanças (contas, faturas e cobranças)",
+  "finCalendarInvoice": "Fatura {card}",
+  "@finCalendarInvoice": {"placeholders": {"card": {"type": "String"}}},
+  "finCalendarLoan": "Cobrar {name}",
+  "@finCalendarLoan": {"placeholders": {"name": {"type": "String"}}}
 }

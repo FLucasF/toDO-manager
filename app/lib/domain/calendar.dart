@@ -42,6 +42,7 @@ class CalendarOptions {
     this.showHabits = true,
     this.showFocus = false,
     this.showCountdowns = true,
+    this.showFinance = true,
     this.colorBy = CalendarColorBy.list,
     this.multiDays = 3,
     this.multiWeeks = 5,
@@ -64,6 +65,9 @@ class CalendarOptions {
   final bool showHabits;
   final bool showFocus;
   final bool showCountdowns;
+
+  /// Finanças: recurring bills, card invoices and loans on their due days.
+  final bool showFinance;
   final CalendarColorBy colorBy;
 
   /// Multi-Dia: 1 to 14 days; Multi-Semana: 1 to 6 weeks.
@@ -105,6 +109,7 @@ class CalendarOptions {
     bool? showHabits,
     bool? showFocus,
     bool? showCountdowns,
+    bool? showFinance,
     CalendarColorBy? colorBy,
     int? multiDays,
     int? multiWeeks,
@@ -124,6 +129,7 @@ class CalendarOptions {
     showHabits: showHabits ?? this.showHabits,
     showFocus: showFocus ?? this.showFocus,
     showCountdowns: showCountdowns ?? this.showCountdowns,
+    showFinance: showFinance ?? this.showFinance,
     colorBy: colorBy ?? this.colorBy,
     multiDays: (multiDays ?? this.multiDays).clamp(1, 14),
     multiWeeks: (multiWeeks ?? this.multiWeeks).clamp(1, 6),
@@ -145,6 +151,7 @@ class CalendarOptions {
     'habits': showHabits,
     'focus': showFocus,
     'countdowns': showCountdowns,
+    'finance': showFinance,
     'colorBy': colorBy.name,
     'multiDays': multiDays,
     'multiWeeks': multiWeeks,
@@ -173,6 +180,7 @@ class CalendarOptions {
       showHabits: flag('habits', d.showHabits),
       showFocus: flag('focus', d.showFocus),
       showCountdowns: flag('countdowns', d.showCountdowns),
+      showFinance: flag('finance', d.showFinance),
       colorBy: CalendarColorBy.values.where((c) => c.name == json['colorBy']).firstOrNull,
       multiDays: number('multiDays', d.multiDays),
       multiWeeks: number('multiWeeks', d.multiWeeks),
@@ -239,7 +247,7 @@ DateTime calendarStep(CalendarMode mode, DateTime anchor, int dir, CalendarOptio
   };
 }
 
-enum CalendarEntryKind { task, checklistItem, habit, countdown, focus, event }
+enum CalendarEntryKind { task, checklistItem, habit, countdown, focus, event, finance }
 
 /// Something drawn on the calendar. All-day entries span local midnights [start]..[end] (end day
 /// included); timed ones run from [start] to [end].

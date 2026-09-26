@@ -4563,4 +4563,17 @@ class AppLocalizationsPt extends AppLocalizations {
   String finMonthLoanTotals(String amount, String profit) {
     return 'a receber $amount · lucro $profit';
   }
+
+  @override
+  String get calendarShowFinance => 'Mostrar finanças (contas, faturas e cobranças)';
+
+  @override
+  String finCalendarInvoice(String card) {
+    return 'Fatura $card';
+  }
+
+  @override
+  String finCalendarLoan(String name) {
+    return 'Cobrar $name';
+  }
 }

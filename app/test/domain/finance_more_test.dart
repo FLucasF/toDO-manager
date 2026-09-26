@@ -6,6 +6,7 @@ import 'package:task_manager/data/db/database.dart';
 import 'package:task_manager/data/finance_repository.dart';
 import 'package:task_manager/domain/finance/cards.dart';
 import 'package:task_manager/domain/finance/finance.dart';
+import 'package:task_manager/domain/finance/finance_calendar.dart';
 import 'package:task_manager/domain/finance/finance_enums.dart';
 import 'package:task_manager/domain/finance/finance_reminders.dart';
 import 'package:task_manager/domain/finance/loans.dart';
@@ -178,6 +179,20 @@ void main() {
         [for (final g in loansByMonth(loans, byDue: byDue)) '${g.month.month}:${g.loans.map((l) => l.loan.borrower).join(',')}'].join(' ');
     expect(months(true), '10:Carla,Beto 11:Ana');
     expect(months(false), '9:Carla,Beto 8:Ana');
+  });
+
+  test('calendar: bills on each due day (paid ones done), invoices with purchases, the day to collect loans', () async {
+    final rent = await repo.createRecurring(bill('Aluguel', 150000, 5));
+    await repo.addEntry(kind: FinKind.expense, amount: 150000, date: DateTime(2026, 9, 5), recurringId: rent, recurringDue: DateTime(2026, 9, 5));
+    final card = await repo.createCard(name: 'Nubank', closingDay: 5, dueDay: 12);
+    await repo.createCard(name: 'Vazio', closingDay: 1, dueDay: 8);
+    await repo.addEntry(kind: FinKind.expense, amount: 40000, date: DateTime(2026, 9, 10), cardId: card);
+    await repo.createLoan(borrower: 'João', principal: 100000, total: 130000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 20));
+    final dues = financeDues(await repo.load(), DateTime(2026, 9), DateTime(2026, 11), today);
+    expect(
+      [for (final d in dues) '${d.kind.name} ${d.name} ${d.day.month}/${d.day.day} ${d.amount}${d.done ? ' ✓' : ''}'],
+      ['bill Aluguel 9/5 150000 ✓', 'bill Aluguel 10/5 150000', 'invoice Nubank 10/12 40000', 'loan João 10/20 130000'],
+    );
   });
 
   group('reports', () {

@@ -4,6 +4,8 @@ import '../../app/format/date_labels.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../domain/calendar.dart';
+import '../../domain/finance/finance_calendar.dart';
+import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
 import '../date_picker/date_picker.dart';
 
@@ -83,7 +85,28 @@ IconData calendarEntryIcon(CalendarEntry e) => switch (e.kind) {
   CalendarEntryKind.countdown => Icons.hourglass_bottom,
   CalendarEntryKind.focus => Icons.timer_outlined,
   CalendarEntryKind.event => Icons.event,
+  CalendarEntryKind.finance => Icons.payments_outlined,
 };
+
+/// Finanças' due days as all-day entries: "Aluguel · R$ 1.500,00", "Fatura Nubank · R$ 400,00",
+/// "Cobrar João · R$ 800,00". The id is `kind:id` (bill, income, invoice or loan).
+List<CalendarEntry> financeCalendarEntries(AppLocalizations t, List<FinanceDue> dues) => [
+  for (final d in dues)
+    CalendarEntry(
+      kind: CalendarEntryKind.finance,
+      id: '${d.kind.name}:${d.id}',
+      title:
+          '${switch (d.kind) {
+            FinanceDueKind.bill || FinanceDueKind.income => d.name,
+            FinanceDueKind.invoice => t.finCalendarInvoice(d.name),
+            FinanceDueKind.loan => t.finCalendarLoan(d.name),
+          }} · ${formatMoney(d.amount)}',
+      start: d.day,
+      end: d.day,
+      isAllDay: true,
+      isDone: d.done,
+    ),
+];
 
 /// A bar of the calendar: title (with the time for timed entries in the grids), filled with the
 /// entry's color; completed entries fade and are struck through.

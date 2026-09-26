@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -13,6 +14,8 @@ import 'package:task_manager/data/db/database.dart';
 import 'package:task_manager/data/preferences_repository.dart';
 import 'package:task_manager/data/repository.dart';
 import 'package:task_manager/domain/enums.dart';
+import 'package:task_manager/domain/finance/finance_enums.dart';
+import 'package:task_manager/data/finance_repository.dart';
 import 'package:task_manager/features/calendar/calendar_insights_panel.dart';
 import 'package:task_manager/features/detail/task_detail_pane.dart';
 import 'package:task_manager/features/tasks/batch_pane.dart';
@@ -504,6 +507,41 @@ void main() {
     await tester.tap(find.text('Salvar'));
     await settle(tester);
     expect((await tester.runAsync(() => taskNamed('Feira')))!.repeatRule, isNull);
+    await finish(tester);
+  });
+
+  testWidgets('Finanças on the calendar: bills, invoices and loans on their due days; a click opens the tab', (tester) async {
+    final finance = FinanceRepository(db, clock: clock);
+    await tester.runAsync(() async {
+      await finance.createRecurring(
+        FinRecurringsCompanion(
+          kind: const Value(FinKind.expense),
+          description: const Value('Aluguel'),
+          amount: const Value(150000),
+          frequency: const Value(FinFrequency.monthly),
+          day: const Value(5),
+          startDate: Value(DateTime.utc(2026, 9)),
+        ),
+      );
+      await finance.createLoan(borrower: 'João', principal: 100000, total: 130000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 9, 28));
+    });
+    await pumpCalendar(tester, '/calendar/m');
+    expect(find.text(r'Aluguel · R$ 1.500,00'), findsOneWidget);
+    expect(find.text(r'Cobrar João · R$ 1.300,00'), findsOneWidget);
+
+    // "Opções de visualização" hides them.
+    final prefs = PreferencesRepository(db, clock: clock);
+    final options = (await tester.runAsync(() => prefs.watch().first))!.calendarOptions;
+    await tester.runAsync(() => prefs.setCalendarOptions(options.copyWith(showFinance: false)));
+    await settle(tester);
+    expect(find.text(r'Aluguel · R$ 1.500,00'), findsNothing);
+    await tester.runAsync(() => prefs.setCalendarOptions(options));
+    await settle(tester);
+
+    await tester.tap(find.text(r'Cobrar João · R$ 1.300,00'));
+    await settle(tester);
+    expect(find.text('Empréstimos'), findsWidgets);
+    expect(find.text(r'Falta R$ 1.300,00'), findsOneWidget);
     await finish(tester);
   });
 
