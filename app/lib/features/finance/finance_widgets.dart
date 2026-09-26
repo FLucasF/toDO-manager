@@ -73,12 +73,15 @@ Future<T?> showFinanceDialog<T>(BuildContext context, {required WidgetBuilder bu
   },
 );
 
-/// The top of a finance form: title, Cancelar and Salvar.
+/// The top of a finance form: title, the bin (editing), Cancelar and Salvar.
 class FormHeader extends StatelessWidget {
-  const FormHeader({super.key, required this.title, required this.onSave});
+  const FormHeader({super.key, required this.title, required this.onSave, this.onDelete});
 
   final String title;
   final VoidCallback? onSave;
+
+  /// Deletes what the form edits: a red bin before Cancelar.
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -90,6 +93,12 @@ class FormHeader extends StatelessWidget {
           Expanded(
             child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
           ),
+          if (onDelete != null)
+            IconButton(
+              tooltip: t.actionDelete,
+              icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+              onPressed: onDelete,
+            ),
           TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionCancel)),
           const SizedBox(width: 4),
           FilledButton(onPressed: onSave, child: Text(t.actionSave)),

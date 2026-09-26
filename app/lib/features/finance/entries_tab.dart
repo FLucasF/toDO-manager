@@ -11,7 +11,6 @@ import '../../domain/finance/finance.dart';
 import '../../domain/finance/finance_enums.dart';
 import '../../domain/finance/money.dart';
 import '../../l10n/app_localizations.dart';
-import '../common/feedback.dart';
 import '../common/shell_widgets.dart';
 import 'entry_form.dart';
 import 'finance_widgets.dart';
@@ -80,8 +79,8 @@ class EntriesBody extends ConsumerWidget {
 }
 
 /// An entry as a line of the Agenda: the category's dot, the category (or the purchase day, under an
-/// invoice), the description and the amount; a click edits, the right click (or a long press) opens
-/// Editar · Duplicar · Deletar.
+/// invoice), the description and the amount; a click edits, its ⋯ (the right click, a long press)
+/// opens Editar · Duplicar · Deletar.
 class EntryLine extends ConsumerWidget {
   const EntryLine({super.key, required this.entry, required this.snapshot, this.inInvoice = false, this.showCard = true});
 
@@ -91,31 +90,6 @@ class EntryLine extends ConsumerWidget {
 
   /// Off on the card's own screen, where its name is the heading.
   final bool showCard;
-
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
-    final t = AppLocalizations.of(context);
-    final repo = ref.read(financeRepositoryProvider);
-    var ids = [entry.id];
-    final group = entry.installmentGroup;
-    if (group != null) {
-      final all = await repo.installmentIds(group);
-      if (!context.mounted) return;
-      final every = await showDialog<bool>(
-        context: context,
-        builder: (context) => SimpleDialog(
-          title: Text(t.finDeleteInstallments),
-          children: [
-            SimpleDialogOption(onPressed: () => Navigator.pop(context, false), child: Text(t.finDeleteOneInstallment)),
-            SimpleDialogOption(onPressed: () => Navigator.pop(context, true), child: Text(t.finDeleteAllInstallments(all.length))),
-          ],
-        ),
-      );
-      if (every == null) return;
-      if (every) ids = all;
-    }
-    await repo.deleteEntries(ids);
-    if (context.mounted) showToast(context, t.finEntryDeleted, undo: () => repo.restoreEntries(ids), redo: () => repo.deleteEntries(ids));
-  }
 
   Future<void> _menu(BuildContext context, WidgetRef ref, Offset at) async {
     final t = AppLocalizations.of(context);
@@ -139,7 +113,7 @@ class EntryLine extends ConsumerWidget {
       case 'copy':
         await showEntryForm(context, copy: entry);
       case 'delete':
-        await _delete(context, ref);
+        await deleteEntry(context, ref.read(financeRepositoryProvider), entry);
     }
   }
 

@@ -13,6 +13,7 @@ import '../../domain/enums.dart';
 import '../../domain/focus.dart';
 import '../../domain/snapshot.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/feedback.dart';
 import '../habits/habit_widgets.dart';
 import '../search/task_link_picker.dart';
 import 'focus_page.dart' show showFocusRecordForm;
@@ -88,6 +89,21 @@ Future<void> editFocusTimer(BuildContext context, WidgetRef ref, {FocusTimer? ed
   await ref.read(preferencesRepositoryProvider).setFocusTimers([
     for (final other in timers) other.id == saved.id ? saved : other,
     if (editing == null) saved,
+  ]);
+}
+
+/// Deletes a timer, after asking (its focus records stay). [close] runs just before (the form closing
+/// itself).
+Future<void> deleteFocusTimer(BuildContext context, WidgetRef ref, FocusTimer timer, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.focusTimerDeleteConfirm(timer.name), confirmLabel: t.actionDelete)) return;
+  if (!context.mounted) return;
+  final prefs = ref.read(preferencesRepositoryProvider);
+  final timers = (ref.read(preferencesProvider).value ?? Preferences.defaults).focusTimers;
+  close?.call();
+  await prefs.setFocusTimers([
+    for (final other in timers)
+      if (other.id != timer.id) other,
   ]);
 }
 
@@ -204,10 +220,7 @@ class _FocusTimerListState extends ConsumerState<FocusTimerList> {
                           case 'archive':
                             await _save([for (final other in all) other.id == timer.id ? other.withArchived(!timer.archived) : other]);
                           default:
-                            await _save([
-                              for (final other in all)
-                                if (other.id != timer.id) other,
-                            ]);
+                            await deleteFocusTimer(context, ref, timer);
                         }
                       },
                       itemBuilder: (_) => [
@@ -305,6 +318,12 @@ class _TimerFormState extends ConsumerState<_TimerForm> {
         ),
       ),
       actions: [
+        if (widget.editing case final timer?)
+          IconButton(
+            tooltip: t.actionDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () => unawaited(deleteFocusTimer(context, ref, timer, close: () => Navigator.pop(context))),
+          ),
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionClose)),
         FilledButton(
           onPressed: _name.text.trim().isEmpty

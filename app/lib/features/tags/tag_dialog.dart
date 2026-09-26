@@ -16,16 +16,19 @@ class TagForm {
 }
 
 /// "Adicionar Tags" / "Editar tag": name, color and parent tag.
-Future<TagForm?> showTagDialog(BuildContext context, {Tag? editing, String? parentId}) => showDialog<TagForm>(
+///
+/// Editing, [onDelete] shows the bin: it asks and deletes, and the dialog closes when it did.
+Future<TagForm?> showTagDialog(BuildContext context, {Tag? editing, String? parentId, Future<bool> Function()? onDelete}) => showDialog<TagForm>(
   context: context,
-  builder: (_) => _TagDialog(editing: editing, initialParentId: parentId),
+  builder: (_) => _TagDialog(editing: editing, initialParentId: parentId, onDelete: onDelete),
 );
 
 class _TagDialog extends ConsumerStatefulWidget {
-  const _TagDialog({this.editing, this.initialParentId});
+  const _TagDialog({this.editing, this.initialParentId, this.onDelete});
 
   final Tag? editing;
   final String? initialParentId;
+  final Future<bool> Function()? onDelete;
 
   @override
   ConsumerState<_TagDialog> createState() => _TagDialogState();
@@ -100,6 +103,14 @@ class _TagDialogState extends ConsumerState<_TagDialog> {
         ),
       ),
       actions: [
+        if (widget.editing != null && widget.onDelete != null)
+          IconButton(
+            tooltip: t.actionDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () async {
+              if (await widget.onDelete!() && context.mounted) Navigator.pop(context);
+            },
+          ),
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionClose)),
         FilledButton(onPressed: _submit, child: Text(t.actionSave)),
       ],

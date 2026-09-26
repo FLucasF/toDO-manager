@@ -77,6 +77,25 @@ void main() {
     });
   });
 
+  test('payments can be edited: an invoice payment and a loan payment change amount and day', () async {
+    final card = await repo.createCard(name: 'Nubank', closingDay: 5, dueDay: 12);
+    await repo.addEntry(kind: FinKind.expense, amount: 30000, date: DateTime(2026, 9, 10), cardId: card);
+    final payment = await repo.payInvoice(cardId: card, invoiceMonth: DateTime(2026, 10), amount: 10000, date: DateTime(2026, 10, 8));
+    await repo.updateCardPayment(payment, amount: 30000, date: DateTime(2026, 10, 9));
+    var s = await repo.load();
+    final october = invoiceOf(s, s.cardById[card]!, DateTime(2026, 10), DateTime(2026, 10, 9));
+    expect((october.paid, october.remaining, october.status), (30000, 0, InvoiceStatus.paid));
+    expect(finDay(s.cardPayments.single.date), DateTime(2026, 10, 9));
+
+    final loan = await repo.createLoan(borrower: 'Ana', principal: 100000, total: 110000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 1));
+    final paid = await repo.addLoanPayment(loanId: loan, amount: 50000, date: DateTime(2026, 9, 20), note: 'pix');
+    await repo.updateLoanPayment(paid, amount: 110000, date: DateTime(2026, 9, 21), note: 'tudo');
+    s = await repo.load();
+    final summary = loanSummaries(s, today).single;
+    expect((summary.received, summary.balance, summary.status), (110000, 0, LoanStatus.paid));
+    expect((finDay(summary.payments.single.date), summary.payments.single.note), (DateTime(2026, 9, 21), 'tudo'));
+  });
+
   group('recurring bills', () {
     test('due days: monthly on the day (the last one in short months), yearly in its month, within start and end', () async {
       await repo.createRecurring(bill('Aluguel', 150000, 31));

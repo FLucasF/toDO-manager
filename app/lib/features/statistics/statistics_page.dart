@@ -39,72 +39,54 @@ TextStyle _dropdownStyle(BuildContext context) =>
 
 String _duration(AppLocalizations t, Duration d) => focusDuration(d, hours: t.focusHours, minutes: t.focusMins);
 
-/// Estatísticas in the Calendar's look: the tabs in the left panel (and in the top bar's pill on a
-/// phone), "Concluído" to close, and flat sections split by thin lines.
-class StatisticsPage extends ConsumerStatefulWidget {
+/// Estatísticas in the Calendar's look: the tabs in sight under the top bar, "Concluído" to close, and
+/// flat sections split by thin lines.
+class StatisticsPage extends StatelessWidget {
   const StatisticsPage({super.key, required this.tab});
 
   final StatsTab tab;
 
   @override
-  ConsumerState<StatisticsPage> createState() => _StatisticsPageState();
-}
-
-class _StatisticsPageState extends ConsumerState<StatisticsPage> {
-  bool _panel = true;
-
-  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    final tabs = [
-      (StatsTab.overview, t.statsOverview, Icons.dashboard_outlined),
-      (StatsTab.task, t.statsTask, Icons.check_box_outlined),
-      (StatsTab.pomo, t.statsFocus, Icons.timer_outlined),
-    ];
-    final label = tabs.firstWhere((x) => x.$1 == widget.tab).$2;
-    final panel = ShellPanel(
-      children: [
-        PanelSection(
-          title: t.statsTitle,
-          children: [
-            for (final (value, name, icon) in tabs)
-              PanelNavRow(icon: icon, label: name, selected: value == widget.tab, onTap: () => context.go(Routes.statisticsOf(value.route))),
-          ],
-        ),
-      ],
-    );
-    final topBar = ShellTopBar(
-      title: t.statsTitle,
-      onTogglePanel: () => setState(() => _panel = !_panel),
-      actions: [
-        ViewPill<StatsTab>(
-          label: label,
-          onSelected: (value) => context.go(Routes.statisticsOf(value.route)),
-          items: () => [for (final (value, name, _) in tabs) CheckedPopupMenuItem(value: value, checked: value == widget.tab, child: Text(name))],
-        ),
-        const SizedBox(width: 8),
-        TodayPill(label: t.statsDone, onPressed: () => context.go(Routes.initial)),
-        const SizedBox(width: 8),
-      ],
-    );
     return Scaffold(
       backgroundColor: tt.screen,
       body: SafeArea(
         child: ShellLayout(
-          panel: panel,
-          panelOpen: _panel,
-          topBar: topBar,
-          body: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 960),
-              child: switch (widget.tab) {
-                StatsTab.overview => const _Overview(),
-                StatsTab.task => const _TaskTab(),
-                StatsTab.pomo => const _FocusTab(),
-              },
-            ),
+          topBar: ShellTopBar(
+            title: t.statsTitle,
+            actions: [
+              TodayPill(label: t.statsDone, onPressed: () => context.go(Routes.initial)),
+              const SizedBox(width: 8),
+            ],
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ShellTabs<StatsTab>(
+                selected: tab,
+                onSelected: (value) => context.go(Routes.statisticsOf(value.route)),
+                tabs: [
+                  (value: StatsTab.overview, label: t.statsOverview, icon: Icons.dashboard_outlined),
+                  (value: StatsTab.task, label: t.statsTask, icon: Icons.check_box_outlined),
+                  (value: StatsTab.pomo, label: t.statsFocus, icon: Icons.timer_outlined),
+                ],
+              ),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 960),
+                    child: switch (tab) {
+                      StatsTab.overview => const _Overview(),
+                      StatsTab.task => const _TaskTab(),
+                      StatsTab.pomo => const _FocusTab(),
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

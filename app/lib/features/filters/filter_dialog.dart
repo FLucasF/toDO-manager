@@ -21,9 +21,11 @@ class FilterForm {
 
 /// "Adicionar Filtro" / "Editar Filtro": name, Normal / Avançado tabs, the criteria and
 /// "Prévia" with the matching tasks.
-Future<FilterForm?> showFilterDialog(BuildContext context, {TaskFilter? editing}) => showDialog<FilterForm>(
+///
+/// Editing, [onDelete] shows the bin: it asks and deletes, and the dialog closes when it did.
+Future<FilterForm?> showFilterDialog(BuildContext context, {TaskFilter? editing, Future<bool> Function()? onDelete}) => showDialog<FilterForm>(
   context: context,
-  builder: (_) => _FilterDialog(editing: editing),
+  builder: (_) => _FilterDialog(editing: editing, onDelete: onDelete),
 );
 
 /// Label of each value of a field, in the order they are offered. A date condition can also hold a
@@ -78,9 +80,10 @@ class _Condition {
 }
 
 class _FilterDialog extends ConsumerStatefulWidget {
-  const _FilterDialog({this.editing});
+  const _FilterDialog({this.editing, this.onDelete});
 
   final TaskFilter? editing;
+  final Future<bool> Function()? onDelete;
 
   @override
   ConsumerState<_FilterDialog> createState() => _FilterDialogState();
@@ -450,6 +453,14 @@ class _FilterDialogState extends ConsumerState<_FilterDialog> {
           child: Text(t.filterPreview),
         ),
         const SizedBox(width: 24),
+        if (widget.editing != null && widget.onDelete != null)
+          IconButton(
+            tooltip: t.actionDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () async {
+              if (await widget.onDelete!() && context.mounted) Navigator.pop(context);
+            },
+          ),
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionCancel)),
         FilledButton(onPressed: _name.text.trim().isEmpty ? null : _submit, child: Text(t.actionSave)),
       ],

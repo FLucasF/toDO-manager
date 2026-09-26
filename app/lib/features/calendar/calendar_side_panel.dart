@@ -24,11 +24,10 @@ const _noList = '-';
 /// "Meus calendários" (the lists, plus habits, countdowns and focus; the checkbox in their color shows
 /// or hides them) and "Outros calendários" (the subscriptions, with "+").
 class CalendarSidePanel extends ConsumerStatefulWidget {
-  const CalendarSidePanel({super.key, required this.anchor, required this.onCreate, required this.onDay, this.insights});
+  const CalendarSidePanel({super.key, required this.anchor, required this.onDay, this.insights});
 
   /// The date the calendar shows; the mini calendar follows it.
   final DateTime anchor;
-  final VoidCallback onCreate;
   final ValueChanged<DateTime> onDay;
 
   /// The "Time Insights" section (Google shows it under the mini calendar).
@@ -80,12 +79,6 @@ class _CalendarSidePanelState extends ConsumerState<CalendarSidePanel> {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
         children: [
-          // "+ Criar" (Create): a new task at the next hour, in the create popup.
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CreatePill(label: t.calendarCreate, onPressed: widget.onCreate),
-          ),
-          const SizedBox(height: 12),
           MonthCalendar(
             month: month,
             today: today,

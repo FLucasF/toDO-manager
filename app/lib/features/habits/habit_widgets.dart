@@ -7,13 +7,24 @@ import '../../app/format/date_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
+import '../../data/repository.dart';
 import '../../domain/enums.dart';
 import '../../domain/habits.dart';
 import '../../l10n/app_localizations.dart';
 import '../calendar/color_label_menu.dart';
 import '../common/color_choice.dart';
+import '../common/feedback.dart';
 
 String _number(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1).replaceAll('.', ',');
+
+/// Deletes a habit and its check-ins, after asking (it can't be undone). [close] runs just before (a
+/// form or the detail closing itself).
+Future<void> deleteHabitAsking(BuildContext context, Repository repo, Habit habit, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.habitDeleteConfirm(habit.name), confirmLabel: t.habitDelete)) return;
+  close?.call();
+  await repo.deleteHabit(habit.id);
+}
 
 /// The Calendar's color menu for a habit: Google's colors, the ones picked before on habits, any color
 /// on the rainbow, and "Padrão" (the app's blue). Null when closed without a pick.
@@ -84,8 +95,8 @@ class HabitIcon extends StatelessWidget {
   }
 }
 
-/// One day of a habit: a click checks in, a right click (long press on phones) opens
-/// Registro de hábitos · Pular · Incompleta · Reiniciar hábito.
+/// One day of a habit: a click checks in (on a day done, it opens the menu), a right click (long press
+/// on phones) opens Registro de hábitos · Pular · Incompleta · Reiniciar hábito.
 class HabitDot extends ConsumerWidget {
   const HabitDot({super.key, required this.habit, required this.checkin, required this.day, this.size = 26});
 
@@ -222,7 +233,8 @@ class HabitDot extends ConsumerWidget {
     return Tooltip(
       message: '${DateLabels(t).weekdayShort(day)}, ${day.day} ${DateLabels(t).monthLong(day)}',
       child: GestureDetector(
-        onTap: () => unawaited(_checkIn(context, ref)),
+        onTapUp: (d) =>
+            unawaited(habitDayState(habit, checkin, day) == HabitDayState.done ? _menu(context, ref, d.globalPosition) : _checkIn(context, ref)),
         onSecondaryTapUp: (d) => unawaited(_menu(context, ref, d.globalPosition)),
         onLongPressStart: (d) => unawaited(_menu(context, ref, d.globalPosition)),
         child: SizedBox(width: size, height: size, child: child),
@@ -237,7 +249,8 @@ Future<void> showHabitLog(BuildContext context, WidgetRef ref, Habit habit, Date
   final note = TextEditingController(text: checkin?.note ?? '');
   var mood = checkin?.mood;
   const moods = ['😞', '🙁', '😐', '🙂', '😄'];
-  final ok = await showDialog<bool>(
+  final hadLog = (checkin?.note ?? '').isNotEmpty || checkin?.mood != null;
+  final picked = await showDialog<String>(
     context: context,
     builder: (context) => StatefulBuilder(
       builder: (context, setState) {
@@ -279,8 +292,14 @@ Future<void> showHabitLog(BuildContext context, WidgetRef ref, Habit habit, Date
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.actionCancel)),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(t.actionSave)),
+            if (hadLog)
+              TextButton(
+                style: TextButton.styleFrom(foregroundColor: tt.overdue),
+                onPressed: () => Navigator.pop(context, 'delete'),
+                child: Text(t.habitLogDelete),
+              ),
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionCancel)),
+            FilledButton(onPressed: () => Navigator.pop(context, 'save'), child: Text(t.actionSave)),
           ],
         );
       },
@@ -288,7 +307,13 @@ Future<void> showHabitLog(BuildContext context, WidgetRef ref, Habit habit, Date
   );
   final text = note.text;
   note.dispose();
-  if (ok == true) await ref.read(repositoryProvider).saveHabitLog(habit.id, day, mood: mood, note: text);
+  final repo = ref.read(repositoryProvider);
+  switch (picked) {
+    case 'save':
+      await repo.saveHabitLog(habit.id, day, mood: mood, note: text);
+    case 'delete':
+      await repo.saveHabitLog(habit.id, day, note: '');
+  }
 }
 
 /// "3/8 copos" of an amount habit on a day.

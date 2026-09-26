@@ -65,6 +65,8 @@ class _MatrixPageState extends ConsumerState<MatrixPage> {
     final topBar = ShellTopBar(
       title: t.navMatrix,
       onTogglePanel: () => setState(() => _panel = !_panel),
+      onCreate: () => unawaited(_add(null)),
+      createLabel: t.paletteNewTask,
       actions: [
         PopupMenuButton<String>(
           tooltip: '',
@@ -77,10 +79,8 @@ class _MatrixPageState extends ConsumerState<MatrixPage> {
       ],
     );
 
-    // The left panel: "+ Criar", the quadrants with their counts (a click adds a task there) and
-    // "Mostrar concluídas".
+    // The left panel: the quadrants with their counts (a click adds a task there) and "Mostrar concluídas".
     final panel = ShellPanel(
-      onCreate: () => unawaited(_add(null)),
       children: [
         PanelSection(
           title: t.matrixQuadrants,

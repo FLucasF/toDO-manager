@@ -5,9 +5,10 @@ import '../../app/theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
 import '../shell/app_shell.dart';
 
-// The Calendar's look (Google Calendar's), shared by the module screens: a left panel with "+ Criar"
-// and collapsible sections, a top bar with the title, a view pill, a "Hoje" pill and ‹ ›, and lists
-// laid out as the Agenda (a day column, a dot, a secondary column and the title).
+// The Calendar's look (Google Calendar's), shared by the module screens: a left panel with collapsible
+// sections, a top bar with the title, a view pill, a "Hoje" pill, ‹ › and the blue "+ Novo …" of the
+// screen, the sections as tabs under it, and lists laid out as the Agenda (a day column, a dot, a
+// secondary column, the title and ⋯ with what can be done to the line).
 
 /// Width of the left panel.
 const shellPanelWidth = 256.0;
@@ -82,37 +83,24 @@ class ShellLayout extends StatelessWidget {
   }
 }
 
-/// The left panel: "+ Criar" on top, then [children] (sections).
+/// The left panel: [children] (sections).
 class ShellPanel extends StatelessWidget {
-  const ShellPanel({super.key, required this.children, this.onCreate, this.createLabel});
+  const ShellPanel({super.key, required this.children});
 
   final List<Widget> children;
-  final VoidCallback? onCreate;
-  final String? createLabel;
 
   @override
   Widget build(BuildContext context) => Container(
     width: shellPanelWidth,
     color: context.tt.screen,
-    child: ListView(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 24),
-      children: [
-        if (onCreate != null) ...[
-          Align(
-            alignment: Alignment.centerLeft,
-            child: CreatePill(label: createLabel ?? AppLocalizations.of(context).calendarCreate, onPressed: onCreate!),
-          ),
-          const SizedBox(height: 12),
-        ],
-        ...children,
-      ],
-    ),
+    child: ListView(padding: const EdgeInsets.fromLTRB(12, 12, 12, 24), children: children),
   );
 }
 
-/// Google's "+ Criar": a wide pill on a soft fill.
-class CreatePill extends StatelessWidget {
-  const CreatePill({super.key, required this.label, required this.onPressed});
+/// The screen's main action, "+ Novo lançamento": it says what it creates, in the app's blue, at the
+/// end of the top bar (and in empty screens).
+class CreateButton extends StatelessWidget {
+  const CreateButton({super.key, required this.label, required this.onPressed});
 
   final String label;
   final VoidCallback onPressed;
@@ -120,18 +108,98 @@ class CreatePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = context.tt;
-    return FilledButton.tonalIcon(
+    return FilledButton.icon(
       style: FilledButton.styleFrom(
-        shape: const StadiumBorder(),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        backgroundColor: tt.fieldFill,
-        foregroundColor: tt.text,
+        backgroundColor: tt.primary,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.fromLTRB(12, 0, 16, 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
-      icon: const Icon(Icons.add, size: 22),
+      icon: const Icon(Icons.add, size: 20),
       label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
       onPressed: onPressed,
     );
   }
+}
+
+/// The sections of a screen as tabs under the top bar ("Lançamentos · Cartões · …"): always in sight,
+/// the current one in the app's blue and underlined. They scroll sideways when they don't fit.
+class ShellTabs<T extends Object> extends StatelessWidget {
+  const ShellTabs({super.key, required this.tabs, required this.selected, required this.onSelected});
+
+  final List<({T value, String label, IconData icon})> tabs;
+  final T selected;
+  final ValueChanged<T> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = context.tt;
+    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
+    return Container(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: tt.divider)),
+      ),
+      padding: EdgeInsets.symmetric(horizontal: narrow ? 4 : 12),
+      alignment: Alignment.centerLeft,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final tab in tabs)
+              Semantics(
+                selected: tab.value == selected,
+                button: true,
+                child: InkWell(
+                  onTap: () => onSelected(tab.value),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: narrow ? 10 : 14, vertical: 10),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: tab.value == selected ? tt.primary : Colors.transparent, width: 3)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(tab.icon, size: 18, color: tab.value == selected ? tt.primary : tt.textSecondary),
+                        const SizedBox(width: 8),
+                        Text(
+                          tab.label,
+                          style: TextStyle(
+                            fontSize: TtText.body,
+                            fontWeight: tab.value == selected ? FontWeight.w600 : FontWeight.w500,
+                            color: tab.value == selected ? tt.primary : tt.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "⋯" at the end of a line: the same menu as its right click (or long press), for who doesn't know
+/// those. [onMenu] gets the point to open the menu at.
+class RowMenuButton extends StatelessWidget {
+  const RowMenuButton({super.key, required this.onMenu});
+
+  final ValueChanged<Offset> onMenu;
+
+  @override
+  Widget build(BuildContext context) => IconButton(
+    tooltip: AppLocalizations.of(context).menuMore,
+    padding: EdgeInsets.zero,
+    constraints: const BoxConstraints.tightFor(width: 32, height: 32),
+    iconSize: 18,
+    icon: Icon(Icons.more_horiz, color: context.tt.textTertiary),
+    onPressed: () {
+      final box = context.findRenderObject()! as RenderBox;
+      onMenu(box.localToGlobal(box.size.bottomLeft(Offset.zero)));
+    },
+  );
 }
 
 /// A section title of the panel ("Meus calendários") with ⌃/⌄ and an optional action (a "+").
@@ -349,9 +417,22 @@ class PanelNavRow extends StatelessWidget {
 /// The top bar: ☰ (the drawer on a phone; the left panel on a wide window when [onTogglePanel]),
 /// the title, then [actions] (pills, ‹ ›, ⋯).
 class ShellTopBar extends StatelessWidget {
-  const ShellTopBar({super.key, required this.title, this.onTogglePanel, this.actions = const [], this.titleTrailing, this.leading});
+  const ShellTopBar({
+    super.key,
+    required this.title,
+    this.onTogglePanel,
+    this.actions = const [],
+    this.titleTrailing,
+    this.leading,
+    this.onCreate,
+    this.createLabel,
+  });
 
   final String title;
+
+  /// The screen's "+ Novo …" ([CreateButton]), last; on a phone the layout's round "+" does it.
+  final VoidCallback? onCreate;
+  final String? createLabel;
 
   /// Just before the title (a "‹" back).
   final Widget? leading;
@@ -396,6 +477,10 @@ class ShellTopBar extends StatelessWidget {
               ),
             ),
             ...actions,
+            if (onCreate != null && !narrow) ...[
+              const SizedBox(width: 8),
+              CreateButton(label: createLabel ?? t.calendarCreate, onPressed: onCreate!),
+            ],
           ],
         ),
       ),
@@ -571,7 +656,7 @@ class AgendaLine extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
-  /// Right click or long press, at the pointer.
+  /// Right click, long press or its "⋯", at the pointer.
   final ValueChanged<Offset>? onMenu;
   final bool faded;
   final bool struck;
@@ -633,6 +718,7 @@ class AgendaLine extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[const SizedBox(width: 8), trailing!],
+              if (onMenu != null) ...[const SizedBox(width: 2), RowMenuButton(onMenu: onMenu!)],
             ],
           ),
         ),

@@ -7,6 +7,8 @@ import '../../app/format/date_labels.dart';
 import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/clock.dart';
+import '../../data/db/database.dart';
+import '../../data/finance_repository.dart';
 import '../../domain/finance/finance.dart';
 import '../../domain/finance/loans.dart';
 import '../../domain/finance/money.dart';
@@ -124,15 +126,56 @@ class LoansFigures extends StatelessWidget {
   };
 }
 
+/// Deletes a loan and its payments, after asking; then "Empréstimo excluído" with Desfazer. [close]
+/// runs just before (the detail or the form closing itself).
+Future<void> deleteLoan(BuildContext context, FinanceRepository repo, Loan loan, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.finDeleteLoan(loan.borrower), confirmLabel: t.actionDelete)) return;
+  if (!context.mounted) return;
+  final page = Navigator.of(context).context;
+  close?.call();
+  await repo.deleteLoan(loan.id);
+  if (page.mounted) showToast(page, t.finLoanDeleted, undo: () => repo.restoreLoan(loan.id), redo: () => repo.deleteLoan(loan.id));
+}
+
 /// A loan as a line of the Agenda: the status' dot and word, the borrower, what is left and the
-/// profit; a click opens its detail.
-class _LoanLine extends StatelessWidget {
+/// profit; a click opens its detail, its ⋯ also edits, records a payment or deletes.
+class _LoanLine extends ConsumerWidget {
   const _LoanLine({required this.summary});
 
   final LoanSummary summary;
 
+  Future<void> _menu(BuildContext context, WidgetRef ref, Offset at) async {
+    final t = AppLocalizations.of(context);
+    final picked = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(at.dx, at.dy, at.dx + 1, at.dy + 1),
+      items: [
+        PopupMenuItem(value: 'open', height: 36, child: Text(t.calendarOpen)),
+        PopupMenuItem(value: 'edit', height: 36, child: Text(t.finEditLoan)),
+        if (summary.balance > 0) PopupMenuItem(value: 'pay', height: 36, child: Text(t.finAddLoanPayment)),
+        PopupMenuItem(
+          value: 'delete',
+          height: 36,
+          child: Text(t.actionDelete, style: TextStyle(color: context.tt.overdue)),
+        ),
+      ],
+    );
+    if (!context.mounted) return;
+    switch (picked) {
+      case 'open':
+        await showLoanDetail(context, summary.loan.id);
+      case 'edit':
+        await showLoanForm(context, editing: summary);
+      case 'pay':
+        await showFinanceDialog<void>(context, builder: (_) => _LoanPaymentForm(summary: summary));
+      case 'delete':
+        await deleteLoan(context, ref.read(financeRepositoryProvider), summary.loan);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
     final loan = summary.loan;
@@ -145,6 +188,7 @@ class _LoanLine extends StatelessWidget {
       struck: summary.status == LoanStatus.paid,
       faded: summary.status == LoanStatus.paid,
       onTap: () => unawaited(showLoanDetail(context, loan.id)),
+      onMenu: (at) => unawaited(_menu(context, ref, at)),
       trailing: Text(
         summary.status == LoanStatus.paid ? formatMoney(loan.total) : t.finLoanLeft(formatMoney(summary.balance)),
         style: TextStyle(color: summary.status == LoanStatus.overdue ? tt.overdue : tt.text, fontWeight: FontWeight.w600),
@@ -168,7 +212,13 @@ class _LoanDetail extends ConsumerWidget {
     final s = ref.watch(financeProvider).value ?? FinanceSnapshot.empty();
     final today = startOfDay(ref.watch(nowProvider).value ?? ref.watch(clockProvider).now());
     final summary = loanSummaries(s, today).where((l) => l.loan.id == loanId).firstOrNull;
-    if (summary == null) return const SizedBox.shrink();
+    if (summary == null) {
+      // Deleted (from the form over it): nothing left to show.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) unawaited(Navigator.maybePop(context));
+      });
+      return const SizedBox.shrink();
+    }
     final loan = summary.loan;
     final repo = ref.read(financeRepositoryProvider);
     final (status, color) = loanStatusLabel(context, summary);
@@ -206,16 +256,7 @@ class _LoanDetail extends ConsumerWidget {
               IconButton(
                 tooltip: t.actionDelete,
                 icon: Icon(Icons.delete_outline, color: tt.textSecondary),
-                onPressed: () async {
-                  if (!await confirm(context, message: t.finDeleteLoan(loan.borrower), confirmLabel: t.actionDelete)) return;
-                  await repo.deleteLoan(loan.id);
-                  if (!context.mounted) return;
-                  final pageContext = Navigator.of(context).context;
-                  Navigator.pop(context);
-                  if (pageContext.mounted) {
-                    showToast(pageContext, t.finLoanDeleted, undo: () => repo.restoreLoan(loan.id), redo: () => repo.deleteLoan(loan.id));
-                  }
-                },
+                onPressed: () => unawaited(deleteLoan(context, repo, loan, close: () => Navigator.pop(context))),
               ),
               IconButton(
                 tooltip: t.actionClose,
@@ -266,6 +307,12 @@ class _LoanDetail extends ConsumerWidget {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
+                  onTap: () => unawaited(
+                    showFinanceDialog<void>(
+                      context,
+                      builder: (_) => _LoanPaymentForm(summary: summary, editing: p),
+                    ),
+                  ),
                   leading: Icon(Icons.check_circle_outline, color: tt.palette.green),
                   title: Text(formatMoney(p.amount), style: TextStyle(color: tt.text)),
                   subtitle: Text(
@@ -296,19 +343,21 @@ class _LoanDetail extends ConsumerWidget {
   }
 }
 
+/// "Registrar pagamento"; [editing] a payment made.
 class _LoanPaymentForm extends ConsumerStatefulWidget {
-  const _LoanPaymentForm({required this.summary});
+  const _LoanPaymentForm({required this.summary, this.editing});
 
   final LoanSummary summary;
+  final LoanPayment? editing;
 
   @override
   ConsumerState<_LoanPaymentForm> createState() => _LoanPaymentFormState();
 }
 
 class _LoanPaymentFormState extends ConsumerState<_LoanPaymentForm> {
-  late final _amount = TextEditingController(text: formatMoney(widget.summary.balance, symbol: false));
-  final _note = TextEditingController();
-  late DateTime _date = startOfDay(ref.read(clockProvider).now());
+  late final _amount = TextEditingController(text: formatMoney(widget.editing?.amount ?? widget.summary.balance, symbol: false));
+  late final _note = TextEditingController(text: widget.editing?.note ?? '');
+  late DateTime _date = widget.editing == null ? startOfDay(ref.read(clockProvider).now()) : finDay(widget.editing!.date);
 
   @override
   void dispose() {
@@ -320,8 +369,24 @@ class _LoanPaymentFormState extends ConsumerState<_LoanPaymentForm> {
   Future<void> _save() async {
     final amount = parseMoney(_amount.text);
     if (amount == null || amount <= 0) return;
-    await ref.read(financeRepositoryProvider).addLoanPayment(loanId: widget.summary.loan.id, amount: amount, date: _date, note: _note.text);
+    final repo = ref.read(financeRepositoryProvider);
+    if (widget.editing case final p?) {
+      await repo.updateLoanPayment(p.id, amount: amount, date: _date, note: _note.text);
+    } else {
+      await repo.addLoanPayment(loanId: widget.summary.loan.id, amount: amount, date: _date, note: _note.text);
+    }
     if (mounted) Navigator.pop(context);
+  }
+
+  Future<void> _delete(LoanPayment p) async {
+    final t = AppLocalizations.of(context);
+    final repo = ref.read(financeRepositoryProvider);
+    final page = Navigator.of(context).context;
+    Navigator.pop(context);
+    await repo.deleteLoanPayment(p.id);
+    if (page.mounted) {
+      showToast(page, t.finPaymentDeleted, undo: () => repo.deleteLoanPayment(p.id, restore: true), redo: () => repo.deleteLoanPayment(p.id));
+    }
   }
 
   @override
@@ -332,7 +397,14 @@ class _LoanPaymentFormState extends ConsumerState<_LoanPaymentForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: t.finAddLoanPayment, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: widget.editing == null ? t.finAddLoanPayment : t.finEditPayment,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final p? => () => unawaited(_delete(p)),
+            null => null,
+          },
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 4, 20, 20),
           child: Column(
@@ -477,7 +549,14 @@ class _LoanFormState extends ConsumerState<_LoanForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: _loan == null ? t.finNewLoan : t.finEditLoan, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: _loan == null ? t.finNewLoan : t.finEditLoan,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (_loan) {
+            final loan? => () => unawaited(deleteLoan(context, ref.read(financeRepositoryProvider), loan, close: () => Navigator.pop(context))),
+            null => null,
+          },
+        ),
         Flexible(
           child: ListView(
             shrinkWrap: true,

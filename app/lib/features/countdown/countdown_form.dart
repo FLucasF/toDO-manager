@@ -7,12 +7,14 @@ import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/clock.dart';
 import '../../data/db/database.dart';
+import '../../data/repository.dart';
 import '../../domain/countdown.dart';
 import '../../domain/enums.dart';
 import '../../domain/recurrence.dart';
 import '../../domain/reminders.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/color_choice.dart';
+import '../common/feedback.dart';
 import '../date_picker/custom_repeat_dialog.dart';
 import '../date_picker/date_picker.dart';
 import 'countdown_card.dart';
@@ -30,6 +32,15 @@ Future<void> showCountdownForm(BuildContext context, {required CountdownType typ
   context: context,
   builder: (_) => _CountdownForm(type: type, editing: editing),
 );
+
+/// Deletes a countdown, after asking (it can't be undone). [close] runs just before (the form closing
+/// itself).
+Future<void> deleteCountdownAsking(BuildContext context, Repository repo, Countdown countdown, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.countdownDeleteConfirm(countdown.name), confirmLabel: t.countdownDelete)) return;
+  close?.call();
+  await repo.deleteCountdown(countdown.id);
+}
 
 class _CountdownForm extends ConsumerStatefulWidget {
   const _CountdownForm({required this.type, this.editing});
@@ -127,6 +138,12 @@ class _CountdownFormState extends ConsumerState<_CountdownForm> {
       title: Text(_styleStep ? t.countdownStyle : countdownTypeLabel(t, _type), style: const TextStyle(fontSize: 15)),
       content: SizedBox(width: 420, child: SingleChildScrollView(child: _styleStep ? _styleContent(t) : _dataContent(t))),
       actions: [
+        if (widget.editing case final c?)
+          IconButton(
+            tooltip: t.countdownDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () => unawaited(deleteCountdownAsking(context, ref.read(repositoryProvider), c, close: () => Navigator.pop(context))),
+          ),
         if (_styleStep)
           TextButton(onPressed: () => setState(() => _styleStep = false), child: Text(t.actionBack))
         else

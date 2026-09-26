@@ -662,6 +662,9 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
     final header = ShellTopBar(
       title: title,
       onTogglePanel: () => setState(() => _panel = !_panel),
+      // "+ Nova tarefa": at the next hour, in the create popup.
+      onCreate: _createNow,
+      createLabel: t.paletteNewTask,
       actions: [
         if (!narrow)
           IconButton(
@@ -756,7 +759,6 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
               ] else if (_panel && !narrow) ...[
                 CalendarSidePanel(
                   anchor: anchor,
-                  onCreate: _createNow,
                   onDay: _setAnchor,
                   insights: CalendarInsightsSummary(
                     entries: counted,
@@ -785,7 +787,25 @@ class _CalendarPageState extends ConsumerState<CalendarPage> {
                           _lastWheelStep = wall;
                           _setAnchor(calendarStep(mode, anchor, dx > 0 ? 1 : -1, options));
                         },
-                        child: body,
+                        // A phone: the round "+" in the corner, as the other screens.
+                        child: narrow
+                            ? Stack(
+                                children: [
+                                  Positioned.fill(child: body),
+                                  Positioned(
+                                    right: 16,
+                                    bottom: 16,
+                                    child: FloatingActionButton(
+                                      tooltip: t.paletteNewTask,
+                                      backgroundColor: tt.primary,
+                                      foregroundColor: Colors.white,
+                                      onPressed: _createNow,
+                                      child: const Icon(Icons.add),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : body,
                       ),
                     ),
                   ],

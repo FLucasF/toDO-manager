@@ -144,6 +144,7 @@ class _CategoryRow extends ConsumerWidget {
                             color: status != null && status.level != LimitLevel.ok ? barColor : tt.textTertiary,
                           ),
                         ),
+                        RowMenuButton(onMenu: (at) => unawaited(_menu(context, ref, at))),
                       ],
                     ),
                     if (status != null) ...[
@@ -199,6 +200,13 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
     super.dispose();
   }
 
+  Future<void> _delete(FinCategory category) async {
+    final t = AppLocalizations.of(context);
+    if (!await confirm(context, message: t.finDeleteCategory(category.name), confirmLabel: t.actionDelete)) return;
+    await ref.read(financeRepositoryProvider).deleteCategory(category.id);
+    if (mounted) Navigator.pop(context);
+  }
+
   Future<void> _save() async {
     final name = _name.text.trim();
     if (name.isEmpty) return;
@@ -222,7 +230,14 @@ class _CategoryFormState extends ConsumerState<_CategoryForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        FormHeader(title: widget.editing == null ? t.finNewCategory : t.finEditCategory, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: widget.editing == null ? t.finNewCategory : t.finEditCategory,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final category? => () => unawaited(_delete(category)),
+            null => null,
+          },
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
           child: Column(

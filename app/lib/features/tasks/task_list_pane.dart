@@ -17,6 +17,7 @@ import '../../app/theme/app_theme.dart';
 import '../../data/db/database.dart';
 import '../../data/preferences_repository.dart';
 import '../../core/clock.dart';
+import '../../core/ids.dart';
 import '../../domain/countdown.dart';
 import '../../domain/enums.dart';
 import '../../domain/task_dates.dart';
@@ -28,6 +29,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/color_choice.dart';
 import '../common/feedback.dart';
 import '../common/labels.dart';
+import '../lists/list_dialog.dart';
 import '../subscriptions/subscriptions.dart';
 import '../date_picker/date_picker.dart';
 import '../templates/templates.dart';
@@ -313,10 +315,20 @@ class _Header extends ConsumerWidget {
         PopupMenuItem(value: 'completed', height: 36, child: Text(current.showCompleted ? t.hideCompleted : t.showCompleted)),
         PopupMenuItem(value: 'details', height: 36, child: Text(current.showDetails ? t.hideDetails : t.showDetails)),
         PopupMenuItem(value: 'viewOptions', height: 36, child: Text(t.viewOptions)),
-        // The list's "…" ends with Adicionar Seção · Atividades das Listas · Imprimir.
+        // The list's "…" ends with Adicionar Seção · Atividades das Listas · Imprimir, then Editar lista ·
+        // Deletar lista (the Inbox can't be deleted).
         if (list != null) PopupMenuItem(value: 'section', height: 36, child: Text(t.sectionAdd)),
         if (list != null) PopupMenuItem(value: 'activities', height: 36, child: Text(t.activityListTitleDialog)),
         PopupMenuItem(value: 'print', height: 36, child: Text(t.menuPrint)),
+        if (list != null && list.id != inboxListId) ...[
+          const PopupMenuDivider(),
+          PopupMenuItem(value: 'editList', height: 36, child: Text(t.listEditTitle)),
+          PopupMenuItem(
+            value: 'deleteList',
+            height: 36,
+            child: Text(t.listDeleteMenu, style: TextStyle(color: context.tt.overdue)),
+          ),
+        ],
       ],
     );
     if (!context.mounted) return;
@@ -330,6 +342,12 @@ class _Header extends ConsumerWidget {
         if (name != null) await ref.read(repositoryProvider).createSection(list!.id, name);
       case 'activities':
         await showListActivities(context, list!.id);
+      case 'editList':
+        final router = GoRouter.of(context);
+        await editListWithDialog(context, ref, list!, onDeleted: () => router.go(Routes.of(const ListScope(inboxListId))));
+      case 'deleteList':
+        final router = GoRouter.of(context);
+        if (await deleteListAsking(context, ref, list!)) router.go(Routes.of(const ListScope(inboxListId)));
       case 'viewOptions':
         await _showViewOptions(context, ref);
       case 'print':

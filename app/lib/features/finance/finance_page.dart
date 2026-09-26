@@ -54,6 +54,15 @@ String financeTabLabel(AppLocalizations t, FinanceTab tab) => switch (tab) {
   FinanceTab.categories => t.finTabCategories,
 };
 
+IconData financeTabIcon(FinanceTab tab) => switch (tab) {
+  FinanceTab.entries => Icons.receipt_long_outlined,
+  FinanceTab.cards => Icons.credit_card,
+  FinanceTab.recurring => Icons.event_repeat_outlined,
+  FinanceTab.loans => Icons.handshake_outlined,
+  FinanceTab.reports => Icons.insert_chart_outlined,
+  FinanceTab.categories => Icons.category_outlined,
+};
+
 /// "Lançamentos" by month (the default), by year, or between two days.
 enum EntryPeriod { month, year, custom }
 
@@ -79,9 +88,9 @@ Future<void> seedFinanceCategories(FinanceRepository repo, PreferencesRepository
   await prefs.markFinanceCategoriesSeeded();
 }
 
-/// Finanças in the Calendar's look: a left panel ("+ Criar", the months, the month's spending and the
-/// tab's own list: categories, cards, bills, loan status), a top bar (title, the tab in a pill, "Este
-/// mês", ‹ ›, ⋯) and the tab below, laid out as the Agenda.
+/// Finanças in the Calendar's look: a left panel (the months, the month's spending and the tab's own
+/// list: categories, cards, bills, loan status), a top bar (title, "Este mês", ‹ ›, ⋯ and the tab's
+/// "+ Novo …"), the tabs in sight under it and the tab below, laid out as the Agenda.
 class FinancePage extends ConsumerStatefulWidget {
   const FinancePage({super.key, required this.tab});
 
@@ -142,12 +151,25 @@ class _FinancePageState extends ConsumerState<FinancePage> {
 
   void _go(FinanceTab tab) => context.go(Routes.financeOf(tab.route));
 
-  /// "+ Criar" of the tab: a bill, a loan, a category, a card's purchase or an entry.
-  Future<void> _create() => switch (widget.tab) {
+  /// "+ Novo …" of the tab: a bill, a loan, a category, a purchase on the card shown (a card, without
+  /// one) or an entry.
+  Future<void> _create(FinanceSnapshot s) => switch (widget.tab) {
     FinanceTab.recurring => showRecurringForm(context),
     FinanceTab.loans => showLoanForm(context),
     FinanceTab.categories => showCategoryForm(context, kind: FinKind.expense),
+    FinanceTab.cards => switch (_card(s)) {
+      final card? => showEntryForm(context, cardId: card.id),
+      null => _cardAction('newCard', null),
+    },
     _ => showEntryForm(context),
+  };
+
+  String _createLabel(AppLocalizations t, FinanceSnapshot s) => switch (widget.tab) {
+    FinanceTab.recurring => t.finNewRecurring,
+    FinanceTab.loans => t.finNewLoan,
+    FinanceTab.categories => t.finNewCategory,
+    FinanceTab.cards => _card(s) == null ? t.finNewCard : t.finNewPurchase,
+    _ => t.finNewEntry,
   };
 
   Future<void> _pickCustom() async {
@@ -523,7 +545,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         FinanceTab.reports || FinanceTab.categories => _spending(t, s, _month),
       },
     ];
-    return ShellPanel(onCreate: () => unawaited(_create()), createLabel: t.calendarCreate, children: children);
+    return ShellPanel(children: children);
   }
 
   // ------------------------------------------------------------------ body
@@ -564,6 +586,8 @@ class _FinancePageState extends ConsumerState<FinancePage> {
     final topBar = ShellTopBar(
       title: _title(t, s, narrow),
       onTogglePanel: () => setState(() => _panel = !_panel),
+      onCreate: () => unawaited(_create(s)),
+      createLabel: _createLabel(t, s),
       actions: [
         if (widget.tab == FinanceTab.entries && !narrow)
           IconButton(
@@ -571,14 +595,6 @@ class _FinancePageState extends ConsumerState<FinancePage> {
             icon: Icon(_searching ? Icons.search_off : Icons.search, color: tt.textSecondary),
             onPressed: () => setState(() => _searching = !_searching),
           ),
-        ViewPill<FinanceTab>(
-          label: financeTabLabel(t, widget.tab),
-          onSelected: _go,
-          items: () => [
-            for (final tab in FinanceTab.values) CheckedPopupMenuItem(value: tab, checked: tab == widget.tab, child: Text(financeTabLabel(t, tab))),
-          ],
-        ),
-        SizedBox(width: narrow ? 4 : 8),
         if (hasPeriod && !narrow) TodayPill(label: widget.tab == FinanceTab.cards ? t.finCurrentInvoice : t.finThisMonth, onPressed: _thisMonth),
         if (hasPeriod && _hasArrows) ShellArrows(onPrevious: () => _step(s, -1), onNext: () => _step(s, 1)),
         if (more.isNotEmpty)
@@ -594,6 +610,12 @@ class _FinancePageState extends ConsumerState<FinancePage> {
     final body = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        ShellTabs<FinanceTab>(
+          selected: widget.tab,
+          onSelected: _go,
+          tabs: [for (final tab in FinanceTab.values) (value: tab, label: financeTabLabel(t, tab), icon: financeTabIcon(tab))],
+        ),
+        const SizedBox(height: 8),
         if (_searching && widget.tab == FinanceTab.entries)
           Padding(
             padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 0, narrow ? 12 : 20, 8),
@@ -622,8 +644,8 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         panelOpen: _panel,
         topBar: topBar,
         body: body,
-        onCreate: () => unawaited(_create()),
-        createLabel: t.calendarCreate,
+        onCreate: () => unawaited(_create(s)),
+        createLabel: _createLabel(t, s),
       ),
     );
   }

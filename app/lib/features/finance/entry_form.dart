@@ -8,6 +8,7 @@ import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/clock.dart';
 import '../../data/db/database.dart';
+import '../../data/finance_repository.dart';
 import '../../domain/finance/finance.dart';
 import '../../domain/finance/finance_enums.dart';
 import '../../domain/finance/money.dart';
@@ -16,11 +17,42 @@ import '../common/feedback.dart';
 import 'finance_widgets.dart';
 
 /// "Novo lançamento" / "Editar lançamento". [copy] starts a new one from an existing entry
-/// ("Duplicar").
-Future<void> showEntryForm(BuildContext context, {FinEntry? editing, FinEntry? copy, FinKind kind = FinKind.expense}) => showFinanceDialog<void>(
-  context,
-  builder: (_) => _EntryForm(editing: editing, copy: copy, kind: kind),
-);
+/// ("Duplicar"); [cardId] starts a purchase on that card.
+Future<void> showEntryForm(BuildContext context, {FinEntry? editing, FinEntry? copy, FinKind kind = FinKind.expense, String? cardId}) =>
+    showFinanceDialog<void>(
+      context,
+      builder: (_) => _EntryForm(editing: editing, copy: copy, kind: kind, cardId: cardId),
+    );
+
+/// Deletes an entry: of a purchase in installments, asks for this one or all of them; then "Lançamento
+/// excluído" with Desfazer. [close] runs just before (a form closing itself).
+Future<void> deleteEntry(BuildContext context, FinanceRepository repo, FinEntry entry, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  var ids = [entry.id];
+  final group = entry.installmentGroup;
+  if (group != null) {
+    final all = await repo.installmentIds(group);
+    if (!context.mounted) return;
+    final every = await showDialog<bool>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(t.finDeleteInstallments),
+        children: [
+          SimpleDialogOption(onPressed: () => Navigator.pop(context, false), child: Text(t.finDeleteOneInstallment)),
+          SimpleDialogOption(onPressed: () => Navigator.pop(context, true), child: Text(t.finDeleteAllInstallments(all.length))),
+        ],
+      ),
+    );
+    if (every == null) return;
+    if (every) ids = all;
+  }
+  if (!context.mounted) return;
+  // The toast outlives the line (and the form): it goes to the page.
+  final page = Navigator.of(context).context;
+  close?.call();
+  await repo.deleteEntries(ids);
+  if (page.mounted) showToast(page, t.finEntryDeleted, undo: () => repo.restoreEntries(ids), redo: () => repo.deleteEntries(ids));
+}
 
 /// After a new expense: a toast when its category is near or past the month's limit.
 void showLimitAlert(BuildContext context, FinanceSnapshot s, String categoryId, DateTime month) {
@@ -37,11 +69,12 @@ void showLimitAlert(BuildContext context, FinanceSnapshot s, String categoryId, 
 }
 
 class _EntryForm extends ConsumerStatefulWidget {
-  const _EntryForm({this.editing, this.copy, required this.kind});
+  const _EntryForm({this.editing, this.copy, required this.kind, this.cardId});
 
   final FinEntry? editing;
   final FinEntry? copy;
   final FinKind kind;
+  final String? cardId;
 
   @override
   ConsumerState<_EntryForm> createState() => _EntryFormState();
@@ -55,7 +88,7 @@ class _EntryFormState extends ConsumerState<_EntryForm> {
   late final _note = TextEditingController(text: _from?.note ?? '');
   late DateTime _date = _from == null ? startOfDay(ref.read(clockProvider).now()) : finDay(_from.date);
   late String? _categoryId = _from?.categoryId;
-  late String? _cardId = _from?.cardId;
+  late String? _cardId = _from?.cardId ?? widget.cardId;
   int _installments = 1;
   bool _showError = false;
 
@@ -140,7 +173,14 @@ class _EntryFormState extends ConsumerState<_EntryForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: _isNew ? t.finNewEntry : t.finEditEntry, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: _isNew ? t.finNewEntry : t.finEditEntry,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final entry? => () => unawaited(deleteEntry(context, ref.read(financeRepositoryProvider), entry, close: () => Navigator.pop(context))),
+            null => null,
+          },
+        ),
         Flexible(
           child: ListView(
             shrinkWrap: true,

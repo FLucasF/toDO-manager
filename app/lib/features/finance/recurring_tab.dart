@@ -9,6 +9,7 @@ import '../../app/providers.dart';
 import '../../app/theme/app_theme.dart';
 import '../../core/clock.dart';
 import '../../data/db/database.dart';
+import '../../data/finance_repository.dart';
 import '../../domain/finance/finance.dart';
 import '../../domain/finance/finance_enums.dart';
 import '../../domain/finance/money.dart';
@@ -16,6 +17,7 @@ import '../../domain/finance/recurring.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
 import '../common/shell_widgets.dart';
+import 'entry_form.dart';
 import 'finance_widgets.dart';
 
 /// "Contas fixas": the month's due days laid out as the Agenda (each bill with its status: paid, to
@@ -97,7 +99,8 @@ String recurringWhen(AppLocalizations t, FinRecurring r) => r.frequency == FinFr
     : t.finEveryYearOn('${r.day.toString().padLeft(2, '0')}/${(r.month ?? 1).toString().padLeft(2, '0')}');
 
 /// One due day of a bill: the status' dot (green paid, red late, grey to pay), "Pago em 24/09" or the
-/// category, the bill, the amount and "Pagar" (or ↶ when paid). A click edits the bill.
+/// category, the bill, the amount and "Pagar" (or ↶ when paid). A click edits the bill; its ⋯ edits the
+/// bill or the payment, pays or undoes it, and deletes the bill.
 class _OccurrenceLine extends ConsumerWidget {
   const _OccurrenceLine({required this.occurrence, required this.snapshot});
 
@@ -112,6 +115,43 @@ class _OccurrenceLine extends ConsumerWidget {
     await repo.deleteEntries([entry.id]);
     if (context.mounted) {
       showToast(context, t.finPaymentUndone, undo: () => repo.restoreEntries([entry.id]), redo: () => repo.deleteEntries([entry.id]));
+    }
+  }
+
+  Future<void> _menu(BuildContext context, WidgetRef ref, Offset at) async {
+    final t = AppLocalizations.of(context);
+    final r = occurrence.recurring;
+    final entry = occurrence.entry;
+    final picked = await showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(at.dx, at.dy, at.dx + 1, at.dy + 1),
+      items: [
+        PopupMenuItem(value: 'edit', height: 36, child: Text(t.finEditRecurring)),
+        if (entry == null)
+          PopupMenuItem(value: 'pay', height: 36, child: Text(r.kind == FinKind.income ? t.finConfirmReceived : t.finConfirmPaid))
+        else ...[
+          PopupMenuItem(value: 'payment', height: 36, child: Text(t.finEditPayment)),
+          PopupMenuItem(value: 'undo', height: 36, child: Text(t.finUndoPayment)),
+        ],
+        PopupMenuItem(
+          value: 'delete',
+          height: 36,
+          child: Text(t.actionDelete, style: TextStyle(color: context.tt.overdue)),
+        ),
+      ],
+    );
+    if (!context.mounted) return;
+    switch (picked) {
+      case 'edit':
+        await showRecurringForm(context, editing: r);
+      case 'pay':
+        await showConfirmPayment(context, occurrence);
+      case 'payment' when entry != null:
+        await showEntryForm(context, editing: entry);
+      case 'undo':
+        await _undo(context, ref);
+      case 'delete':
+        await deleteRecurring(context, ref.read(financeRepositoryProvider), r);
     }
   }
 
@@ -138,6 +178,7 @@ class _OccurrenceLine extends ConsumerWidget {
       struck: occurrence.status == OccurrenceStatus.paid,
       faded: occurrence.status == OccurrenceStatus.paid,
       onTap: () => unawaited(showRecurringForm(context, editing: r)),
+      onMenu: (at) => unawaited(_menu(context, ref, at)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -256,6 +297,15 @@ class _ConfirmFormState extends ConsumerState<_ConfirmForm> {
 Future<void> showRecurringForm(BuildContext context, {FinRecurring? editing}) =>
     showFinanceDialog<void>(context, builder: (_) => _RecurringForm(editing: editing));
 
+/// Deletes a bill, after asking: the payments already made stay as entries. [close] runs just before
+/// (a form closing itself).
+Future<void> deleteRecurring(BuildContext context, FinanceRepository repo, FinRecurring r, {VoidCallback? close}) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.finDeleteRecurring(r.description), confirmLabel: t.actionDelete)) return;
+  close?.call();
+  await repo.deleteRecurring(r.id);
+}
+
 class _RecurringForm extends ConsumerStatefulWidget {
   const _RecurringForm({this.editing});
 
@@ -353,7 +403,14 @@ class _RecurringFormState extends ConsumerState<_RecurringForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: widget.editing == null ? t.finNewRecurring : t.finEditRecurring, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: widget.editing == null ? t.finNewRecurring : t.finEditRecurring,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final r? => () => unawaited(deleteRecurring(context, ref.read(financeRepositoryProvider), r, close: () => Navigator.pop(context))),
+            null => null,
+          },
+        ),
         Flexible(
           child: ListView(
             shrinkWrap: true,

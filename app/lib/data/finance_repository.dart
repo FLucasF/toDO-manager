@@ -323,6 +323,11 @@ class FinanceRepository {
     return id;
   }
 
+  /// Changes a payment of an invoice: its amount and day.
+  Future<void> updateCardPayment(String id, {required int amount, required DateTime date}) => (_db.update(
+    _db.finCardPayments,
+  )..where((p) => p.id.equals(id))).write(FinCardPaymentsCompanion(amount: Value(amount), date: Value(storedDay(date)), updatedAt: Value(_now)));
+
   Future<void> deleteCardPayment(String id, {bool restore = false}) => (_db.update(
     _db.finCardPayments,
   )..where((p) => p.id.equals(id))).write(FinCardPaymentsCompanion(deletedAt: Value(restore ? null : _now), updatedAt: Value(_now)));
@@ -441,6 +446,12 @@ class FinanceRepository {
         );
     return id;
   }
+
+  /// Changes a payment of a loan: its amount, day and note.
+  Future<void> updateLoanPayment(String id, {required int amount, required DateTime date, String note = ''}) =>
+      (_db.update(_db.loanPayments)..where((p) => p.id.equals(id))).write(
+        LoanPaymentsCompanion(amount: Value(amount), date: Value(storedDay(date)), note: Value(note.trim()), updatedAt: Value(_now)),
+      );
 
   Future<void> deleteLoanPayment(String id, {bool restore = false}) => (_db.update(
     _db.loanPayments,

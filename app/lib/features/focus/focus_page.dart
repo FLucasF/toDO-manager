@@ -154,7 +154,6 @@ class _FocusPageState extends ConsumerState<FocusPage> {
     final main = _FocusMain(onTogglePanel: () => setState(() => _panel = !_panel));
     const side = _FocusSide();
     final panel = ShellPanel(
-      onCreate: () => unawaited(editFocusTimer(context, ref)),
       children: [
         PanelSection(
           title: t.focusShortcuts,
@@ -176,7 +175,7 @@ class _FocusPageState extends ConsumerState<FocusPage> {
         body: narrow ? ListView(children: [main, const Divider(), side]) : SingleChildScrollView(child: main),
         trailing: narrow ? null : const SizedBox(width: 380, child: SingleChildScrollView(child: side)),
         onCreate: () => unawaited(editFocusTimer(context, ref)),
-        createLabel: t.focusTimerAdd,
+        createLabel: t.focusTimerNew,
       ),
     );
   }
@@ -201,6 +200,8 @@ class _FocusMainState extends ConsumerState<_FocusMain> {
   Widget _header(AppLocalizations t, TtColors tt, {required bool back}) => ShellTopBar(
     title: t.focusTitle,
     onTogglePanel: widget.onTogglePanel,
+    onCreate: () => unawaited(editFocusTimer(context, ref)),
+    createLabel: t.focusTimerNew,
     leading: back
         ? IconButton(
             tooltip: t.focusTimers,
@@ -816,8 +817,10 @@ class _FocusRecordFormState extends ConsumerState<_FocusRecordForm> {
           Expanded(child: Text(t.focusRecords, style: const TextStyle(fontSize: 15))),
           if (editing != null)
             IconButton(
-              icon: Icon(Icons.delete_outline, size: 18, color: tt.textTertiary),
+              tooltip: t.actionDelete,
+              icon: Icon(Icons.delete_outline, size: 18, color: tt.overdue),
               onPressed: () async {
+                if (!await confirm(context, message: t.focusRecordDeleteConfirm, confirmLabel: t.actionDelete)) return;
                 await ref.read(repositoryProvider).deleteFocusRecord(editing.id);
                 if (context.mounted) Navigator.pop(context);
               },

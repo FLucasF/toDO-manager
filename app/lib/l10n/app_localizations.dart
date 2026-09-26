@@ -8730,6 +8730,78 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Cor'**
   String get habitColorMenu;
+
+  /// No description provided for @finNewPurchase.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova compra'**
+  String get finNewPurchase;
+
+  /// No description provided for @habitNewButton.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo hábito'**
+  String get habitNewButton;
+
+  /// No description provided for @countdownNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nova contagem'**
+  String get countdownNew;
+
+  /// No description provided for @focusTimerNew.
+  ///
+  /// In pt, this message translates to:
+  /// **'Novo temporizador'**
+  String get focusTimerNew;
+
+  /// No description provided for @finEditPayment.
+  ///
+  /// In pt, this message translates to:
+  /// **'Editar pagamento'**
+  String get finEditPayment;
+
+  /// No description provided for @habitDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir o hábito \"{name}\" e todos os check-ins dele? Isso não pode ser desfeito.'**
+  String habitDeleteConfirm(String name);
+
+  /// No description provided for @habitLogDelete.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir registro'**
+  String get habitLogDelete;
+
+  /// No description provided for @countdownDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir \"{name}\"? Isso não pode ser desfeito.'**
+  String countdownDeleteConfirm(String name);
+
+  /// No description provided for @focusTimerDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir o temporizador \"{name}\"? Os registros de foco continuam.'**
+  String focusTimerDeleteConfirm(String name);
+
+  /// No description provided for @focusRecordDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir este registro de foco? Isso não pode ser desfeito.'**
+  String get focusRecordDeleteConfirm;
+
+  /// No description provided for @tagDeleteConfirm.
+  ///
+  /// In pt, this message translates to:
+  /// **'Excluir a etiqueta \"{name}\"? As tarefas continuam, sem ela.'**
+  String tagDeleteConfirm(String name);
+
+  /// No description provided for @listDeleteMenu.
+  ///
+  /// In pt, this message translates to:
+  /// **'Deletar lista'**
+  String get listDeleteMenu;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

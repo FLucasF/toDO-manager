@@ -439,19 +439,15 @@ class Sidebar extends ConsumerWidget {
     if (!context.mounted) return;
     switch (choice) {
       case 'edit':
-        final form = await showListDialog(context, editing: l);
-        if (form != null) {
-          await repo.editList(
-            l.id,
-            name: form.name,
-            emoji: form.emoji,
-            color: form.color,
-            folderId: form.folderId,
-            kind: form.kind,
-            viewMode: form.viewMode,
-            showInSmartLists: form.showInSmartLists,
-          );
-        }
+        final router = GoRouter.of(context);
+        await editListWithDialog(
+          context,
+          ref,
+          l,
+          onDeleted: () {
+            if (current == ListScope(l.id)) router.go(Routes.of(const ListScope(inboxListId)));
+          },
+        );
       case 'pin':
         await repo.pinList(l.id, pinned: l.pinnedAt == null);
       case 'duplicate':
@@ -464,11 +460,32 @@ class Sidebar extends ConsumerWidget {
           if (await guarded(context, () => repo.archiveList(l.id, archived: true)) && context.mounted) showToast(context, t.toastArchived);
         }
       case 'delete':
-        if (await confirm(context, message: t.deleteListConfirm, confirmLabel: t.actionDelete) && context.mounted) {
-          await guarded(context, () => repo.deleteList(l.id));
-          if (context.mounted && current == ListScope(l.id)) context.go(Routes.of(const ListScope(inboxListId)));
-        }
+        await _deleteList(context, ref, l);
     }
+  }
+
+  /// Asks, deletes the list (its tasks go to the trash) and leaves it if it was open.
+  Future<void> _deleteList(BuildContext context, WidgetRef ref, TaskList l) async {
+    final router = GoRouter.of(context);
+    if (await deleteListAsking(context, ref, l) && current == ListScope(l.id)) router.go(Routes.of(const ListScope(inboxListId)));
+  }
+
+  Future<bool> _deleteFilter(BuildContext context, WidgetRef ref, TaskFilter f) async {
+    final t = AppLocalizations.of(context);
+    if (!await confirm(context, message: t.filterDeleteConfirm(f.name), confirmLabel: t.actionDelete) || !context.mounted) return false;
+    final router = GoRouter.of(context);
+    await ref.read(repositoryProvider).deleteFilter(f.id);
+    if (current == FilterScope(f.id)) router.go(Routes.initial);
+    return true;
+  }
+
+  Future<bool> _deleteTag(BuildContext context, WidgetRef ref, Tag tag) async {
+    final t = AppLocalizations.of(context);
+    if (!await confirm(context, message: t.tagDeleteConfirm(tag.name), confirmLabel: t.actionDelete) || !context.mounted) return false;
+    final router = GoRouter.of(context);
+    await ref.read(repositoryProvider).deleteTag(tag.id);
+    if (current == TagScope(tag.id)) router.go(Routes.initial);
+    return true;
   }
 
   Future<void> _archivedListMenu(BuildContext context, WidgetRef ref, TaskList l, Offset position) async {
@@ -543,15 +560,12 @@ class Sidebar extends ConsumerWidget {
     if (!context.mounted) return;
     switch (choice) {
       case 'edit':
-        final form = await showFilterDialog(context, editing: f);
+        final form = await showFilterDialog(context, editing: f, onDelete: () => _deleteFilter(context, ref, f));
         if (form != null) await repo.updateFilter(f.id, name: form.name, rule: form.rule);
       case 'pin':
         await repo.pinFilter(f.id, pinned: f.pinnedAt == null);
       case 'delete':
-        if (await confirm(context, message: t.filterDeleteConfirm(f.name), confirmLabel: t.actionDelete) && context.mounted) {
-          await repo.deleteFilter(f.id);
-          if (context.mounted && current == FilterScope(f.id)) context.go(Routes.initial);
-        }
+        await _deleteFilter(context, ref, f);
     }
   }
 
@@ -568,7 +582,7 @@ class Sidebar extends ConsumerWidget {
     if (!context.mounted) return;
     switch (choice) {
       case 'edit':
-        final form = await showTagDialog(context, editing: tag);
+        final form = await showTagDialog(context, editing: tag, onDelete: () => _deleteTag(context, ref, tag));
         if (form != null && context.mounted) {
           await guarded(context, () => repo.editTag(tag.id, name: form.name, color: form.color, parentId: form.parentId));
         }
@@ -613,8 +627,7 @@ class Sidebar extends ConsumerWidget {
         );
         if (target != null) await repo.mergeTags(tag.id, target);
       case 'delete':
-        await repo.deleteTag(tag.id);
-        if (context.mounted && current == TagScope(tag.id)) context.go(Routes.initial);
+        await _deleteTag(context, ref, tag);
     }
   }
 }
@@ -714,7 +727,8 @@ class _HelpBox extends StatelessWidget {
   }
 }
 
-/// One sidebar row: icon, name, optional color dot and count; right click / long press opens [onMenu].
+/// One sidebar row: icon, name, optional color dot and count; right click / long press opens [onMenu],
+/// and so does its ⋯ (in place of the count under the mouse; always there on a phone).
 class _SidebarItem extends ConsumerStatefulWidget {
   const _SidebarItem({
     required this.icon,
@@ -750,6 +764,9 @@ class _SidebarItemState extends ConsumerState<_SidebarItem> {
   @override
   Widget build(BuildContext context) {
     final tt = context.tt;
+    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
+    final menu = widget.onMenu;
+    final showMenuButton = menu != null && (_hover || narrow);
     Widget item(bool highlighted) => GestureDetector(
       onSecondaryTapDown: widget.onMenu == null ? null : (d) => widget.onMenu!(d.globalPosition),
       onLongPressStart: widget.onMenu == null ? null : (d) => widget.onMenu!(d.globalPosition),
@@ -790,10 +807,26 @@ class _SidebarItemState extends ConsumerState<_SidebarItem> {
                     margin: const EdgeInsets.only(right: 10),
                     decoration: BoxDecoration(color: widget.color, shape: BoxShape.circle),
                   ),
-                if (widget.count != null && widget.count! > 0 && ref.watch(preferencesProvider).value?.sidebarCount != SidebarCount.none)
+                if (widget.count != null &&
+                    widget.count! > 0 &&
+                    !(showMenuButton && !narrow) &&
+                    ref.watch(preferencesProvider).value?.sidebarCount != SidebarCount.none)
                   Text(
                     '${widget.count}',
                     style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
+                  ),
+                if (showMenuButton)
+                  Tooltip(
+                    message: AppLocalizations.of(context).menuMore,
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTapUp: (d) => menu(d.globalPosition),
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(6, 2, 0, 2),
+                        child: Icon(Icons.more_horiz, size: 18, color: tt.textTertiary),
+                      ),
+                    ),
                   ),
               ],
             ),

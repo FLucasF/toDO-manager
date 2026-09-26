@@ -399,9 +399,26 @@ class _HabitFormState extends ConsumerState<_HabitForm> {
         ),
       ),
       actions: [
+        if (_h case final h?) ...[
+          IconButton(
+            tooltip: t.habitDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () => unawaited(deleteHabitAsking(context, ref.read(repositoryProvider), h, close: () => Navigator.pop(context))),
+          ),
+          TextButton(onPressed: () => unawaited(_archive(h)), child: Text(t.habitArchive)),
+        ],
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionCancel)),
         FilledButton(onPressed: () => unawaited(_save()), child: Text(t.actionSave)),
       ],
     );
+  }
+
+  Future<void> _archive(Habit h) async {
+    final t = AppLocalizations.of(context);
+    await ref.read(repositoryProvider).archiveHabit(h.id, archived: true);
+    if (!mounted) return;
+    final page = Navigator.of(context).context;
+    Navigator.pop(context);
+    if (page.mounted) showToast(page, t.toastArchived);
   }
 }

@@ -122,6 +122,8 @@ class _HabitPageState extends ConsumerState<HabitPage> {
     final header = ShellTopBar(
       title: _archived ? '${t.navHabit} · ${t.habitArchived}' : t.navHabit,
       onTogglePanel: () => setState(() => _panel = !_panel),
+      onCreate: () => unawaited(showHabitGallery(context)),
+      createLabel: t.habitNewButton,
       actions: [
         if (!_archived)
           ViewPill<bool>(
@@ -157,13 +159,12 @@ class _HabitPageState extends ConsumerState<HabitPage> {
       ],
     );
 
-    // The left panel: "+ Criar", the month (a day filters the list), today's progress and Ativo / Arquivado.
+    // The left panel: the month (a day filters the list), today's progress and Ativo / Arquivado.
     final active = s.habits.where((h) => h.archivedAt == null).toList();
     final dueToday = active.where((h) => habitIsDue(h, today)).toList();
     final doneToday = dueToday.where((h) => habitDayState(h, _checkinOn(s, h.id, today), today) == HabitDayState.done).length;
     final shownMonth = _panelMonth ?? DateTime((filterDay ?? today).year, (filterDay ?? today).month);
     final panel = ShellPanel(
-      onCreate: () => unawaited(showHabitGallery(context)),
       children: [
         MonthCalendar(
           month: shownMonth,
@@ -320,6 +321,8 @@ class _HabitPageState extends ConsumerState<HabitPage> {
                   )
               else
                 HabitDot(habit: h, checkin: _checkinOn(s, h.id, today), day: today),
+              const SizedBox(width: 4),
+              RowMenuButton(onMenu: (at) => unawaited(_habitMenu(context, h, at))),
             ],
           ),
         ),
@@ -341,8 +344,8 @@ class _HabitPageState extends ConsumerState<HabitPage> {
                       if (v == 'restore') {
                         await repo.archiveHabit(h.id, archived: false);
                         if (context.mounted) showToast(context, t.toastRestoredHabit);
-                      } else {
-                        await repo.deleteHabit(h.id);
+                      } else if (context.mounted) {
+                        await deleteHabitAsking(context, repo, h);
                       }
                     },
                     itemBuilder: (_) => [
@@ -373,6 +376,7 @@ class _HabitPageState extends ConsumerState<HabitPage> {
               borderRadius: BorderRadius.circular(10),
               onTap: () => _open(context, h.id),
               onSecondaryTapUp: (d) => unawaited(_habitMenu(context, h, d.globalPosition)),
+              onLongPress: () => unawaited(_habitMenu(context, h, Offset(MediaQuery.sizeOf(context).width / 2, 200))),
               child: Padding(
                 padding: const EdgeInsets.all(12),
                 child: Column(
@@ -382,6 +386,7 @@ class _HabitPageState extends ConsumerState<HabitPage> {
                       children: [
                         HabitIcon(habit: h),
                         const Spacer(),
+                        RowMenuButton(onMenu: (at) => unawaited(_habitMenu(context, h, at))),
                         HabitDot(habit: h, checkin: _checkinOn(s, h.id, day), day: day, size: 30),
                       ],
                     ),
@@ -500,7 +505,7 @@ class _HabitPageState extends ConsumerState<HabitPage> {
         await repo.archiveHabit(h.id, archived: true);
         if (context.mounted) showToast(context, t.toastArchived);
       case 'delete':
-        await repo.deleteHabit(h.id);
+        await deleteHabitAsking(context, repo, h);
     }
   }
 }
@@ -624,6 +629,11 @@ class _HabitDetailState extends ConsumerState<_HabitDetail> {
               tooltip: t.countdownEdit,
               icon: const Icon(Icons.edit_outlined, size: 18),
               onPressed: () => unawaited(showHabitForm(context, editing: h)),
+            ),
+            IconButton(
+              tooltip: t.habitDelete,
+              icon: Icon(Icons.delete_outline, size: 18, color: tt.overdue),
+              onPressed: () => unawaited(deleteHabitAsking(context, ref.read(repositoryProvider), h, close: widget.onClose)),
             ),
             IconButton(icon: const Icon(Icons.close, size: 18), onPressed: widget.onClose),
           ],

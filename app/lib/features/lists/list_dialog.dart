@@ -31,17 +31,55 @@ class ListForm {
   final bool showInSmartLists;
 }
 
+/// Deletes a list after asking (its tasks go to the trash); true when it did. Leaving it, when it was
+/// open, is the caller's.
+Future<bool> deleteListAsking(BuildContext context, WidgetRef ref, TaskList l) async {
+  final t = AppLocalizations.of(context);
+  if (!await confirm(context, message: t.deleteListConfirm, confirmLabel: t.actionDelete) || !context.mounted) return false;
+  final repo = ref.read(repositoryProvider);
+  return guarded(context, () => repo.deleteList(l.id));
+}
+
+/// "Editar lista": the dialog (its bin is [deleteListAsking], then [onDeleted]) and the changes saved.
+Future<void> editListWithDialog(BuildContext context, WidgetRef ref, TaskList l, {VoidCallback? onDeleted}) async {
+  final repo = ref.read(repositoryProvider);
+  final form = await showListDialog(
+    context,
+    editing: l,
+    onDelete: () async {
+      final deleted = await deleteListAsking(context, ref, l);
+      if (deleted) onDeleted?.call();
+      return deleted;
+    },
+  );
+  if (form == null) return;
+  await repo.editList(
+    l.id,
+    name: form.name,
+    emoji: form.emoji,
+    color: form.color,
+    folderId: form.folderId,
+    kind: form.kind,
+    viewMode: form.viewMode,
+    showInSmartLists: form.showInSmartLists,
+  );
+}
+
 /// "Adicionar lista" / "Editar lista". Returns null when cancelled.
-Future<ListForm?> showListDialog(BuildContext context, {TaskList? editing, String? folderId}) => showDialog<ListForm>(
-  context: context,
-  builder: (_) => _ListDialog(editing: editing, initialFolderId: folderId),
-);
+///
+/// Editing, [onDelete] shows the bin: it asks and deletes, and the dialog closes when it did.
+Future<ListForm?> showListDialog(BuildContext context, {TaskList? editing, String? folderId, Future<bool> Function()? onDelete}) =>
+    showDialog<ListForm>(
+      context: context,
+      builder: (_) => _ListDialog(editing: editing, initialFolderId: folderId, onDelete: onDelete),
+    );
 
 class _ListDialog extends ConsumerStatefulWidget {
-  const _ListDialog({this.editing, this.initialFolderId});
+  const _ListDialog({this.editing, this.initialFolderId, this.onDelete});
 
   final TaskList? editing;
   final String? initialFolderId;
+  final Future<bool> Function()? onDelete;
 
   @override
   ConsumerState<_ListDialog> createState() => _ListDialogState();
@@ -227,6 +265,14 @@ class _ListDialogState extends ConsumerState<_ListDialog> {
         ],
       ),
       actions: [
+        if (widget.editing != null && widget.onDelete != null)
+          IconButton(
+            tooltip: t.actionDelete,
+            icon: Icon(Icons.delete_outline, color: context.tt.overdue),
+            onPressed: () async {
+              if (await widget.onDelete!() && context.mounted) Navigator.pop(context);
+            },
+          ),
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.actionCancel)),
         FilledButton(onPressed: _submit, child: Text(widget.editing == null ? t.actionAdd : t.actionSave)),
       ],

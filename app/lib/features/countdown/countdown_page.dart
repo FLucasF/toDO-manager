@@ -108,6 +108,8 @@ class _CountdownPageState extends ConsumerState<CountdownPage> {
     final header = ShellTopBar(
       title: _archived ? t.countdownArchivedTitle : t.navCountdown,
       onTogglePanel: () => setState(() => _panel = !_panel),
+      onCreate: () => unawaited(_create()),
+      createLabel: t.countdownNew,
       actions: [
         PopupMenuButton<Object>(
           tooltip: '',
@@ -129,7 +131,6 @@ class _CountdownPageState extends ConsumerState<CountdownPage> {
     );
 
     final panel = ShellPanel(
-      onCreate: () => unawaited(_create()),
       children: [
         PanelSection(
           title: t.countdownTypes,
@@ -237,7 +238,7 @@ class _CountdownTile extends ConsumerWidget {
       case 'restore':
         await repo.archiveCountdown(c.id, archived: false);
       case 'delete':
-        await repo.deleteCountdown(c.id);
+        await deleteCountdownAsking(context, repo, c);
     }
   }
 
@@ -378,12 +379,39 @@ class _CountdownTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tt = context.tt;
     return GestureDetector(
-      onTap: countdown.archivedAt == null ? () => unawaited(showCountdownForm(context, type: countdown.type, editing: countdown)) : null,
+      onTapUp: (d) => unawaited(
+        countdown.archivedAt == null ? showCountdownForm(context, type: countdown.type, editing: countdown) : _menu(context, ref, d.globalPosition),
+      ),
       onSecondaryTapUp: (d) => unawaited(_menu(context, ref, d.globalPosition)),
       onLongPressStart: (d) => unawaited(_menu(context, ref, d.globalPosition)),
-      child: Opacity(
-        opacity: countdown.archivedAt == null ? 1 : 0.6,
-        child: CountdownCardBody(countdown: countdown, style: countdown.style, color: parseHexColor(countdown.color) ?? tt.primary),
+      child: Stack(
+        children: [
+          Opacity(
+            opacity: countdown.archivedAt == null ? 1 : 0.6,
+            child: CountdownCardBody(countdown: countdown, style: countdown.style, color: parseHexColor(countdown.color) ?? tt.primary),
+          ),
+          // ⋯ on a dark round, readable over any style or picture.
+          Positioned(
+            top: 6,
+            right: 6,
+            child: Tooltip(
+              message: AppLocalizations.of(context).menuMore,
+              child: Material(
+                color: Colors.black.withValues(alpha: 0.28),
+                shape: const CircleBorder(),
+                child: InkWell(
+                  customBorder: const CircleBorder(),
+                  onTapUp: (d) => unawaited(_menu(context, ref, d.globalPosition)),
+                  onTap: () {},
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(Icons.more_horiz, size: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

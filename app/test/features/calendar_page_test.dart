@@ -19,6 +19,7 @@ import 'package:task_manager/data/finance_repository.dart';
 import 'package:task_manager/features/calendar/calendar_insights_panel.dart';
 import 'package:task_manager/features/detail/task_detail_pane.dart';
 import 'package:task_manager/features/tasks/batch_pane.dart';
+import 'package:task_manager/features/common/shell_widgets.dart';
 
 void main() {
   late AppDatabase db;
@@ -292,7 +293,8 @@ void main() {
     await tester.runAsync(() => repo.createTask(listId: inboxListId, title: 'Consulta', dueDate: DateTime(2026, 9, 24)));
     await pumpCalendar(tester, '/calendar/m', withPanel: true);
     expect(find.text('Meus calendários'), findsOneWidget);
-    expect(find.text('Criar'), findsOneWidget);
+    // "+ Nova tarefa" is the top bar's now, not the panel's.
+    expect(find.widgetWithText(CreateButton, 'Nova tarefa'), findsOneWidget);
     expect(find.text('Consulta'), findsOneWidget);
     await tester.tap(find.text('Caixa de Entrada').last);
     await settle(tester);

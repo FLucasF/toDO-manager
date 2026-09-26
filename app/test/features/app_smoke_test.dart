@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -527,8 +528,8 @@ void main() {
     await tester.tap(find.text('14 semanas'));
     await tester.pump();
     expect(find.text('3 meses'), findsOneWidget);
-    // "+ Criar" of the left panel asks the kind.
-    await tester.tap(find.widgetWithText(CreatePill, 'Criar'));
+    // "+ Nova contagem" of the top bar asks the kind.
+    await tester.tap(find.widgetWithText(CreateButton, 'Nova contagem'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Aniversário').last);
     await tester.pumpAndSettle();
@@ -605,7 +606,7 @@ void main() {
   testWidgets('habits: empty state, create through the form, check in today', (tester) async {
     await pumpApp(tester, '/habit');
     expect(find.text('Desenvolver um hábito'), findsOneWidget);
-    await tester.tap(find.widgetWithText(CreatePill, 'Criar'));
+    await tester.tap(find.widgetWithText(CreateButton, 'Novo hábito'));
     await tester.pumpAndSettle();
     // The gallery first: 15 ready-made habits per category, or "Criar novo".
     expect(find.text('Galeria de hábitos'), findsOneWidget);
@@ -648,6 +649,73 @@ void main() {
     }
     expect(find.text('1 dia · 1 dia'), findsOneWidget);
     expect((await tester.runAsync(() => db.select(db.habitCheckins).get()))!.single.value, 1);
+    await _dispose(tester);
+  });
+
+  testWidgets('what is added can be undone and deleted where it is edited: a habit, a countdown, a list', (tester) async {
+    final repo = Repository(db, clock: clock);
+    late String list;
+    await tester.runAsync(() async {
+      final habit = await repo.createHabit(HabitsCompanion(name: const Value('Ler'), startDate: Value(DateTime.utc(2026, 9, 1))));
+      await repo.checkIn(habit, DateTime(2026, 9, 24));
+      await repo.createCountdown(name: 'Viagem', date: DateTime(2026, 12, 20));
+      list = await repo.createList(name: 'Mercado');
+    });
+    Future<void> settle() async {
+      for (var i = 0; i < 6; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    }
+
+    // A habit: a click on a day done opens its menu, to undo it.
+    await pumpApp(tester, '/habit');
+    expect(find.text('1 dia · 1 dia'), findsOneWidget);
+    await tester.tap(find.byType(HabitDot).last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Reiniciar hábito'));
+    await settle();
+    expect(find.text('0 dia · 0 dia'), findsOneWidget);
+    // Its ⋯ › Editar: the form has the bin, which asks first.
+    await tester.tap(find.byType(RowMenuButton).first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Editar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Deletar'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Excluir o hábito "Ler"'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Deletar'));
+    await settle();
+    expect(find.text('Ler'), findsNothing);
+    expect(await tester.runAsync(() => db.select(db.habits).get()), isEmpty);
+
+    // A countdown: ⋯ on its card; the form (a click) has the bin.
+    await _dispose(tester);
+    await pumpApp(tester, '/countdown');
+    expect(find.byTooltip('Mais'), findsWidgets);
+    await tester.tap(find.text('Viagem'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Deletar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Deletar'));
+    await settle();
+    expect(find.text('Viagem'), findsNothing);
+
+    // A list: the open list's ⋯ › Editar lista has the bin; deleting goes back to the Inbox.
+    await _dispose(tester);
+    await pumpApp(tester, '/p/$list/tasks');
+    await tester.tap(find.byIcon(Icons.more_horiz).first);
+    await tester.pumpAndSettle();
+    expect(find.text('Deletar lista'), findsOneWidget);
+    await tester.tap(find.text('Editar lista'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Deletar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Deletar'));
+    await settle();
+    expect(find.text('Mercado'), findsNothing);
+    final lists = await tester.runAsync(() => (db.select(db.lists)..where((l) => l.id.equals(list))).get());
+    expect(lists!.single.deletedAt, isNotNull);
     await _dispose(tester);
   });
 

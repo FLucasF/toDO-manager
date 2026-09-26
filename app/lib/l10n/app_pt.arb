@@ -1559,5 +1559,21 @@
   "matrixQuadrants": "Quadrantes",
   "focusShortcuts": "Atalhos",
   "habitColor": "Cor do hábito",
-  "habitColorMenu": "Cor"
+  "habitColorMenu": "Cor",
+  "finNewPurchase": "Nova compra",
+  "habitNewButton": "Novo hábito",
+  "countdownNew": "Nova contagem",
+  "focusTimerNew": "Novo temporizador",
+  "finEditPayment": "Editar pagamento",
+  "habitDeleteConfirm": "Excluir o hábito \"{name}\" e todos os check-ins dele? Isso não pode ser desfeito.",
+  "@habitDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "habitLogDelete": "Excluir registro",
+  "countdownDeleteConfirm": "Excluir \"{name}\"? Isso não pode ser desfeito.",
+  "@countdownDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "focusTimerDeleteConfirm": "Excluir o temporizador \"{name}\"? Os registros de foco continuam.",
+  "@focusTimerDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "focusRecordDeleteConfirm": "Excluir este registro de foco? Isso não pode ser desfeito.",
+  "tagDeleteConfirm": "Excluir a etiqueta \"{name}\"? As tarefas continuam, sem ela.",
+  "@tagDeleteConfirm": {"placeholders": {"name": {"type": "String"}}},
+  "listDeleteMenu": "Deletar lista"
 }

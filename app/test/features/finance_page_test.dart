@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:task_manager/app/providers.dart';
 import 'package:task_manager/core/clock.dart';
 import 'package:task_manager/data/db/database.dart';
 import 'package:task_manager/data/finance_repository.dart';
+import 'package:task_manager/domain/finance/finance.dart';
 import 'package:task_manager/domain/finance/finance_enums.dart';
 import 'package:task_manager/features/common/shell_widgets.dart';
 import 'package:task_manager/features/finance/finance_page.dart';
@@ -57,17 +59,17 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  /// "+ Criar" of the left panel.
+  /// The tab's "+ Novo …" at the end of the top bar.
   Future<void> create(WidgetTester tester) async {
-    await tester.tap(find.widgetWithText(CreatePill, 'Criar'));
+    await tester.tap(find.byType(CreateButton).first);
     await tester.pumpAndSettle();
   }
 
-  /// The tab's pill of the top bar, then [to].
+  /// The tab [to], among the tabs under the top bar ([from] is the one open).
   Future<void> goTab(WidgetTester tester, String from, String to) async {
-    await tester.tap(find.widgetWithText(ViewPill<FinanceTab>, from));
-    await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(CheckedPopupMenuItem<FinanceTab>, to));
+    final tabs = find.byType(ShellTabs<FinanceTab>);
+    expect(find.descendant(of: tabs, matching: find.text(from)), findsOneWidget);
+    await tester.tap(find.descendant(of: tabs, matching: find.text(to)));
     await settle(tester);
   }
 
@@ -75,7 +77,11 @@ void main() {
     await pumpApp(tester, '/q/all/tasks');
     await tester.tap(find.byTooltip('Finanças'));
     await settle(tester);
-    expect(find.widgetWithText(ViewPill<FinanceTab>, 'Lançamentos'), findsOneWidget);
+    // The tabs in sight, and the tab's "+ Novo lançamento".
+    for (final tab in ['Lançamentos', 'Cartões', 'Contas fixas', 'Empréstimos', 'Relatórios', 'Categorias']) {
+      expect(find.descendant(of: find.byType(ShellTabs<FinanceTab>), matching: find.text(tab)), findsOneWidget);
+    }
+    expect(find.widgetWithText(CreateButton, 'Novo lançamento'), findsOneWidget);
     expect(find.text('Nenhum lançamento neste período.'), findsOneWidget);
     expect(find.text('Setembro 2026'), findsOneWidget);
     expect(find.text('Gastos do mês'), findsOneWidget);
@@ -134,15 +140,16 @@ void main() {
     expect(find.text(r'+R$ 3.000,00'), findsOneWidget);
     expect(find.text(r'R$ 2.915,00'), findsOneWidget);
 
-    // ⋯ › Receitas: only income.
+    // The top bar's ⋯ › Receitas: only income.
     Finder moreItem(String label) => find.widgetWithText(CheckedPopupMenuItem<Object>, label);
-    await tester.tap(find.byIcon(Icons.more_horiz).last);
+    final topMore = find.descendant(of: find.byType(ShellTopBar), matching: find.byIcon(Icons.more_horiz));
+    await tester.tap(topMore);
     await tester.pumpAndSettle();
     await tester.tap(moreItem('Receitas'));
     await settle(tester);
     expect(find.text('Pagamento'), findsOneWidget);
     expect(find.text('Pão'), findsNothing);
-    await tester.tap(find.byIcon(Icons.more_horiz).last);
+    await tester.tap(topMore);
     await tester.pumpAndSettle();
     await tester.tap(moreItem('Receitas e despesas'));
     await settle(tester);
@@ -176,7 +183,7 @@ void main() {
   testWidgets('Cartões: a new card, a purchase in 3 installments goes to its invoices, paying the invoice', (tester) async {
     await pumpApp(tester, '/finance/cards');
     expect(find.textContaining('Nenhum cartão ainda'), findsOneWidget);
-    await tester.tap(find.widgetWithText(CreatePill, 'Novo cartão'));
+    await tester.tap(find.widgetWithText(CreateButton, 'Novo cartão').first);
     await tester.pumpAndSettle();
     await tester.enterText(find.widgetWithText(TextField, 'Nome do cartão'), 'Nubank');
     await pickNumber(tester, 'Dia do fechamento', '5');
@@ -211,6 +218,85 @@ void main() {
     await settle(tester);
     expect(find.text('Pagar fatura'), findsNothing);
     expect(find.text('Pagamentos'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await dispose(tester);
+  });
+
+  testWidgets('everything added can be edited and deleted: the form\'s bin and the line\'s ⋯', (tester) async {
+    final repo = FinanceRepository(db, clock: clock);
+    await tester.runAsync(() async {
+      await repo.addEntry(kind: FinKind.expense, amount: 4590, date: DateTime(2026, 9, 24), description: 'Lanche');
+      await repo.createRecurring(
+        FinRecurringsCompanion(
+          kind: const Value(FinKind.expense),
+          description: const Value('Aluguel'),
+          amount: const Value(150000),
+          frequency: const Value(FinFrequency.monthly),
+          day: const Value(5),
+          startDate: Value(storedDay(DateTime(2026, 9))),
+        ),
+      );
+      final loan = await repo.createLoan(
+        borrower: 'Ana',
+        principal: 100000,
+        total: 110000,
+        lentOn: DateTime(2026, 9, 1),
+        dueOn: DateTime(2026, 10, 1),
+      );
+      await repo.addLoanPayment(loanId: loan, amount: 50000, date: DateTime(2026, 9, 20));
+    });
+    await pumpApp(tester, '/finance/entries');
+
+    // An entry: its form has the bin, and Desfazer brings it back.
+    await tester.tap(find.text('Lanche'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Deletar'));
+    await settle(tester);
+    expect(find.text('Lanche'), findsNothing);
+    await tester.tap(find.text('Desfazer'));
+    await settle(tester);
+    expect(find.text('Lanche'), findsOneWidget);
+    // Its ⋯ (not only the right click): Editar · Duplicar · Deletar.
+    await tester.tap(find.descendant(of: find.widgetWithText(AgendaLine, 'Lanche'), matching: find.byType(RowMenuButton)));
+    await tester.pumpAndSettle();
+    expect(find.text('Duplicar'), findsOneWidget);
+    await tester.tap(find.text('Deletar'));
+    await settle(tester);
+    expect(find.text('Lanche'), findsNothing);
+
+    // A fixed bill: its form's bin asks first.
+    await goTab(tester, 'Lançamentos', 'Contas fixas');
+    await tester.tap(find.widgetWithText(PanelNavRow, 'Aluguel'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Deletar'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Excluir a conta fixa "Aluguel"?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(FilledButton, 'Deletar'));
+    await settle(tester);
+    expect(find.widgetWithText(PanelNavRow, 'Aluguel'), findsNothing);
+    expect(find.textContaining('Nenhuma conta fixa ainda'), findsOneWidget);
+
+    // A loan: a click on a payment edits it; the line's ⋯ deletes the loan.
+    await goTab(tester, 'Contas fixas', 'Empréstimos');
+    await tester.tap(find.text('Cobrar Ana'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(ListTile, r'R$ 500,00'));
+    await tester.pumpAndSettle();
+    expect(find.text('Editar pagamento'), findsOneWidget);
+    await tester.enterText(find.widgetWithText(TextField, 'Valor pago'), '800');
+    await tester.tap(find.text('Salvar'));
+    await settle(tester);
+    expect(find.text(r'Falta R$ 300,00'), findsOneWidget);
+    await tester.tap(find.byTooltip('Fechar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.descendant(of: find.widgetWithText(AgendaLine, 'Cobrar Ana'), matching: find.byType(RowMenuButton)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Deletar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Deletar'));
+    await settle(tester);
+    expect(find.text('Cobrar Ana'), findsNothing);
+    expect(find.text('Empréstimo excluído'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await dispose(tester);
   });
@@ -334,8 +420,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Finanças'));
     await settle(tester);
-    expect(find.widgetWithText(ViewPill<FinanceTab>, 'Lançamentos'), findsOneWidget);
-    expect(find.byType(CreatePill), findsNothing);
+    expect(find.descendant(of: find.byType(ShellTabs<FinanceTab>), matching: find.text('Lançamentos')), findsOneWidget);
+    expect(find.byType(CreateButton), findsNothing);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(tester.getSize(find.byType(Dialog)).width, 560);

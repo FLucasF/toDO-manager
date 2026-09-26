@@ -33,7 +33,7 @@ class NoCardsBody extends StatelessWidget {
             style: TextStyle(color: context.tt.textTertiary),
           ),
           const SizedBox(height: 16),
-          CreatePill(label: AppLocalizations.of(context).finNewCard, onPressed: () => unawaited(showCardForm(context))),
+          CreateButton(label: AppLocalizations.of(context).finNewCard, onPressed: () => unawaited(showCardForm(context))),
         ],
       ),
     ),
@@ -82,7 +82,12 @@ class CardInvoiceBody extends ConsumerWidget {
               card.name,
               style: TextStyle(fontSize: TtText.body, fontWeight: FontWeight.w600, color: tt.text),
             ),
-            const SizedBox(width: 10),
+            IconButton(
+              tooltip: t.finEditCard,
+              visualDensity: VisualDensity.compact,
+              icon: Icon(Icons.edit_outlined, size: 18, color: tt.textSecondary),
+              onPressed: () => unawaited(showCardForm(context, editing: card)),
+            ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
@@ -151,6 +156,12 @@ class CardInvoiceBody extends ConsumerWidget {
               color: tt.palette.green,
               secondary: DateLabels.numeric(finDay(p.date)),
               title: formatMoney(p.amount),
+              onTap: () => unawaited(
+                showFinanceDialog<void>(
+                  context,
+                  builder: (_) => _PaymentForm(invoice: invoice, today: today, editing: p),
+                ),
+              ),
               trailing: IconButton(
                 tooltip: t.actionDelete,
                 visualDensity: VisualDensity.compact,
@@ -175,20 +186,21 @@ class CardInvoiceBody extends ConsumerWidget {
   }
 }
 
-/// "Pagar fatura": the amount (what is left, to begin with) and the day.
+/// "Pagar fatura": the amount (what is left, to begin with) and the day; [editing] a payment made.
 class _PaymentForm extends ConsumerStatefulWidget {
-  const _PaymentForm({required this.invoice, required this.today});
+  const _PaymentForm({required this.invoice, required this.today, this.editing});
 
   final InvoiceSummary invoice;
   final DateTime today;
+  final FinCardPayment? editing;
 
   @override
   ConsumerState<_PaymentForm> createState() => _PaymentFormState();
 }
 
 class _PaymentFormState extends ConsumerState<_PaymentForm> {
-  late final _amount = TextEditingController(text: formatMoney(widget.invoice.remaining, symbol: false));
-  late DateTime _date = widget.today;
+  late final _amount = TextEditingController(text: formatMoney(widget.editing?.amount ?? widget.invoice.remaining, symbol: false));
+  late DateTime _date = widget.editing == null ? widget.today : finDay(widget.editing!.date);
 
   @override
   void dispose() {
@@ -199,10 +211,24 @@ class _PaymentFormState extends ConsumerState<_PaymentForm> {
   Future<void> _save() async {
     final amount = parseMoney(_amount.text);
     if (amount == null || amount <= 0) return;
-    await ref
-        .read(financeRepositoryProvider)
-        .payInvoice(cardId: widget.invoice.card.id, invoiceMonth: widget.invoice.month, amount: amount, date: _date);
+    final repo = ref.read(financeRepositoryProvider);
+    if (widget.editing case final p?) {
+      await repo.updateCardPayment(p.id, amount: amount, date: _date);
+    } else {
+      await repo.payInvoice(cardId: widget.invoice.card.id, invoiceMonth: widget.invoice.month, amount: amount, date: _date);
+    }
     if (mounted) Navigator.pop(context, true);
+  }
+
+  Future<void> _delete(FinCardPayment p) async {
+    final t = AppLocalizations.of(context);
+    final repo = ref.read(financeRepositoryProvider);
+    final page = Navigator.of(context).context;
+    Navigator.pop(context);
+    await repo.deleteCardPayment(p.id);
+    if (page.mounted) {
+      showToast(page, t.finPaymentDeleted, undo: () => repo.deleteCardPayment(p.id, restore: true), redo: () => repo.deleteCardPayment(p.id));
+    }
   }
 
   @override
@@ -213,7 +239,14 @@ class _PaymentFormState extends ConsumerState<_PaymentForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: t.finPayInvoice, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: widget.editing == null ? t.finPayInvoice : t.finEditPayment,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final p? => () => unawaited(_delete(p)),
+            null => null,
+          },
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
           child: Column(
@@ -286,6 +319,20 @@ class _CardFormState extends ConsumerState<_CardForm> {
     if (mounted) Navigator.pop(context, id);
   }
 
+  /// A card with purchases or payments can't go (they'd lose it): archiving it hides it instead.
+  Future<void> _delete(FinCard card) async {
+    final t = AppLocalizations.of(context);
+    final repo = ref.read(financeRepositoryProvider);
+    if (!await confirm(context, message: t.finDeleteCard(card.name), confirmLabel: t.actionDelete)) return;
+    if (await repo.deleteCard(card.id)) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+    if (!mounted || !await confirm(context, message: t.finCardDeleteBlocked, confirmLabel: t.finArchive)) return;
+    await repo.archiveCard(card.id, archived: true);
+    if (mounted) Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -302,7 +349,14 @@ class _CardFormState extends ConsumerState<_CardForm> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FormHeader(title: widget.editing == null ? t.finNewCard : t.finEditCard, onSave: () => unawaited(_save())),
+        FormHeader(
+          title: widget.editing == null ? t.finNewCard : t.finEditCard,
+          onSave: () => unawaited(_save()),
+          onDelete: switch (widget.editing) {
+            final card? => () => unawaited(_delete(card)),
+            null => null,
+          },
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
           child: Column(

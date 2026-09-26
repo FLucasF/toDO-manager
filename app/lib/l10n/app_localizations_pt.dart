@@ -4630,4 +4630,48 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get habitColorMenu => 'Cor';
+
+  @override
+  String get finNewPurchase => 'Nova compra';
+
+  @override
+  String get habitNewButton => 'Novo hábito';
+
+  @override
+  String get countdownNew => 'Nova contagem';
+
+  @override
+  String get focusTimerNew => 'Novo temporizador';
+
+  @override
+  String get finEditPayment => 'Editar pagamento';
+
+  @override
+  String habitDeleteConfirm(String name) {
+    return 'Excluir o hábito \"$name\" e todos os check-ins dele? Isso não pode ser desfeito.';
+  }
+
+  @override
+  String get habitLogDelete => 'Excluir registro';
+
+  @override
+  String countdownDeleteConfirm(String name) {
+    return 'Excluir \"$name\"? Isso não pode ser desfeito.';
+  }
+
+  @override
+  String focusTimerDeleteConfirm(String name) {
+    return 'Excluir o temporizador \"$name\"? Os registros de foco continuam.';
+  }
+
+  @override
+  String get focusRecordDeleteConfirm => 'Excluir este registro de foco? Isso não pode ser desfeito.';
+
+  @override
+  String tagDeleteConfirm(String name) {
+    return 'Excluir a etiqueta \"$name\"? As tarefas continuam, sem ela.';
+  }
+
+  @override
+  String get listDeleteMenu => 'Deletar lista';
 }

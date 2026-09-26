@@ -130,6 +130,19 @@ class _EditPageState extends ConsumerState<_EditPage> {
     super.dispose();
   }
 
+  /// Deletar: of a repeating task, asks which occurrences first (as the details popup does).
+  Future<void> _delete(String id) async {
+    final task = ref.read(snapshotProvider).value?.taskById[id];
+    if (task == null) return;
+    final day = widget.draft.occurrence ?? task.startLocal ?? task.endLocal ?? ref.read(clockProvider).now();
+    final scope = await scopeFor(context, task, day, delete: true);
+    if (scope == null || !mounted) return;
+    final repo = ref.read(repositoryProvider);
+    final outer = Navigator.of(context).context;
+    Navigator.pop(context);
+    if (outer.mounted) await deleteOccurrence(outer, repo, task, day, scope);
+  }
+
   Future<void> _save() async {
     if (_saving) return;
     _saving = true;
@@ -332,6 +345,14 @@ class _EditPageState extends ConsumerState<_EditPage> {
                       ),
                     ),
                     const SizedBox(width: 16),
+                    if (widget.draft.taskId case final id?) ...[
+                      IconButton(
+                        tooltip: t.actionDelete,
+                        icon: Icon(Icons.delete_outline, color: tt.overdue),
+                        onPressed: () => unawaited(_delete(id)),
+                      ),
+                      const SizedBox(width: 8),
+                    ],
                     FilledButton(
                       style: FilledButton.styleFrom(shape: const StadiumBorder(), padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14)),
                       onPressed: () => unawaited(_save()),
