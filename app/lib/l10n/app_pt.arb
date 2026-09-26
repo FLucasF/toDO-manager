@@ -1549,5 +1549,13 @@
   "finCategoriesFilter": "Categorias…",
   "finSituation": "Situação",
   "finGroupBy": "Agrupar",
-  "finCreditAvailable": "Limite disponível"
+  "finCreditAvailable": "Limite disponível",
+  "habitPanelDone": "Feitos",
+  "habitPanelLeft": "Faltam",
+  "habitPanelNone": "Nenhum hábito para hoje.",
+  "habitPanelShow": "Exibir",
+  "countdownTypes": "Tipos",
+  "countdownCreateWhich": "Criar",
+  "matrixQuadrants": "Quadrantes",
+  "focusShortcuts": "Atalhos"
 }

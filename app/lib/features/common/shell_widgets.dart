@@ -349,9 +349,12 @@ class PanelNavRow extends StatelessWidget {
 /// The top bar: ☰ (the drawer on a phone; the left panel on a wide window when [onTogglePanel]),
 /// the title, then [actions] (pills, ‹ ›, ⋯).
 class ShellTopBar extends StatelessWidget {
-  const ShellTopBar({super.key, required this.title, this.onTogglePanel, this.actions = const [], this.titleTrailing});
+  const ShellTopBar({super.key, required this.title, this.onTogglePanel, this.actions = const [], this.titleTrailing, this.leading});
 
   final String title;
+
+  /// Just before the title (a "‹" back).
+  final Widget? leading;
   final VoidCallback? onTogglePanel;
   final List<Widget> actions;
 
@@ -376,6 +379,7 @@ class ShellTopBar extends StatelessWidget {
                 icon: Icon(Icons.menu, color: tt.textSecondary),
                 onPressed: onTogglePanel,
               ),
+            ?leading,
             // The title takes the room left; the actions stay at the end.
             Expanded(
               child: Row(

@@ -33,6 +33,7 @@ import 'package:task_manager/domain/filters.dart';
 import 'package:task_manager/domain/subscriptions.dart';
 import 'package:task_manager/domain/focus.dart';
 import 'package:task_manager/domain/views.dart';
+import 'package:task_manager/features/common/shell_widgets.dart';
 import 'package:task_manager/features/settings/notification_settings.dart';
 import 'package:task_manager/features/settings/settings_dialog.dart';
 import 'package:task_manager/features/tasks/task_list_pane.dart';
@@ -522,11 +523,9 @@ void main() {
       'countdown_grouped',
       '/countdown',
       interact: (tester) async {
-        await tester.tap(find.byIcon(Icons.more_horiz).last);
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Mostrar Grupo'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(ChoiceChip, 'Feriado'));
+        // Only the holidays: "⋮ › Mostrar só este" of the panel's Feriado.
+        await tester.tap(find.widgetWithText(PanelCheckRow, 'Contagem Regressiva'));
+        await tester.tap(find.widgetWithText(PanelCheckRow, 'Data Especial'));
         await tester.pumpAndSettle();
       },
     ),
@@ -603,8 +602,11 @@ void main() {
       'habit_cards',
       '/habit',
       interact: (tester) async {
-        await tester.tap(find.byIcon(Icons.grid_view_outlined));
-        await tester.pump();
+        // The top bar's view pill: Lista › Cartões.
+        await tester.tap(find.byType(ViewPill<bool>));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(CheckedPopupMenuItem<bool>).last);
+        await tester.pumpAndSettle();
       },
     ),
   );

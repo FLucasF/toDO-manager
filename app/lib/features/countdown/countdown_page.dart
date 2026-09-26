@@ -17,6 +17,7 @@ import '../../domain/snapshot.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/color_choice.dart';
 import '../common/feedback.dart';
+import '../common/shell_widgets.dart';
 import '../shell/app_shell.dart';
 import 'countdown_card.dart';
 import 'countdown_form.dart';
@@ -48,10 +49,36 @@ class CountdownPage extends ConsumerStatefulWidget {
 
 class _CountdownPageState extends ConsumerState<CountdownPage> {
   bool _archived = false;
-  bool _grouped = false;
 
-  /// Selected group tab while grouped; null means "Todas".
-  CountdownType? _tab;
+  /// Types unchecked in the left panel ("Tipos").
+  Set<CountdownType> _hidden = {};
+  bool _panel = true;
+
+  /// "+ Criar": which kind, then the form.
+  Future<void> _create() async {
+    final t = AppLocalizations.of(context);
+    final type = await showDialog<CountdownType>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(t.countdownCreateWhich),
+        children: [
+          for (final type in CountdownType.values)
+            SimpleDialogOption(onPressed: () => Navigator.pop(context, type), child: Text(countdownTypeLabel(t, type))),
+        ],
+      ),
+    );
+    if (type != null && mounted) await showCountdownForm(context, type: type);
+  }
+
+  Color _typeColor(CountdownType type) {
+    final tt = context.tt;
+    return switch (type) {
+      CountdownType.countdown => tt.primary,
+      CountdownType.specialDay => tt.palette.priorityMedium,
+      CountdownType.birthday => tt.palette.priorityHigh,
+      CountdownType.holiday => tt.palette.green,
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +86,8 @@ class _CountdownPageState extends ConsumerState<CountdownPage> {
     final tt = context.tt;
     final s = ref.watch(snapshotProvider).value ?? Snapshot.empty();
     final now = ref.watch(nowProvider).value ?? ref.watch(clockProvider).now();
-    final countdowns = sortCountdowns(
-      s.countdowns.where((c) => (c.archivedAt != null) == _archived && (!_grouped || _tab == null || c.type == _tab)),
-      now,
-    );
+    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
+    final countdowns = sortCountdowns(s.countdowns.where((c) => (c.archivedAt != null) == _archived && !_hidden.contains(c.type)), now);
 
     // A fixed card height: on a phone the two columns are narrow, and a width-based height cut the
     // legend off.
@@ -78,71 +103,94 @@ class _CountdownPageState extends ConsumerState<CountdownPage> {
       children: [for (final c in items) _CountdownTile(countdown: c)],
     );
 
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(12, 14, 16, 10),
-      child: Row(
-        children: [
-          const DrawerMenuButton(),
-          PopupMenuButton<bool>(
-            tooltip: '',
-            onSelected: (archived) => setState(() => _archived = archived),
-            itemBuilder: (_) => [
-              CheckedPopupMenuItem(value: false, checked: !_archived, child: Text(t.countdownActive)),
-              CheckedPopupMenuItem(value: true, checked: _archived, child: Text(t.countdownArchived)),
+    void toggleType(CountdownType type, {required bool shown}) => setState(() => _hidden = shown ? ({..._hidden}..remove(type)) : {..._hidden, type});
+
+    final header = ShellTopBar(
+      title: _archived ? t.countdownArchivedTitle : t.navCountdown,
+      onTogglePanel: () => setState(() => _panel = !_panel),
+      actions: [
+        PopupMenuButton<Object>(
+          tooltip: '',
+          icon: Icon(Icons.more_horiz, color: tt.textSecondary),
+          onSelected: (v) => switch (v) {
+            final CountdownType type => toggleType(type, shown: _hidden.contains(type)),
+            _ => setState(() => _archived = !_archived),
+          },
+          itemBuilder: (_) => [
+            CheckedPopupMenuItem<Object>(value: 'archived', checked: _archived, child: Text(t.countdownArchived)),
+            if (narrow) ...[
+              const PopupMenuDivider(),
+              for (final type in CountdownType.values)
+                CheckedPopupMenuItem<Object>(value: type, checked: !_hidden.contains(type), child: Text(countdownTypeLabel(t, type))),
             ],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                children: [
-                  Text(
-                    _archived ? t.countdownArchivedTitle : t.navCountdown,
-                    style: TextStyle(fontSize: TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
-                  ),
-                  Icon(Icons.expand_more, size: 18, color: tt.textTertiary),
-                ],
-              ),
-            ),
-          ),
-          const Spacer(),
-          PopupMenuButton<CountdownType>(
-            tooltip: '',
-            icon: Icon(Icons.add, color: tt.textSecondary),
-            onSelected: (type) => unawaited(showCountdownForm(context, type: type)),
-            itemBuilder: (_) => [
-              for (final type in CountdownType.values) PopupMenuItem(value: type, height: 36, child: Text(countdownTypeLabel(t, type))),
-            ],
-          ),
-          PopupMenuButton<String>(
-            tooltip: '',
-            icon: Icon(Icons.more_horiz, color: tt.textSecondary),
-            // "Mostrar Grupo" turns into "Ocultar Grupo" once the tabs are shown.
-            onSelected: (_) => setState(() {
-              _grouped = !_grouped;
-              _tab = null;
-            }),
-            itemBuilder: (_) => [PopupMenuItem(value: 'group', height: 36, child: Text(_grouped ? t.countdownHideGroup : t.countdownShowGroup))],
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     );
 
+    final panel = ShellPanel(
+      onCreate: () => unawaited(_create()),
+      children: [
+        PanelSection(
+          title: t.countdownTypes,
+          children: [
+            for (final type in CountdownType.values)
+              PanelCheckRow(
+                color: _typeColor(type),
+                label: countdownTypeLabel(t, type),
+                shown: !_hidden.contains(type),
+                trailing: '${s.countdowns.where((c) => c.type == type && (c.archivedAt != null) == _archived).length}',
+                onChanged: (on) => toggleType(type, shown: on),
+                onOnly: () => setState(() => _hidden = {...CountdownType.values}..remove(type)),
+              ),
+          ],
+        ),
+        PanelSection(
+          title: t.habitPanelShow,
+          children: [
+            PanelNavRow(
+              icon: Icons.hourglass_bottom,
+              label: t.countdownActive,
+              selected: !_archived,
+              trailing: '${s.countdowns.where((c) => c.archivedAt == null).length}',
+              onTap: () => setState(() => _archived = false),
+            ),
+            PanelNavRow(
+              icon: Icons.inventory_2_outlined,
+              label: t.countdownArchived,
+              selected: _archived,
+              trailing: '${s.countdowns.where((c) => c.archivedAt != null).length}',
+              onTap: () => setState(() => _archived = true),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    // One block per kind, each under its heading (as the Calendar's sections).
+    final types = [
+      for (final type in CountdownType.values)
+        if (countdowns.any((c) => c.type == type)) type,
+    ];
     final body = countdowns.isEmpty
         ? Center(
             child: Text(t.countdownEmpty, style: TextStyle(color: tt.textTertiary)),
           )
-        : ListView(padding: const EdgeInsets.fromLTRB(20, 4, 20, 24), children: [grid(countdowns)]);
+        : ListView(
+            padding: EdgeInsets.fromLTRB(narrow ? 12 : 20, 0, narrow ? 12 : 20, 24),
+            children: [
+              for (final (i, type) in types.indexed) ...[
+                if (i > 0) ...[const SizedBox(height: 8), Divider(height: 1, color: tt.divider)],
+                BodyHeading(countdownTypeLabel(t, type)),
+                grid([
+                  for (final c in countdowns)
+                    if (c.type == type) c,
+                ]),
+              ],
+            ],
+          );
 
-    final page = Container(
-      color: tt.screen,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          header,
-          if (_grouped) _GroupTabs(selected: _tab, onSelected: (type) => setState(() => _tab = type)),
-          Expanded(child: body),
-        ],
-      ),
-    );
+    final page = ShellLayout(panel: panel, panelOpen: _panel, topBar: header, body: body, onCreate: () => unawaited(_create()));
     return ModuleScaffold(module: AppModule.countdown, child: page);
   }
 }
@@ -337,40 +385,6 @@ class _CountdownTile extends ConsumerWidget {
         opacity: countdown.archivedAt == null ? 1 : 0.6,
         child: CountdownCardBody(countdown: countdown, style: countdown.style, color: parseHexColor(countdown.color) ?? tt.primary),
       ),
-    );
-  }
-}
-
-/// Group tabs shown by "Mostrar Grupo": Todas · Contagem Regressiva · Data Especial · Aniversário · Feriado.
-class _GroupTabs extends StatelessWidget {
-  const _GroupTabs({required this.selected, required this.onSelected});
-
-  final CountdownType? selected;
-  final ValueChanged<CountdownType?> onSelected;
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context);
-    final tt = context.tt;
-    Widget tab(CountdownType? type, String label) {
-      final active = type == selected;
-      return Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: ChoiceChip(
-          label: Text(label),
-          selected: active,
-          showCheckmark: false,
-          selectedColor: tt.primary,
-          labelStyle: TextStyle(fontSize: 13, color: active ? Colors.white : tt.textSecondary),
-          onSelected: (_) => onSelected(type),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-      child: Row(children: [tab(null, t.countdownAll), for (final type in CountdownType.values) tab(type, countdownTypeLabel(t, type))]),
     );
   }
 }

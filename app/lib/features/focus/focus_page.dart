@@ -25,6 +25,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
 import '../date_picker/date_picker.dart';
 import '../search/task_link_picker.dart';
+import '../common/shell_widgets.dart';
 import '../shell/app_shell.dart';
 
 final focusRecordsProvider = StreamProvider<List<FocusRecord>>((ref) => ref.watch(repositoryProvider).watchFocusRecords());
@@ -134,36 +135,57 @@ Future<void> showFocusSettings(BuildContext context, WidgetRef ref) async {
 
 /// Focus module (`#focus`): Pomo / Cronômetro, the ring, the buttons of each state, the end
 /// of the Pomo, the overview and "Foco em registro".
-class FocusPage extends ConsumerWidget {
+class FocusPage extends ConsumerStatefulWidget {
   const FocusPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tt = context.tt;
+  ConsumerState<FocusPage> createState() => _FocusPageState();
+}
+
+/// Foco in the Calendar's look: a left panel ("+ Criar" a timer and the shortcuts), the timers or the
+/// clock in the middle, and the day's numbers and the records on the right.
+class _FocusPageState extends ConsumerState<FocusPage> {
+  bool _panel = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
-    const main = _FocusMain();
+    final main = _FocusMain(onTogglePanel: () => setState(() => _panel = !_panel));
     const side = _FocusSide();
+    final panel = ShellPanel(
+      onCreate: () => unawaited(editFocusTimer(context, ref)),
+      children: [
+        PanelSection(
+          title: t.focusShortcuts,
+          children: [
+            PanelNavRow(icon: Icons.insights_outlined, label: t.statsTitle, selected: false, onTap: () => context.go(Routes.statisticsOf('pomo'))),
+            PanelNavRow(icon: Icons.tune, label: t.focusSettings, selected: false, onTap: () => unawaited(showFocusSettings(context, ref))),
+            PanelNavRow(icon: Icons.post_add, label: t.focusAddRecord, selected: false, onTap: () => unawaited(showFocusRecordForm(context))),
+          ],
+        ),
+      ],
+    );
     return ModuleScaffold(
       module: AppModule.focus,
-      child: ColoredBox(
-        color: tt.screen,
-        child: narrow
-            ? ListView(children: const [main, Divider(), side])
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Expanded(child: SingleChildScrollView(child: main)),
-                  Container(width: 1, color: tt.divider),
-                  const SizedBox(width: 380, child: SingleChildScrollView(child: side)),
-                ],
-              ),
+      child: ShellLayout(
+        panel: panel,
+        panelOpen: _panel,
+        // The bar is the clock's own (it changes with the timer list and the clock).
+        topBar: const SizedBox.shrink(),
+        body: narrow ? ListView(children: [main, const Divider(), side]) : SingleChildScrollView(child: main),
+        trailing: narrow ? null : const SizedBox(width: 380, child: SingleChildScrollView(child: side)),
+        onCreate: () => unawaited(editFocusTimer(context, ref)),
+        createLabel: t.focusTimerAdd,
       ),
     );
   }
 }
 
 class _FocusMain extends ConsumerStatefulWidget {
-  const _FocusMain();
+  const _FocusMain({required this.onTogglePanel});
+
+  final VoidCallback onTogglePanel;
 
   @override
   ConsumerState<_FocusMain> createState() => _FocusMainState();
@@ -175,35 +197,29 @@ class _FocusMainState extends ConsumerState<_FocusMain> {
   /// The timer list (with saved timers) instead of the clock; opening the page mid-session shows the clock.
   late bool _list = ref.read(focusProvider).phase == FocusPhase.idle;
 
-  /// "Foco" with, on the right, "+" (Adicionar temporizador.) and "…"; [back] returns to the timer list.
-  Widget _header(AppLocalizations t, TtColors tt, {required bool back}) => Row(
-    children: [
-      const DrawerMenuButton(),
-      if (back)
-        IconButton(
-          tooltip: t.focusTimers,
-          icon: Icon(Icons.chevron_left, color: tt.textSecondary),
-          onPressed: () => setState(() => _list = true),
-        ),
-      Text(
-        t.focusTitle,
-        style: TextStyle(fontSize: TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
-      ),
-      const Spacer(),
-      IconButton(
-        tooltip: t.focusTimerAdd,
-        icon: Icon(Icons.add, color: tt.textSecondary),
-        onPressed: () => unawaited(editFocusTimer(context, ref)),
-      ),
+  /// The Calendar's top bar: "Foco" (with "‹" back to the timer list when [back]) and "…".
+  Widget _header(AppLocalizations t, TtColors tt, {required bool back}) => ShellTopBar(
+    title: t.focusTitle,
+    onTogglePanel: widget.onTogglePanel,
+    leading: back
+        ? IconButton(
+            tooltip: t.focusTimers,
+            icon: Icon(Icons.chevron_left, color: tt.textSecondary),
+            onPressed: () => setState(() => _list = true),
+          )
+        : null,
+    actions: [
       PopupMenuButton<String>(
         tooltip: '',
         icon: Icon(Icons.more_horiz, color: tt.textSecondary),
         onSelected: (v) => switch (v) {
           'statistics' => context.go(Routes.statisticsOf('pomo')),
           'settings' => unawaited(showFocusSettings(context, ref)),
+          'timer' => unawaited(editFocusTimer(context, ref)),
           _ => unawaited(showFocusRecordForm(context)),
         },
         itemBuilder: (_) => [
+          PopupMenuItem(value: 'timer', height: 36, child: Text(t.focusTimerAdd)),
           PopupMenuItem(value: 'statistics', height: 36, child: Text(t.statsTitle)),
           PopupMenuItem(value: 'settings', height: 36, child: Text(t.focusSettings)),
           PopupMenuItem(value: 'add', height: 36, child: Text(t.focusAddRecord)),
@@ -309,18 +325,23 @@ class _FocusMainState extends ConsumerState<_FocusMain> {
     final idle = focus.phase == FocusPhase.idle;
     // With a saved timer the screen is the list of timers and a mini player.
     if (timers.isNotEmpty && _list) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _header(t, tt, back: false),
-            const SizedBox(height: 12),
-            FocusTimerList(records: ref.watch(focusRecordsProvider).value ?? const [], onStart: () => setState(() => _list = false)),
-            const SizedBox(height: 16),
-            Align(alignment: Alignment.centerLeft, child: _miniPlayer(t, tt, focus, now, settings, timers, linked)),
-          ],
-        ),
+      // The top bar at the Calendar's place; the content under it.
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _header(t, tt, back: false),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                FocusTimerList(records: ref.watch(focusRecordsProvider).value ?? const [], onStart: () => setState(() => _list = false)),
+                const SizedBox(height: 16),
+                Align(alignment: Alignment.centerLeft, child: _miniPlayer(t, tt, focus, now, settings, timers, linked)),
+              ],
+            ),
+          ),
+        ],
       );
     }
     if (idle && _note.text.isNotEmpty) _note.clear();
@@ -357,7 +378,7 @@ class _FocusMainState extends ConsumerState<_FocusMain> {
     };
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+      padding: const EdgeInsets.only(bottom: 24),
       child: Column(
         children: [
           _header(t, tt, back: timers.isNotEmpty),
@@ -547,19 +568,18 @@ class _FocusSide extends ConsumerWidget {
     final s = ref.watch(snapshotProvider).value ?? Snapshot.empty();
     final dates = DateLabels(t);
 
+    // The Calendar's figures: a small uppercase label over the value.
     Widget card(String label, String value) => Expanded(
-      child: Container(
-        margin: const EdgeInsets.all(4),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(8)),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              label,
-              style: TextStyle(fontSize: TtText.small, color: tt.textTertiary),
+              label.toUpperCase(),
+              style: TextStyle(fontSize: 11, letterSpacing: 0.4, fontWeight: FontWeight.w600, color: tt.textTertiary),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
               value,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: tt.text),

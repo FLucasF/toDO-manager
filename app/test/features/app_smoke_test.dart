@@ -14,6 +14,7 @@ import 'package:task_manager/core/ids.dart';
 import 'package:task_manager/data/db/database.dart';
 import 'package:task_manager/data/repository.dart';
 import 'package:task_manager/domain/enums.dart';
+import 'package:task_manager/features/common/shell_widgets.dart';
 import 'package:task_manager/features/countdown/countdown_page.dart';
 import 'package:task_manager/features/detail/content_editor.dart';
 import 'package:task_manager/features/tasks/batch_pane.dart';
@@ -488,9 +489,9 @@ void main() {
     // A menu over the page: back closes the menu, the page stays.
     await tester.tap(find.byIcon(Icons.more_horiz).first);
     await tester.pumpAndSettle();
-    expect(find.text('Mostrar Grupo'), findsOneWidget);
+    expect(find.text('Arquivado'), findsOneWidget);
     expect(await back(), isTrue);
-    expect(find.text('Mostrar Grupo'), findsNothing);
+    expect(find.text('Arquivado'), findsNothing);
     expect(find.byType(CountdownPage), findsOneWidget);
 
     // A module: back goes to Hoje; on Hoje, back is left to the system (the app closes).
@@ -525,7 +526,8 @@ void main() {
     await tester.tap(find.text('14 semanas'));
     await tester.pump();
     expect(find.text('3 meses'), findsOneWidget);
-    await tester.tap(find.byIcon(Icons.add));
+    // "+ Criar" of the left panel asks the kind.
+    await tester.tap(find.widgetWithText(CreatePill, 'Criar'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Aniversário').last);
     await tester.pumpAndSettle();
@@ -543,22 +545,14 @@ void main() {
     expect(created.repeatRule, startsWith('FREQ=YEARLY'), reason: 'birthdays repeat every year by default');
     expect(find.text('Aniversário da Ana'), findsOneWidget);
 
-    // "Mostrar Grupo" shows the type tabs and becomes "Ocultar Grupo".
-    await tester.tap(find.byIcon(Icons.more_horiz).last);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Mostrar Grupo'));
-    await tester.pumpAndSettle();
-    expect(find.widgetWithText(ChoiceChip, 'Todas'), findsOneWidget);
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Aniversário'));
+    // The panel's "Tipos": unchecking Feriado hides the holidays; each kind has its heading.
+    expect(find.widgetWithText(BodyHeading, 'Aniversário'), findsOneWidget);
+    await tester.tap(find.widgetWithText(PanelCheckRow, 'Feriado'));
     await tester.pumpAndSettle();
     expect(find.text('Aniversário da Ana'), findsOneWidget);
     expect(find.text('Dia de Ano Novo'), findsNothing);
-    await tester.tap(find.byIcon(Icons.more_horiz).last);
+    await tester.tap(find.widgetWithText(PanelCheckRow, 'Feriado'));
     await tester.pumpAndSettle();
-    expect(find.text('Ocultar Grupo'), findsOneWidget);
-    await tester.tap(find.text('Ocultar Grupo'));
-    await tester.pumpAndSettle();
-    expect(find.byType(ChoiceChip), findsNothing);
     expect(find.text('Dia de Ano Novo'), findsOneWidget);
     await _dispose(tester);
   });
@@ -610,7 +604,7 @@ void main() {
   testWidgets('habits: empty state, create through the form, check in today', (tester) async {
     await pumpApp(tester, '/habit');
     expect(find.text('Desenvolver um hábito'), findsOneWidget);
-    await tester.tap(find.byTooltip('Criar Hábito'));
+    await tester.tap(find.widgetWithText(CreatePill, 'Criar'));
     await tester.pumpAndSettle();
     // The gallery first: 15 ready-made habits per category, or "Criar novo".
     expect(find.text('Galeria de hábitos'), findsOneWidget);

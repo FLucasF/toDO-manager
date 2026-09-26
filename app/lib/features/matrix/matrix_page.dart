@@ -22,6 +22,7 @@ import '../../domain/views.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/labels.dart';
 import '../detail/task_detail_pane.dart';
+import '../common/shell_widgets.dart';
 import '../shell/app_shell.dart';
 import '../tasks/quick_add_modal.dart';
 import '../tasks/task_actions.dart';
@@ -29,82 +30,116 @@ import '../tasks/task_row.dart';
 
 /// Eisenhower Matrix (`#m/all/matrix`): four quadrants with their rules; a task dragged
 /// to another quadrant takes its priority (with its subtasks).
-class MatrixPage extends ConsumerWidget {
+class MatrixPage extends ConsumerStatefulWidget {
   const MatrixPage({super.key});
 
   static List<String> defaultNames(AppLocalizations t) => [t.matrixQ1, t.matrixQ2, t.matrixQ3, t.matrixQ4];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MatrixPage> createState() => _MatrixPageState();
+}
+
+class _MatrixPageState extends ConsumerState<MatrixPage> {
+  bool _panel = true;
+
+  /// A new task in the Inbox, with the priority of a single-priority quadrant.
+  Future<void> _add(QuadrantRule? rule) => showQuickAddModal(
+    context,
+    target: const AddTarget(listId: inboxListId, hint: AddPlainHint()),
+    priority: rule != null && rule.priorities.length == 1 ? rule.priorities.first : Priority.none,
+  );
+
+  @override
+  Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
     final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
     final prefs = ref.watch(preferencesProvider).value ?? Preferences.defaults;
+    final s = ref.watch(snapshotProvider).value ?? Snapshot.empty();
+    final now = ref.watch(nowProvider).value ?? ref.watch(clockProvider).now();
     final colors = [tt.palette.priorityHigh, tt.palette.priorityMedium, tt.palette.priorityLow, tt.textTertiary];
     Widget quadrant(int i) =>
         _Quadrant(index: i, rule: prefs.matrixRules[i], color: colors[i], hideCompleted: prefs.matrixHideCompleted, compact: narrow);
+    void setHideCompleted(bool hide) => unawaited(ref.read(preferencesRepositoryProvider).setMatrixHideCompleted(hide: hide));
 
-    final page = Container(
-      color: tt.screen,
+    final topBar = ShellTopBar(
+      title: t.navMatrix,
+      onTogglePanel: () => setState(() => _panel = !_panel),
+      actions: [
+        PopupMenuButton<String>(
+          tooltip: '',
+          icon: Icon(Icons.more_horiz, color: tt.textSecondary),
+          onSelected: (_) => setHideCompleted(!prefs.matrixHideCompleted),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'completed', height: 36, child: Text(prefs.matrixHideCompleted ? t.matrixShowCompleted : t.matrixHideCompleted)),
+          ],
+        ),
+      ],
+    );
+
+    // The left panel: "+ Criar", the quadrants with their counts (a click adds a task there) and
+    // "Mostrar concluídas".
+    final panel = ShellPanel(
+      onCreate: () => unawaited(_add(null)),
+      children: [
+        PanelSection(
+          title: t.matrixQuadrants,
+          children: [
+            for (var i = 0; i < 4; i++)
+              PanelNavRow(
+                color: colors[i],
+                label: prefs.matrixRules[i].name ?? MatrixPage.defaultNames(t)[i],
+                selected: false,
+                trailing: '${quadrantTasks(s, prefs.matrixRules[i], hideCompleted: prefs.matrixHideCompleted, now: now).length}',
+                onTap: () => unawaited(_add(prefs.matrixRules[i])),
+              ),
+          ],
+        ),
+        PanelSection(
+          title: t.habitPanelShow,
+          children: [
+            PanelCheckRow(
+              color: tt.primary,
+              label: t.calendarShowCompleted,
+              shown: !prefs.matrixHideCompleted,
+              onChanged: (on) => setHideCompleted(!on),
+            ),
+          ],
+        ),
+      ],
+    );
+
+    // The four quadrants on one screen (on a phone too, like TickTick's Android app), split by thin
+    // lines as the Calendar's grid.
+    final grid = Padding(
+      padding: narrow ? const EdgeInsets.fromLTRB(4, 0, 4, 4) : const EdgeInsets.fromLTRB(20, 0, 20, 12),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 14, 16, 8),
+          Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const DrawerMenuButton(),
-                Expanded(
-                  child: Text(
-                    t.navMatrix,
-                    style: TextStyle(fontSize: TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
-                  ),
-                ),
-                PopupMenuButton<String>(
-                  tooltip: '',
-                  icon: Icon(Icons.more_horiz, color: tt.textSecondary),
-                  onSelected: (_) => unawaited(ref.read(preferencesRepositoryProvider).setMatrixHideCompleted(hide: !prefs.matrixHideCompleted)),
-                  itemBuilder: (_) => [
-                    PopupMenuItem(
-                      value: 'completed',
-                      height: 36,
-                      child: Text(prefs.matrixHideCompleted ? t.matrixShowCompleted : t.matrixHideCompleted),
-                    ),
-                  ],
-                ),
+                Expanded(child: quadrant(0)),
+                Expanded(child: quadrant(1)),
               ],
             ),
           ),
-          // The four quadrants on one screen, on a phone too (like TickTick's Android app).
           Expanded(
-            child: Padding(
-              padding: narrow ? const EdgeInsets.fromLTRB(4, 0, 4, 4) : const EdgeInsets.fromLTRB(12, 0, 12, 12),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(child: quadrant(0)),
-                        Expanded(child: quadrant(1)),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Expanded(child: quadrant(2)),
-                        Expanded(child: quadrant(3)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(child: quadrant(2)),
+                Expanded(child: quadrant(3)),
+              ],
             ),
           ),
         ],
       ),
     );
-    return ModuleScaffold(module: AppModule.matrix, child: page);
+    return ModuleScaffold(
+      module: AppModule.matrix,
+      child: ShellLayout(panel: panel, panelOpen: _panel, topBar: topBar, body: grid, onCreate: () => unawaited(_add(null))),
+    );
   }
 }
 
@@ -145,11 +180,12 @@ class _Quadrant extends ConsumerWidget {
       onWillAcceptWithDetails: (_) => rule.priorities.isNotEmpty || rule.dates.isNotEmpty,
       onAcceptWithDetails: (d) => unawaited(_drop(ref, d.data, rule, startOfDay(now))),
       builder: (context, candidates, _) => Container(
-        margin: EdgeInsets.all(compact ? 3 : 6),
         decoration: BoxDecoration(
-          color: candidates.isNotEmpty ? color.withValues(alpha: 0.08) : tt.fieldFill,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: candidates.isNotEmpty ? color : tt.divider),
+          color: candidates.isNotEmpty ? color.withValues(alpha: 0.08) : null,
+          border: Border(
+            right: index.isEven ? BorderSide(color: tt.divider) : BorderSide.none,
+            bottom: index < 2 ? BorderSide(color: tt.divider) : BorderSide.none,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

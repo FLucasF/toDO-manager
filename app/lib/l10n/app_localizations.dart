@@ -8670,6 +8670,54 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Limite disponível'**
   String get finCreditAvailable;
+
+  /// No description provided for @habitPanelDone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Feitos'**
+  String get habitPanelDone;
+
+  /// No description provided for @habitPanelLeft.
+  ///
+  /// In pt, this message translates to:
+  /// **'Faltam'**
+  String get habitPanelLeft;
+
+  /// No description provided for @habitPanelNone.
+  ///
+  /// In pt, this message translates to:
+  /// **'Nenhum hábito para hoje.'**
+  String get habitPanelNone;
+
+  /// No description provided for @habitPanelShow.
+  ///
+  /// In pt, this message translates to:
+  /// **'Exibir'**
+  String get habitPanelShow;
+
+  /// No description provided for @countdownTypes.
+  ///
+  /// In pt, this message translates to:
+  /// **'Tipos'**
+  String get countdownTypes;
+
+  /// No description provided for @countdownCreateWhich.
+  ///
+  /// In pt, this message translates to:
+  /// **'Criar'**
+  String get countdownCreateWhich;
+
+  /// No description provided for @matrixQuadrants.
+  ///
+  /// In pt, this message translates to:
+  /// **'Quadrantes'**
+  String get matrixQuadrants;
+
+  /// No description provided for @focusShortcuts.
+  ///
+  /// In pt, this message translates to:
+  /// **'Atalhos'**
+  String get focusShortcuts;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

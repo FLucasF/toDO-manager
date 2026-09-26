@@ -20,6 +20,8 @@ import '../../domain/habits.dart';
 import '../../domain/snapshot.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/feedback.dart';
+import '../common/shell_widgets.dart';
+import '../date_picker/month_calendar.dart';
 import '../shell/app_shell.dart';
 import 'habit_export.dart';
 import 'habit_form.dart';
@@ -82,6 +84,10 @@ class _HabitPageState extends ConsumerState<HabitPage> {
   /// The habit shown in the side panel (wide screens).
   String? _selected;
 
+  /// The left panel (wide screens) and the month its calendar shows (null follows the day filter).
+  bool _panel = true;
+  DateTime? _panelMonth;
+
   /// Wide enough for the list and the habit side by side.
   static const _panelBreakpoint = 1100.0;
 
@@ -112,52 +118,109 @@ class _HabitPageState extends ConsumerState<HabitPage> {
     final filterDay = _filterDay;
     final shown = filterDay == null ? habits : habits.where((h) => habitIsDue(h, filterDay)).toList();
 
-    final header = Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 16, 6),
-      child: Row(
-        children: [
-          const DrawerMenuButton(),
-          PopupMenuButton<bool>(
-            tooltip: '',
-            onSelected: (v) => setState(() => _archived = v),
-            itemBuilder: (_) => [
-              CheckedPopupMenuItem(value: false, checked: !_archived, child: Text(t.habitActive)),
-              CheckedPopupMenuItem(value: true, checked: _archived, child: Text(t.habitArchived)),
+    final header = ShellTopBar(
+      title: _archived ? '${t.navHabit} · ${t.habitArchived}' : t.navHabit,
+      onTogglePanel: () => setState(() => _panel = !_panel),
+      actions: [
+        if (!_archived)
+          ViewPill<bool>(
+            label: _cards ? t.habitCardView : t.habitListView,
+            onSelected: (v) => setState(() => _cards = v),
+            items: () => [
+              CheckedPopupMenuItem(value: false, checked: !_cards, child: Text(t.habitListView)),
+              CheckedPopupMenuItem(value: true, checked: _cards, child: Text(t.habitCardView)),
             ],
-            child: Row(
-              children: [
-                Text(
-                  t.navHabit,
-                  style: TextStyle(fontSize: TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
+          ),
+        SizedBox(width: narrow ? 4 : 8),
+        TodayPill(
+          label: t.calendarToday,
+          onPressed: () => setState(() {
+            _filterDay = null;
+            _panelMonth = null;
+          }),
+        ),
+        PopupMenuButton<String>(
+          tooltip: '',
+          icon: Icon(Icons.more_horiz, color: tt.textSecondary),
+          onSelected: (v) => switch (v) {
+            'export' => unawaited(exportHabits(context, ref)),
+            'archived' => setState(() => _archived = !_archived),
+            _ => unawaited(showHabitSettings(context)),
+          },
+          itemBuilder: (_) => [
+            CheckedPopupMenuItem(value: 'archived', checked: _archived, child: Text(t.habitArchived)),
+            PopupMenuItem(value: 'settings', height: 36, child: Text(t.habitSettings)),
+            PopupMenuItem(value: 'export', height: 36, child: Text(t.habitExport)),
+          ],
+        ),
+      ],
+    );
+
+    // The left panel: "+ Criar", the month (a day filters the list), today's progress and Ativo / Arquivado.
+    final active = s.habits.where((h) => h.archivedAt == null).toList();
+    final dueToday = active.where((h) => habitIsDue(h, today)).toList();
+    final doneToday = dueToday.where((h) => habitDayState(h, _checkinOn(s, h.id, today), today) == HabitDayState.done).length;
+    final shownMonth = _panelMonth ?? DateTime((filterDay ?? today).year, (filterDay ?? today).month);
+    final panel = ShellPanel(
+      onCreate: () => unawaited(showHabitGallery(context)),
+      children: [
+        MonthCalendar(
+          month: shownMonth,
+          today: today,
+          isSelected: (day) => filterDay != null && daysBetween(day, filterDay) == 0,
+          occurrences: const {},
+          title: dates.monthTitle(shownMonth),
+          onPrevious: () => setState(() => _panelMonth = DateTime(shownMonth.year, shownMonth.month - 1)),
+          onNext: () => setState(() => _panelMonth = DateTime(shownMonth.year, shownMonth.month + 1)),
+          onToday: () => setState(() {
+            _panelMonth = null;
+            _filterDay = null;
+          }),
+          onPick: (day) => setState(() {
+            _panelMonth = null;
+            _filterDay = daysBetween(day, today) == 0 ? null : day;
+          }),
+        ),
+        PanelSection(
+          title: t.calendarToday,
+          children: [
+            PanelBarSummary(
+              period: dates.fullDate(today),
+              slices: [
+                (name: t.habitPanelDone, value: doneToday.toDouble(), color: tt.primary, valueLabel: '$doneToday'),
+                (
+                  name: t.habitPanelLeft,
+                  value: (dueToday.length - doneToday).toDouble(),
+                  color: tt.divider,
+                  valueLabel: '${dueToday.length - doneToday}',
                 ),
-                Icon(Icons.expand_more, size: 18, color: tt.textTertiary),
               ],
+              empty: t.habitPanelNone,
+              moreLabel: t.statsTitle,
+              onMore: () => context.go(Routes.statistics),
             ),
-          ),
-          const Spacer(),
-          // Cards or list (the "habit-card" icon).
-          IconButton(
-            tooltip: _cards ? t.habitListView : t.habitCardView,
-            icon: Icon(_cards ? Icons.view_list_outlined : Icons.grid_view_outlined, color: tt.textSecondary),
-            onPressed: () => setState(() => _cards = !_cards),
-          ),
-          IconButton(
-            tooltip: t.habitNew,
-            icon: Icon(Icons.add, color: tt.textSecondary),
-            // "Galeria de hábitos" with "Criar novo".
-            onPressed: () => unawaited(showHabitGallery(context)),
-          ),
-          PopupMenuButton<String>(
-            tooltip: '',
-            icon: Icon(Icons.more_horiz, color: tt.textSecondary),
-            onSelected: (v) => unawaited(v == 'export' ? exportHabits(context, ref) : showHabitSettings(context)),
-            itemBuilder: (_) => [
-              PopupMenuItem(value: 'settings', height: 36, child: Text(t.habitSettings)),
-              PopupMenuItem(value: 'export', height: 36, child: Text(t.habitExport)),
-            ],
-          ),
-        ],
-      ),
+          ],
+        ),
+        PanelSection(
+          title: t.habitPanelShow,
+          children: [
+            PanelNavRow(
+              icon: Icons.track_changes,
+              label: t.habitActive,
+              selected: !_archived,
+              trailing: '${active.length}',
+              onTap: () => setState(() => _archived = false),
+            ),
+            PanelNavRow(
+              icon: Icons.inventory_2_outlined,
+              label: t.habitArchived,
+              selected: _archived,
+              trailing: '${s.habits.length - active.length}',
+              onTap: () => setState(() => _archived = true),
+            ),
+          ],
+        ),
+      ],
     );
 
     // The last 7 days: each shows how many of its habits are done; a click filters by that day.
@@ -178,7 +241,10 @@ class _HabitPageState extends ConsumerState<HabitPage> {
                   decoration: BoxDecoration(color: _filterDay == d ? tt.selected : null, borderRadius: BorderRadius.circular(8)),
                   child: Column(
                     children: [
-                      Text(dates.weekdayShort(d), style: TextStyle(fontSize: 11, color: tt.textTertiary)),
+                      Text(
+                        dates.weekdayShort(d).toUpperCase(),
+                        style: TextStyle(fontSize: 10, letterSpacing: 0.4, fontWeight: FontWeight.w600, color: tt.textTertiary),
+                      ),
                       const SizedBox(height: 4),
                       SizedBox(
                         width: 28,
@@ -351,7 +417,7 @@ class _HabitPageState extends ConsumerState<HabitPage> {
                     padding: const EdgeInsets.fromLTRB(20, 14, 20, 4),
                     child: Text(
                       habitSectionLabel(t, section),
-                      style: TextStyle(fontWeight: FontWeight.w600, color: tt.textSecondary, fontSize: TtText.small),
+                      style: TextStyle(fontWeight: FontWeight.w600, color: tt.text, fontSize: TtText.body),
                     ),
                   ),
                   for (final h in shown.where((h) => h.section == section)) row(h),
@@ -364,7 +430,6 @@ class _HabitPageState extends ConsumerState<HabitPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          header,
           if (!_archived) strip,
           if (filterDay != null)
             Padding(
@@ -382,27 +447,25 @@ class _HabitPageState extends ConsumerState<HabitPage> {
     );
     final wide = MediaQuery.sizeOf(context).width >= _panelBreakpoint;
     final selected = _selected;
+    // The opened habit on the right, or a quiet placeholder, like the task detail column.
+    final detail = !wide || _archived
+        ? null
+        : SizedBox(
+            width: 440,
+            child: selected == null || !s.habits.any((x) => x.id == selected)
+                ? Center(child: Icon(Icons.track_changes, size: 96, color: tt.divider))
+                : _HabitDetail(key: ValueKey(selected), habitId: selected, onClose: () => setState(() => _selected = null)),
+          );
     return ModuleScaffold(
       module: AppModule.habit,
-      child: !wide || _archived
-          ? page
-          : Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: page),
-                // The opened habit, or a quiet placeholder, like the task detail column.
-                Container(
-                  width: 440,
-                  decoration: BoxDecoration(
-                    color: tt.screen,
-                    border: Border(left: BorderSide(color: tt.divider)),
-                  ),
-                  child: selected == null || !s.habits.any((x) => x.id == selected)
-                      ? Center(child: Icon(Icons.track_changes, size: 96, color: tt.divider))
-                      : _HabitDetail(key: ValueKey(selected), habitId: selected, onClose: () => setState(() => _selected = null)),
-                ),
-              ],
-            ),
+      child: ShellLayout(
+        panel: panel,
+        panelOpen: _panel,
+        topBar: header,
+        body: page,
+        trailing: detail,
+        onCreate: () => unawaited(showHabitGallery(context)),
+      ),
     );
   }
 

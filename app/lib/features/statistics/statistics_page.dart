@@ -18,6 +18,7 @@ import '../common/labels.dart';
 import '../focus/focus_page.dart' show focusRecordsProvider;
 import '../focus/focus_timers.dart' show focusLinkName;
 import '../habits/habit_widgets.dart';
+import '../common/shell_widgets.dart';
 import 'charts.dart';
 
 /// Tabs of the statistics (`#statistics/{tab}`).
@@ -38,60 +39,78 @@ TextStyle _dropdownStyle(BuildContext context) =>
 
 String _duration(AppLocalizations t, Duration d) => focusDuration(d, hours: t.focusHours, minutes: t.focusMins);
 
-/// Estatísticas: Visão geral · Tarefa · Foco, and "Concluído" to close.
-class StatisticsPage extends ConsumerWidget {
+/// Estatísticas in the Calendar's look: the tabs in the left panel (and in the top bar's pill on a
+/// phone), "Concluído" to close, and flat sections split by thin lines.
+class StatisticsPage extends ConsumerStatefulWidget {
   const StatisticsPage({super.key, required this.tab});
 
   final StatsTab tab;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<StatisticsPage> createState() => _StatisticsPageState();
+}
+
+class _StatisticsPageState extends ConsumerState<StatisticsPage> {
+  bool _panel = true;
+
+  @override
+  Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final tt = context.tt;
-    final narrow = MediaQuery.sizeOf(context).width < TtSizes.narrowBreakpoint;
-    Widget tabButton(StatsTab value, String label) => TextButton(
-      onPressed: () => context.go(Routes.statisticsOf(value.route)),
-      style: TextButton.styleFrom(foregroundColor: value == tab ? tt.primary : tt.textSecondary),
-      child: Text(label, style: TextStyle(fontSize: 15, fontWeight: value == tab ? FontWeight.w700 : FontWeight.w400)),
+    final tabs = [
+      (StatsTab.overview, t.statsOverview, Icons.dashboard_outlined),
+      (StatsTab.task, t.statsTask, Icons.check_box_outlined),
+      (StatsTab.pomo, t.statsFocus, Icons.timer_outlined),
+    ];
+    final label = tabs.firstWhere((x) => x.$1 == widget.tab).$2;
+    final panel = ShellPanel(
+      children: [
+        PanelSection(
+          title: t.statsTitle,
+          children: [
+            for (final (value, name, icon) in tabs)
+              PanelNavRow(icon: icon, label: name, selected: value == widget.tab, onTap: () => context.go(Routes.statisticsOf(value.route))),
+          ],
+        ),
+      ],
+    );
+    final topBar = ShellTopBar(
+      title: t.statsTitle,
+      onTogglePanel: () => setState(() => _panel = !_panel),
+      actions: [
+        ViewPill<StatsTab>(
+          label: label,
+          onSelected: (value) => context.go(Routes.statisticsOf(value.route)),
+          items: () => [for (final (value, name, _) in tabs) CheckedPopupMenuItem(value: value, checked: value == widget.tab, child: Text(name))],
+        ),
+        const SizedBox(width: 8),
+        TodayPill(label: t.statsDone, onPressed: () => context.go(Routes.initial)),
+        const SizedBox(width: 8),
+      ],
     );
     return Scaffold(
       backgroundColor: tt.screen,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(narrow ? 8 : 24, 12, narrow ? 20 : 24, 4),
-              child: Row(
-                children: [
-                  tabButton(StatsTab.overview, t.statsOverview),
-                  tabButton(StatsTab.task, t.statsTask),
-                  tabButton(StatsTab.pomo, t.statsFocus),
-                  const Spacer(),
-                  FilledButton(onPressed: () => context.go(Routes.initial), child: Text(t.statsDone)),
-                ],
-              ),
+        child: ShellLayout(
+          panel: panel,
+          panelOpen: _panel,
+          topBar: topBar,
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 960),
+              child: switch (widget.tab) {
+                StatsTab.overview => const _Overview(),
+                StatsTab.task => const _TaskTab(),
+                StatsTab.pomo => const _FocusTab(),
+              },
             ),
-            Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 960),
-                  child: switch (tab) {
-                    StatsTab.overview => const _Overview(),
-                    StatsTab.task => const _TaskTab(),
-                    StatsTab.pomo => const _FocusTab(),
-                  },
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-
-// ------------------------------------------------------------------ shared pieces
 
 class _Card extends StatelessWidget {
   const _Card({required this.title, required this.child, this.trailing});
@@ -104,9 +123,11 @@ class _Card extends StatelessWidget {
   Widget build(BuildContext context) {
     final tt = context.tt;
     return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(10)),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: tt.divider)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -140,20 +161,19 @@ class _Figure extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tt = context.tt;
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: tt.fieldFill, borderRadius: BorderRadius.circular(10)),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            value,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: tt.text),
+            label.toUpperCase(),
+            style: TextStyle(fontSize: 11, letterSpacing: 0.4, fontWeight: FontWeight.w600, color: tt.textTertiary),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 2),
           Text(
-            label,
-            style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
+            value,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: tt.text),
           ),
           if (change != null) Text(change!, style: TextStyle(fontSize: 11, color: tt.textTertiary)),
         ],

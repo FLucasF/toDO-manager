@@ -4600,4 +4600,28 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get finCreditAvailable => 'Limite disponível';
+
+  @override
+  String get habitPanelDone => 'Feitos';
+
+  @override
+  String get habitPanelLeft => 'Faltam';
+
+  @override
+  String get habitPanelNone => 'Nenhum hábito para hoje.';
+
+  @override
+  String get habitPanelShow => 'Exibir';
+
+  @override
+  String get countdownTypes => 'Tipos';
+
+  @override
+  String get countdownCreateWhich => 'Criar';
+
+  @override
+  String get matrixQuadrants => 'Quadrantes';
+
+  @override
+  String get focusShortcuts => 'Atalhos';
 }
