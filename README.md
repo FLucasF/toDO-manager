@@ -17,6 +17,7 @@ Os dados ficam **só no seu aparelho**: não tem conta, login nem servidor. Para
   - Foco (Pomodoro e cronômetro), com registros e estatísticas;
   - Hábitos, com metas e histórico;
   - Contagem regressiva (datas especiais, aniversários, feriados);
+  - Finanças: receitas e despesas, categorias com limite, cartão de crédito com faturas e parcelas, contas fixas, empréstimos e relatórios;
   - Resumo com modelos e exportação;
   - Calendários assinados (.ics), com os feriados do Brasil já prontos.
 - **Conteúdo das tarefas:** editor com títulos, listas, checklist, citação, código, links e vínculo entre tarefas (`[[`). Tem menu `/` e escrita imersiva.
@@ -108,7 +109,7 @@ adb install -r app/build/app/outputs/flutter-apk/app-release.apk
 
 ### Primeiros passos
 
-- A tela inicial é **Hoje**. No Windows, a barra lateral mostra smart lists, listas, filtros e etiquetas. No celular elas ficam na gaveta **☰**, junto com Hábitos, Contagem Regressiva e Foco.
+- A tela inicial é **Hoje**. No Windows, a barra lateral mostra smart lists, listas, filtros e etiquetas. No celular elas ficam na gaveta **☰**, junto com Calendário, Matriz, Hábitos, Contagem Regressiva, Foco e Finanças. No celular também há Kanban, e segurar uma tarefa mostra **Selecionar** para editar várias de uma vez.
 - Para **criar uma lista**, use o **+** ao lado de "Listas". Nela você escolhe a cor, o ícone, a pasta e se é lista de tarefas ou de notas.
 - Para **adicionar uma tarefa**, escreva no campo do topo da lista e aperte Enter. No Windows, a tecla `N` abre a adição rápida de qualquer lugar.
 - **Abrir, concluir e organizar:** clique numa tarefa para abrir o detalhe; a caixinha conclui. O botão direito (ou o **…**) abre o menu: data, prioridade, mover, etiquetas, foco, duplicar, converter em nota…
@@ -153,6 +154,13 @@ Escreva tudo no título, e o app entende:
 - **Foco:** Pomodoro ou cronômetro, com ou sem tarefa vinculada. Os registros aparecem na própria tela e nas Estatísticas. O aviso de fim do Pomo e da pausa chega mesmo com o app fechado, com som de **despertador** (troque em **… → Configurações de foco → Som do Pomo**). Fechar o app não perde o Pomo em andamento.
 - **Hábitos:** marque o dia no círculo. Ao criar, escolha na galeria ou crie o seu, com meta, frequência e lembrete.
 - **Contagem regressiva:** para contagens, datas especiais, aniversários e feriados. O **…** do topo agrupa por tipo.
+- **Finanças** (valores em reais):
+  - **Lançamentos:** receitas e despesas com valor, data, descrição, categoria e cartão. Veja por mês, ano ou período, filtre por categoria, tipo ou palavra;
+  - **Categorias:** as prontas e as suas, com **limite por mês**; o app avisa a partir de 80% do limite;
+  - **Cartões:** dia de fechamento e de vencimento, fatura de cada mês (aberta, fechada, paga ou vencida), compras **parceladas** distribuídas nas faturas seguintes e **Pagar fatura** (o pagamento não conta como gasto de novo). A compra conta no mês da fatura;
+  - **Contas fixas:** aluguel, assinaturas, salário, mensais ou anuais, com lembrete. Ao **Pagar** (ou **Receber**), vira lançamento;
+  - **Empréstimos:** quem pegou, valor, data, vencimento e juros (em % ou pelo total a receber); o app mostra o lucro, os pagamentos (inclusive parciais), o saldo e se está em dia, atrasado ou quitado, e avisa no vencimento e no atraso;
+  - **Relatórios:** gastos por categoria, receitas × despesas dos últimos meses, comparação entre dois meses e o resumo dos empréstimos.
 - **Resumo:** um relatório do período que pode ser editado. Dá para copiar, salvar em PDF ou imagem, mandar por e-mail ou inserir numa nota.
 - **Busca:** tecla `/`. A paleta de comandos é `Ctrl+K`, e `?` mostra todos os atalhos. As teclas podem ser mudadas em Configurações → Atalhos.
 

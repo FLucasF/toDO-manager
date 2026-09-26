@@ -164,7 +164,11 @@ class _OccurrenceRow extends ConsumerWidget {
           const SizedBox(width: 8),
           if (entry == null)
             FilledButton.tonal(
-              style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+              style: FilledButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                backgroundColor: tt.primary.withValues(alpha: 0.15),
+                foregroundColor: tt.primary,
+              ),
               onPressed: () => unawaited(showConfirmPayment(context, occurrence)),
               child: Text(r.kind == FinKind.income ? t.finConfirmReceived : t.finConfirmPaid),
             )

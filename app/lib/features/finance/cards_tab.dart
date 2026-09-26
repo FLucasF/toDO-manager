@@ -51,11 +51,11 @@ class _CardsTabState extends ConsumerState<CardsTab> {
           for (final c in cards)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: ChoiceChip(
-                avatar: const Icon(Icons.credit_card, size: 16),
-                label: Text(c.name),
+              child: FinChip(
+                icon: Icons.credit_card,
+                label: c.name,
                 selected: c.id == card?.id,
-                onSelected: (_) => setState(() {
+                onTap: () => setState(() {
                   _cardId = c.id;
                   _month = null;
                 }),
@@ -71,11 +71,11 @@ class _CardsTabState extends ConsumerState<CardsTab> {
           ),
           if (hasArchived || _archived) ...[
             const SizedBox(width: 8),
-            FilterChip(
-              label: Text(t.finArchivedCards),
+            FinChip(
+              label: t.finArchivedCards,
               selected: _archived,
-              onSelected: (on) => setState(() {
-                _archived = on;
+              onTap: () => setState(() {
+                _archived = !_archived;
                 _cardId = null;
                 _month = null;
               }),

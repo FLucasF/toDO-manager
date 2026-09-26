@@ -104,10 +104,21 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     style: TextStyle(fontSize: TtText.listTitle, fontWeight: FontWeight.w600, color: tt.text),
                   ),
                 ),
+                // "+" adds what the tab shows: a bill, a loan, a category, or else an entry.
                 IconButton(
-                  tooltip: t.finNewEntry,
+                  tooltip: switch (widget.tab) {
+                    FinanceTab.recurring => t.finNewRecurring,
+                    FinanceTab.loans => t.finNewLoan,
+                    FinanceTab.categories => t.finNewCategory,
+                    _ => t.finNewEntry,
+                  },
                   icon: Icon(Icons.add, color: tt.textSecondary),
-                  onPressed: () => unawaited(showEntryForm(context)),
+                  onPressed: () => unawaited(switch (widget.tab) {
+                    FinanceTab.recurring => showRecurringForm(context),
+                    FinanceTab.loans => showLoanForm(context),
+                    FinanceTab.categories => showCategoryForm(context, kind: FinKind.expense),
+                    _ => showEntryForm(context),
+                  }),
                 ),
               ],
             ),

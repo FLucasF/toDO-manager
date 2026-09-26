@@ -96,3 +96,28 @@ class FormHeader extends StatelessWidget {
     );
   }
 }
+
+/// A chip of the finance tabs, selected in the app's blue.
+class FinChip extends StatelessWidget {
+  const FinChip({super.key, required this.label, required this.selected, required this.onTap, this.icon});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final tt = context.tt;
+    return ChoiceChip(
+      label: Text(label),
+      avatar: icon == null ? null : Icon(icon, size: 16, color: selected ? tt.primary : tt.textSecondary),
+      selected: selected,
+      showCheckmark: false,
+      selectedColor: tt.primary.withValues(alpha: 0.15),
+      labelStyle: TextStyle(color: selected ? tt.primary : tt.text, fontWeight: selected ? FontWeight.w600 : FontWeight.w400),
+      side: BorderSide(color: selected ? tt.primary.withValues(alpha: 0.4) : tt.divider),
+      onSelected: (_) => onTap(),
+    );
+  }
+}

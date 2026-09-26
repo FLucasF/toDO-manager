@@ -52,33 +52,23 @@ class _LoansTabState extends ConsumerState<LoansTab> {
       children: [
         LoansOverviewCards(overview: loansOverview(loans)),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: [
-                    for (final (f, label) in [
-                      (_LoanFilter.open, t.finLoansOpen),
-                      (_LoanFilter.overdue, t.finLoansOverdue),
-                      (_LoanFilter.paid, t.finLoansPaid),
-                      (_LoanFilter.all, t.finLoansAll),
-                    ])
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: ChoiceChip(label: Text(label), selected: _filter == f, onSelected: (_) => setState(() => _filter = f)),
-                      ),
-                  ],
+        // "Novo empréstimo" is the "+" of the header.
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final (f, label) in [
+                (_LoanFilter.open, t.finLoansOpen),
+                (_LoanFilter.overdue, t.finLoansOverdue),
+                (_LoanFilter.paid, t.finLoansPaid),
+                (_LoanFilter.all, t.finLoansAll),
+              ])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FinChip(label: label, selected: _filter == f, onTap: () => setState(() => _filter = f)),
                 ),
-              ),
-            ),
-            IconButton(
-              tooltip: t.finNewLoan,
-              icon: Icon(Icons.add, color: tt.textSecondary),
-              onPressed: () => unawaited(showLoanForm(context)),
-            ),
-          ],
+            ],
+          ),
         ),
         if (shown.isEmpty)
           Padding(
