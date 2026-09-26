@@ -28,6 +28,9 @@ class LoansTab extends ConsumerStatefulWidget {
 class _LoansTabState extends ConsumerState<LoansTab> {
   _LoanFilter _filter = _LoanFilter.open;
 
+  /// Months of the due day (what comes in each month) or of the day the money was lent.
+  bool _byDue = true;
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
@@ -79,8 +82,75 @@ class _LoansTabState extends ConsumerState<LoansTab> {
               style: TextStyle(color: tt.textTertiary),
             ),
           ),
-        for (final l in shown) _LoanRow(summary: l),
+        if (shown.isNotEmpty)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: PopupMenuButton<bool>(
+              tooltip: '',
+              onSelected: (v) => setState(() => _byDue = v),
+              itemBuilder: (_) => [
+                CheckedPopupMenuItem(value: true, checked: _byDue, child: Text(t.finByDueMonth)),
+                CheckedPopupMenuItem(value: false, checked: !_byDue, child: Text(t.finByLentMonth)),
+              ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.calendar_month_outlined, size: 16, color: tt.textSecondary),
+                    const SizedBox(width: 6),
+                    Text(
+                      _byDue ? t.finByDueMonth : t.finByLentMonth,
+                      style: TextStyle(fontSize: TtText.small, color: tt.textSecondary),
+                    ),
+                    Icon(Icons.expand_more, size: 16, color: tt.textTertiary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        for (final group in loansByMonth(shown, byDue: _byDue)) ...[
+          _MonthHeader(month: group.month, loans: group.loans),
+          for (final l in group.loans) _LoanRow(summary: l),
+        ],
       ],
+    );
+  }
+}
+
+/// "Outubro 2026" with the month's count, what is left to receive and the profit.
+class _MonthHeader extends StatelessWidget {
+  const _MonthHeader({required this.month, required this.loans});
+
+  final DateTime month;
+  final List<LoanSummary> loans;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final tt = context.tt;
+    final toReceive = loans.fold(0, (sum, l) => sum + l.balance);
+    final profit = loans.fold(0, (sum, l) => sum + l.interest);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 12, 4, 2),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            DateLabels(t).monthTitle(month),
+            style: TextStyle(fontSize: TtText.small, fontWeight: FontWeight.w700, color: tt.textSecondary),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${t.finLoansCount(loans.length)} · ${t.finMonthLoanTotals(formatMoney(toReceive), formatMoney(profit))}',
+              textAlign: TextAlign.end,
+              maxLines: 2,
+              style: TextStyle(fontSize: 11, color: tt.textTertiary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

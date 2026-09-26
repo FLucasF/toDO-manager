@@ -8586,6 +8586,24 @@ abstract class AppLocalizations {
   /// In pt, this message translates to:
   /// **'Falta receber {amount}'**
   String finReminderLoanBody(String amount);
+
+  /// No description provided for @finByDueMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por mês do vencimento'**
+  String get finByDueMonth;
+
+  /// No description provided for @finByLentMonth.
+  ///
+  /// In pt, this message translates to:
+  /// **'Por mês do empréstimo'**
+  String get finByLentMonth;
+
+  /// No description provided for @finMonthLoanTotals.
+  ///
+  /// In pt, this message translates to:
+  /// **'a receber {amount} · lucro {profit}'**
+  String finMonthLoanTotals(String amount, String profit);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

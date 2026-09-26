@@ -4552,4 +4552,15 @@ class AppLocalizationsPt extends AppLocalizations {
   String finReminderLoanBody(String amount) {
     return 'Falta receber $amount';
   }
+
+  @override
+  String get finByDueMonth => 'Por mês do vencimento';
+
+  @override
+  String get finByLentMonth => 'Por mês do empréstimo';
+
+  @override
+  String finMonthLoanTotals(String amount, String profit) {
+    return 'a receber $amount · lucro $profit';
+  }
 }

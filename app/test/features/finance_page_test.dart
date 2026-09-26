@@ -262,6 +262,29 @@ void main() {
     await dispose(tester);
   });
 
+  testWidgets('Empréstimos by month: of the due day, or of the day lent', (tester) async {
+    final repo = FinanceRepository(db, clock: clock);
+    await tester.runAsync(() async {
+      await repo.createLoan(borrower: 'Ana', principal: 100000, total: 110000, lentOn: DateTime(2026, 8, 20), dueOn: DateTime(2026, 11, 5));
+      await repo.createLoan(borrower: 'Beto', principal: 50000, total: 60000, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 20));
+    });
+    await pumpApp(tester, '/finance/loans');
+    expect(find.text('Outubro 2026'), findsOneWidget);
+    expect(find.text('Novembro 2026'), findsOneWidget);
+    expect(find.text(r'1 empréstimo · a receber R$ 600,00 · lucro R$ 100,00'), findsOneWidget);
+    expect(tester.getTopLeft(find.text('Beto')).dy, lessThan(tester.getTopLeft(find.text('Ana')).dy));
+
+    await tester.tap(find.text('Por mês do vencimento'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Por mês do empréstimo'));
+    await settle(tester);
+    expect(find.text('Setembro 2026'), findsOneWidget);
+    expect(find.text('Agosto 2026'), findsOneWidget);
+    expect(find.text('Outubro 2026'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await dispose(tester);
+  });
+
   testWidgets('Relatórios: by category, income × expenses, comparison and loans', (tester) async {
     final repo = FinanceRepository(db, clock: clock);
     await tester.runAsync(() async {

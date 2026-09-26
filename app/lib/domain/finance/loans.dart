@@ -102,3 +102,18 @@ LoansOverview loansOverview(List<LoanSummary> loans) {
     overdueCount: overdueCount,
   );
 }
+
+/// Loans in months: by the due day's month (soonest first) or by the month they were lent (latest
+/// first).
+List<({DateTime month, List<LoanSummary> loans})> loansByMonth(List<LoanSummary> loans, {required bool byDue}) {
+  final months = <DateTime, List<LoanSummary>>{};
+  for (final l in loans) {
+    final day = finDay(byDue ? l.loan.dueOn : l.loan.lentOn);
+    months.putIfAbsent(DateTime(day.year, day.month), () => []).add(l);
+  }
+  final keys = months.keys.toList()..sort((a, b) => byDue ? a.compareTo(b) : b.compareTo(a));
+  return [
+    for (final m in keys)
+      (month: m, loans: months[m]!..sort((a, b) => byDue ? a.loan.dueOn.compareTo(b.loan.dueOn) : b.loan.lentOn.compareTo(a.loan.lentOn))),
+  ];
+}

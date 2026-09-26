@@ -1532,5 +1532,9 @@
   "finReminderLoanLate": "Empréstimo de {name} atrasado",
   "@finReminderLoanLate": {"placeholders": {"name": {"type": "String"}}},
   "finReminderLoanBody": "Falta receber {amount}",
-  "@finReminderLoanBody": {"placeholders": {"amount": {"type": "String"}}}
+  "@finReminderLoanBody": {"placeholders": {"amount": {"type": "String"}}},
+  "finByDueMonth": "Por mês do vencimento",
+  "finByLentMonth": "Por mês do empréstimo",
+  "finMonthLoanTotals": "a receber {amount} · lucro {profit}",
+  "@finMonthLoanTotals": {"placeholders": {"amount": {"type": "String"}, "profit": {"type": "String"}}}
 }

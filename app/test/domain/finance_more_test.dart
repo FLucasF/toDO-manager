@@ -169,6 +169,17 @@ void main() {
     });
   });
 
+  test('loans by month: of the due day (soonest first) or of the day lent (latest first)', () async {
+    await repo.createLoan(borrower: 'Ana', principal: 1000, total: 1100, lentOn: DateTime(2026, 8, 20), dueOn: DateTime(2026, 11, 5));
+    await repo.createLoan(borrower: 'Beto', principal: 1000, total: 1200, lentOn: DateTime(2026, 9, 1), dueOn: DateTime(2026, 10, 20));
+    await repo.createLoan(borrower: 'Carla', principal: 1000, total: 1300, lentOn: DateTime(2026, 9, 10), dueOn: DateTime(2026, 10, 2));
+    final loans = loanSummaries(await repo.load(), today);
+    String months(bool byDue) =>
+        [for (final g in loansByMonth(loans, byDue: byDue)) '${g.month.month}:${g.loans.map((l) => l.loan.borrower).join(',')}'].join(' ');
+    expect(months(true), '10:Carla,Beto 11:Ana');
+    expect(months(false), '9:Carla,Beto 8:Ana');
+  });
+
   group('reports', () {
     test('expenses by category, six months of income and expenses, one month against another', () async {
       final market = await repo.createCategory(name: 'Mercado', kind: FinKind.expense);
